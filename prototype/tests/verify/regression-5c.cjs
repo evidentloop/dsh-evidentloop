@@ -909,7 +909,7 @@ module.exports = {
           dangerColor: danger ? getComputedStyle(danger).color : '', dangerBackground: danger ? getComputedStyle(danger).backgroundColor : '',
         };
       });
-      check('the delete dialog uses the approved copy, focus and styles', deleteDialog.title === '删除这个交付？' &&
+      check('the delete dialog uses the approved copy, focus and styles', deleteDialog.title === '确认删除此交付记录？' &&
         deleteDialog.body === '会一并删除它的审查记录、问题处置与批注，不能恢复。' &&
         deleteDialog.width === '360px' && deleteDialog.titleFont === '15px 600' &&
         deleteDialog.bodyFont === '13px' && deleteDialog.bodyColor === 'rgb(97, 102, 107)' &&
