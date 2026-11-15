@@ -1,0 +1,46 @@
+{
+  "format": 1,
+  "title": {
+    "en": "EvidentLoop plugins",
+    "zh": "EvidentLoop 插件"
+  },
+  "description": {
+    "en": "Beta plugins published by EvidentLoop.",
+    "zh": "EvidentLoop 发布的 Beta 插件。"
+  },
+  "plugins": [
+    {
+      "name": "dsh-evidentloop",
+      "title": {
+        "zh": "AI 变更评审",
+        "en": "EvidentLoop AI Code Review"
+      },
+      "description": {
+        "zh": "看懂代码改动、核对需求、复核问题，并将修改意见发回会话。",
+        "en": "Understand changes, check requirements, verify findings, and return feedback to your conversation."
+      },
+      "author": "sanze.li",
+      "homepage": "https://github.com/evidentloop/dsh-evidentloop",
+      "repository": {
+        "url": "https://github.com/evidentloop/dsh-evidentloop",
+        "directory": "plugin"
+      },
+      "versions": [
+        {
+          "version": "0.1.0-rc.1",
+          "publishTimestamp": 1794736687,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/evidentloop/dsh-evidentloop",
+            "commit": "7cfdcc73d42248e530da040a9925002bb464d687",
+            "path": "plugin"
+          },
+          "engines": {
+            "dsh": "^0.2.2-rc.2"
+          }
+        }
+      ],
+      "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3QgeD0iOCIgeT0iOCIgd2lkdGg9IjQ5NiIgaGVpZ2h0PSI0OTYiIHJ4PSIxMTIiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iI2U1ZTZlYSIgc3Ryb2tlLXdpZHRoPSI0Ii8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjU2IDI1Nikgc2NhbGUoMC43OCkgdHJhbnNsYXRlKC0yNDQgLTI0NCkiPjxsaW5lIHgxPSIzNDUiIHkxPSIzNDUiIHgyPSI0MzgiIHkyPSI0MzgiIHN0cm9rZT0iIzBiMGYxYyIgc3Ryb2tlLXdpZHRoPSI5NiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGxpbmUgeDE9IjM0NSIgeTE9IjM0NSIgeDI9IjQzOCIgeTI9IjQzOCIgc3Ryb2tlPSIjNDE3NmU2IiBzdHJva2Utd2lkdGg9IjQwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48Y2lyY2xlIGN4PSIyMzMiIGN5PSIyMzMiIHI9IjE5NSIgZmlsbD0iI2ViZTllOCIgc3Ryb2tlPSIjMGIwZjFjIiBzdHJva2Utd2lkdGg9IjMyIi8+PHBhdGggZD0iTTE5MCAxODUgMTM3IDIzNmw1MyA1Mk0yODUgMTg1bDUzIDUxLTUzIDUyIiBmaWxsPSJub25lIiBzdHJva2U9IiMwYjBmMWMiIHN0cm9rZS13aWR0aD0iMzYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvZz48L3N2Zz4K"
+    }
+  ]
+}
