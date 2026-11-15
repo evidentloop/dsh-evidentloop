@@ -9,7 +9,7 @@
 
 [观看 44 秒操作演示](https://evidentloop.sanze.dev/demo.html) · [下载 MP4](docs/site/assets/workflow.mp4)
 
-**0.1.0-rc.1 · beta**。当前需手动发起审查，自动触发尚未接入。画面来自公开项目 sopify 的真实审查：已审 1 个文件、24 个待审、9 个跳过；人工批注和「标记非问题」展示复核操作，不表示整批代码已通过。
+**0.1.0-rc.1 · beta**。当前需手动发起审查，自动触发尚未接入。画面来自公开项目 Sopify 的真实审查：已审 1 个文件、24 个待审、9 个跳过；人工批注和「标记非问题」展示复核操作，不表示整批代码已通过。
 
 ## 安装
 
@@ -25,7 +25,7 @@
    将 `desktop` 替换为实际使用的 profile；如宿主提示需要重启，重启后打开侧栏「变更评审」。
 3. 若希望通过「发现」安装，在 **插件 → 实验性插件 → 自定义插件索引** 启用该功能，再到 **发现 → 添加索引源**，填入 [本仓库的插件索引](https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json)。搜索「AI 变更评审」或 `EvidentLoop`，核对版本和来源后安装。索引是自定义入口，未宣称已被官方商店收录；市场安装尚未完成端到端验证。
 
-安装不会发起模型请求。beta 期间真实审查需要单独配置调用额度，见[插件配置说明](plugin/README.md#隔离模型预算门禁)。
+安装不会发起模型请求。在 beta 期间真实审查需要单独配置调用额度，见 [插件配置说明](plugin/README.md#隔离模型预算门禁)。
 
 ## 快速开始
 
@@ -50,12 +50,12 @@
   <img src="docs/site/assets/overview-summary-light.png" alt="变更说明按功能解释本次改动，并保留尚未审完的覆盖状态" width="100%">
 </picture>
 
-界面跟随 DSH 浅深主题，标题字重与留白沿用宿主。会话中提供审查卡片，JSON 以代码块显示，便于查看结果；演示模式提示可关闭，调用配置仍可从工作区设置查看。插件读取本地改动，不修改代码、暂存区或提交。
+界面跟随 DSH 浅深主题，标题字重与留白沿用宿主。会话中提供审查卡片与前置简短摘要，JSON 以代码块显示，便于查看结果；演示模式提示可关闭，调用配置仍可从工作区设置查看。插件读取本地改动，不修改代码、暂存区或提交。
 
 ## 文档
 
 - [完整使用说明](https://evidentloop.sanze.dev/guide.html)：操作与状态解释；[本地版本](docs/guide.md)。
-- [DSH 官方插件管理说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-plugin-manager/README.zh.md)与[自定义索引指南](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/plugin-market.zh.md)。
+- [DSH 官方插件管理说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-plugin-manager/README.zh.md) 与 [自定义索引指南](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/plugin-market.zh.md)。
 
 ## 开发
 
