@@ -1,0 +1,54 @@
+{
+  "name": "dsh-evidentloop",
+  "version": "0.1.0-rc.1",
+  "private": true,
+  "author": "sanze.li",
+  "license": "MIT",
+  "description": "AI 写完代码，先看懂改了什么、有没有问题：变更说明、带证据的代码评审、发回修改与审查留档。",
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "code-review",
+    "evidentloop"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node plugin/scripts/build.mjs && node docs/build.mjs",
+    "test": "node plugin/tests/run.mjs && node core/tests/all.mjs"
+  },
+  "files": [
+    "plugin/dist",
+    "plugin/skills",
+    "plugin/vendor",
+    "plugin/package.json",
+    "plugin/cordis.patch.yml",
+    "plugin/LICENSE",
+    "plugin/THIRD_PARTY_NOTICES.md",
+    "plugin/README.md",
+    "core/index.mjs",
+    "core/prepare.mjs",
+    "core/validate.mjs",
+    "core/lib",
+    "core/package.json",
+    "core/LICENSE",
+    "core/README.md",
+    "skills",
+    "docs/guide.md",
+    "docs/build.mjs",
+    "docs/icon.svg",
+    "docs/site-src",
+    "docs/site",
+    "prototype/index.html",
+    "prototype/src",
+    "prototype/styles",
+    "prototype/assets",
+    "prototype/data",
+    "prototype/vendor",
+    "prototype/README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "README.md"
+  ]
+}

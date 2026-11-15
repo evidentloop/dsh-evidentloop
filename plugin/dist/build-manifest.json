@@ -1,0 +1,243 @@
+{
+  "esbuild": "0.28.2",
+  "coreImported": [
+    {
+      "path": "core/index.mjs",
+      "sha256": "4a6c244d5052dc71a01ce9b7c9a6b6c0d68216ecaeec9f6d4adbfe3efe12923c"
+    },
+    {
+      "path": "core/lib/adapters.mjs",
+      "sha256": "29e64662726f19f813c2a2f085a71195384142634090463915e3793f8f691e8e"
+    },
+    {
+      "path": "core/lib/common.mjs",
+      "sha256": "fd1c5430ee677d05edaffd10edba543e60ebe88b92e28a5128557a9aae3a3e4e"
+    },
+    {
+      "path": "core/lib/deliveries.mjs",
+      "sha256": "cccc98dacf9bf4dded576f85c692bce1ecfaf96148a6a032bcc19864db9a5a4c"
+    },
+    {
+      "path": "core/lib/diff.mjs",
+      "sha256": "c154aff1720f5457b635b13917c2e7f1ca3b7731c353d28f5b5d5da1e656598e"
+    },
+    {
+      "path": "core/lib/drafts.mjs",
+      "sha256": "da483a8059b2f9416e4f4be8f1934f74e771b33436a123717156333bc2d9b073"
+    },
+    {
+      "path": "core/lib/engine.mjs",
+      "sha256": "36694b0c89731d23c9d8fba90beb3cf9ac3ffb9d3936f7eec405acfbff23b88d"
+    },
+    {
+      "path": "core/lib/export.mjs",
+      "sha256": "5cd6c1306ac45400b95b1ddc4d305ebf240be10aae389512d8591b9582c32f00"
+    },
+    {
+      "path": "core/lib/git.mjs",
+      "sha256": "af858bd72788bf34ca0742e164e28a24c05dc319d7f1702af82e4590603f8ec2"
+    },
+    {
+      "path": "core/lib/incremental.mjs",
+      "sha256": "5fcb69c74a4cbad0f4d03cf38ab66f728e7ca170522fd09729ff3b7b45678465"
+    },
+    {
+      "path": "core/lib/method.mjs",
+      "sha256": "9f9018c3bca0f2697a8f71eb70b514340de5707baf99f2ec56afa6d98f186401"
+    },
+    {
+      "path": "core/lib/requirements.mjs",
+      "sha256": "ab99f1b1fd027a8402213fbf7fef8544d60a221718ec2966b2f5b1a4e2586445"
+    },
+    {
+      "path": "core/lib/scheduler.mjs",
+      "sha256": "42b69f5b7fa58b81bced8741417109f8e43a4a266173cf3697b302600c699fd7"
+    },
+    {
+      "path": "core/lib/schema.mjs",
+      "sha256": "2e9f1447682ff69a3f3e9119a49e7e80e606de6eb36b08410ac3dbf0c7bc23d9"
+    },
+    {
+      "path": "core/lib/store.mjs",
+      "sha256": "99aed1b7b4d7ecc98618f7472640ca000c7d58989b8513c9bcd90f0b2b1f42f9"
+    },
+    {
+      "path": "core/prepare.mjs",
+      "sha256": "07e03eda760d93a8b9888db6237b4e504ef76210456dbe9d97f71bef3b27aa2a"
+    },
+    {
+      "path": "core/validate.mjs",
+      "sha256": "86e4b57df57e1f653d263e2b235d0afa86a29460997662feefe2e3590ee6581b"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "core/index.mjs",
+      "sha256": "4a6c244d5052dc71a01ce9b7c9a6b6c0d68216ecaeec9f6d4adbfe3efe12923c"
+    },
+    {
+      "path": "core/lib/adapters.mjs",
+      "sha256": "29e64662726f19f813c2a2f085a71195384142634090463915e3793f8f691e8e"
+    },
+    {
+      "path": "core/lib/common.mjs",
+      "sha256": "fd1c5430ee677d05edaffd10edba543e60ebe88b92e28a5128557a9aae3a3e4e"
+    },
+    {
+      "path": "core/lib/deliveries.mjs",
+      "sha256": "cccc98dacf9bf4dded576f85c692bce1ecfaf96148a6a032bcc19864db9a5a4c"
+    },
+    {
+      "path": "core/lib/diff.mjs",
+      "sha256": "c154aff1720f5457b635b13917c2e7f1ca3b7731c353d28f5b5d5da1e656598e"
+    },
+    {
+      "path": "core/lib/drafts.mjs",
+      "sha256": "da483a8059b2f9416e4f4be8f1934f74e771b33436a123717156333bc2d9b073"
+    },
+    {
+      "path": "core/lib/engine.mjs",
+      "sha256": "36694b0c89731d23c9d8fba90beb3cf9ac3ffb9d3936f7eec405acfbff23b88d"
+    },
+    {
+      "path": "core/lib/export.mjs",
+      "sha256": "5cd6c1306ac45400b95b1ddc4d305ebf240be10aae389512d8591b9582c32f00"
+    },
+    {
+      "path": "core/lib/git.mjs",
+      "sha256": "af858bd72788bf34ca0742e164e28a24c05dc319d7f1702af82e4590603f8ec2"
+    },
+    {
+      "path": "core/lib/incremental.mjs",
+      "sha256": "5fcb69c74a4cbad0f4d03cf38ab66f728e7ca170522fd09729ff3b7b45678465"
+    },
+    {
+      "path": "core/lib/method.mjs",
+      "sha256": "9f9018c3bca0f2697a8f71eb70b514340de5707baf99f2ec56afa6d98f186401"
+    },
+    {
+      "path": "core/lib/requirements.mjs",
+      "sha256": "ab99f1b1fd027a8402213fbf7fef8544d60a221718ec2966b2f5b1a4e2586445"
+    },
+    {
+      "path": "core/lib/scheduler.mjs",
+      "sha256": "42b69f5b7fa58b81bced8741417109f8e43a4a266173cf3697b302600c699fd7"
+    },
+    {
+      "path": "core/lib/schema.mjs",
+      "sha256": "2e9f1447682ff69a3f3e9119a49e7e80e606de6eb36b08410ac3dbf0c7bc23d9"
+    },
+    {
+      "path": "core/lib/store.mjs",
+      "sha256": "99aed1b7b4d7ecc98618f7472640ca000c7d58989b8513c9bcd90f0b2b1f42f9"
+    },
+    {
+      "path": "core/prepare.mjs",
+      "sha256": "07e03eda760d93a8b9888db6237b4e504ef76210456dbe9d97f71bef3b27aa2a"
+    },
+    {
+      "path": "core/validate.mjs",
+      "sha256": "86e4b57df57e1f653d263e2b235d0afa86a29460997662feefe2e3590ee6581b"
+    },
+    {
+      "path": "plugin/client/app.jsx",
+      "sha256": "8b222759c0d11062641f2f45a6df558cb136a5ab7a165dd9d8d41ebe1dcc8bd5"
+    },
+    {
+      "path": "plugin/client/diff.jsx",
+      "sha256": "09dc8a6f3cd4d04c0046f8c7e7541016ce2c6bb9cd2e4f52a8c360e764e564d3"
+    },
+    {
+      "path": "plugin/client/index.jsx",
+      "sha256": "9f72469e184f415477a8fe6270fc2febfba188fdc2abf809c02b93c5e650b47c"
+    },
+    {
+      "path": "plugin/client/list.jsx",
+      "sha256": "5fabadc4acfbf5803798bc0d9513d32a9121708f6e98f53201801c2be30ffb9d"
+    },
+    {
+      "path": "plugin/client/native.js",
+      "sha256": "0ba344727405a7a83771583215e2e0a5200dd1626ebbdf7f675413dacb55469f"
+    },
+    {
+      "path": "plugin/client/overview.jsx",
+      "sha256": "2bfccff1e79cddd122fc387779c724834098e0bd1330c685e26a7f256e1a6449"
+    },
+    {
+      "path": "plugin/client/review.jsx",
+      "sha256": "7364135db80c1f30d85dc2597ef87d9ee6f2701b377b3622c6f6e8c8a5741f73"
+    },
+    {
+      "path": "plugin/client/runtime.js",
+      "sha256": "0805ffa1a61b9c70c06dd47b20a30b94180453ce66fac70425dba5916dea1b23"
+    },
+    {
+      "path": "plugin/client/settings.jsx",
+      "sha256": "57e9ed2a906f5a6a6e1a57dbf5a59157c97ec49de5afe8b8f8ed41d52ff79119"
+    },
+    {
+      "path": "plugin/client/styles.css",
+      "sha256": "2c8ccfd19560d905570fed18a44dc7a48c29f24946d8d7f6520c8f83ef0fc291"
+    },
+    {
+      "path": "plugin/client/ui.jsx",
+      "sha256": "efaa71a017f99293109e582f12ac1d17685510781599ab3b6caf9943967f80a5"
+    },
+    {
+      "path": "plugin/host/bridge.mjs",
+      "sha256": "c9eeff7e9a947dbba090d1cca1098e94a595e9a20835c9e7335a6d3d61bdc91b"
+    },
+    {
+      "path": "plugin/host/dsh-adapter.mjs",
+      "sha256": "64874ea2066b43964825531cf890e209b4245b709f0efcf8c86839f652aef1d4"
+    },
+    {
+      "path": "plugin/host/index.mjs",
+      "sha256": "275dd4cfcc0350a2c8bdce1a73c3644b26fc68b5ef94b5bb138d6c2d031d7986"
+    },
+    {
+      "path": "plugin/host/service.mjs",
+      "sha256": "1354cfb28132b951cb17fbc37146b5373ce65b9d25af057e635d48a857cc6218"
+    }
+  ],
+  "methodFiles": [
+    {
+      "path": "SKILL.md",
+      "sha256": "f80a152373913acf7f72f2723f7902cde8200385fe471d3458a0d81937dd4738"
+    },
+    {
+      "path": "references/alignment.md",
+      "sha256": "e558ee849aea98c89d7bacd5b194ac7ddd00699e7a89b3cf93278281b1b80672"
+    },
+    {
+      "path": "references/findings.md",
+      "sha256": "7e303113ab831e1a6d45814060234fd0827981c0f90a6ffd43862db24e80d032"
+    },
+    {
+      "path": "references/quality-rules.md",
+      "sha256": "23f352ccc491340e8166034842ba2fe13d05f8252b2de2b6dcbb728565e25934"
+    },
+    {
+      "path": "references/understanding.md",
+      "sha256": "36fe4fe76b4cb41509c369c9d765eb2a2c4189e50e6b91cd48f25b5bf4f76999"
+    },
+    {
+      "path": "rubric.md",
+      "sha256": "5da7fb7044edded277722de467a8b8b1181a7ce142772eb2ec57a1759e0756c0"
+    },
+    {
+      "path": "rules/builtin.json",
+      "sha256": "c2740a7c8cc4acddef55869e3b15b7a3f8c1becce0cb065aaf0d72b9e3701a44"
+    },
+    {
+      "path": "rules/p1-ux-spec.md",
+      "sha256": "9c1b11901feac4df08b46457a115c3eba5103c9b32e6fd6addf6e2175dd806d8"
+    },
+    {
+      "path": "schema/run.schema.json",
+      "sha256": "e4ef8e0050712053e70ee974fa16b65cc775263622826b3c09653022b046d4b1"
+    }
+  ],
+  "promptVersion": "83f80de7970a042d8cd983b579bdfb5bbe210da8f69ff8752a9785b4268fbf8c",
+  "noPrototypeBusinessJs": true
+}

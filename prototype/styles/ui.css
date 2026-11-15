@@ -1,0 +1,425 @@
+:root {
+  --el-console-bg: var(--dsw-alias-bg-base, #16171a);
+  --el-console-panel: var(--dsw-alias-bg-layer-3, #23252a);
+  --el-console-text: var(--dsw-alias-label-primary, #f1f3f5);
+  --el-console-muted: var(--dsw-alias-label-tertiary, #adb2b8);
+  --el-console-border: var(--dsw-alias-border-l3, #61666b);
+}
+
+* {
+  box-sizing: border-box
+}
+
+body {
+  margin: 0;
+  background: var(--el-bg-l1);
+  color: var(--el-label-2);
+  font:14px/21px -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif
+}
+
+button,input,select,textarea {
+  font: inherit
+}
+
+button,a,input,select,textarea {
+  -webkit-tap-highlight-color: transparent
+}
+
+button {
+  cursor: pointer;
+  color: inherit
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .5
+}
+
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible,input[type="checkbox"]:focus-visible,input[type="radio"]:focus-visible,select:focus-visible {
+  outline: 2px solid var(--el-brand);
+  outline-offset: -2px
+}
+
+svg {
+  vertical-align: middle;
+  flex-shrink: 0
+}
+
+[v-cloak] {
+  display: none
+}
+
+.n-icon {
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center
+}
+
+.n-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--el-border-l2);
+  border-radius: 8px;
+  background: var(--el-bg-l2);
+  color: var(--el-label-2);
+  font-size: 13px;
+  line-height: 20px
+}
+
+.n-button:hover:not(:disabled) {
+  background: var(--el-hover);
+  color: var(--el-label-1)
+}
+
+.n-button--secondary_positive {
+  border-color: var(--el-border-l2);
+  color: var(--el-label-2)
+}
+
+.n-radio-group {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0
+}
+
+.n-radio-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: nowrap;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  border: 1px solid var(--el-border-l2);
+  background: var(--el-bg-l2);
+  color: var(--el-label-2)
+}
+
+.n-radio-button:first-child {
+  border-radius: 6px 0 0 6px
+}
+
+.n-radio-button:last-child {
+  border-radius: 0 6px 6px 0
+}
+
+.n-radio-button+.n-radio-button {
+  border-left: 0
+}
+
+.n-radio-button--checked {
+  background: var(--el-brand-tint);
+  color: var(--el-brand);
+  border-color: var(--el-brand-border)
+}
+
+.n-radio-button__original {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px
+}
+
+.n-radio-button:has(input:focus-visible) {
+  outline: 2px solid var(--el-brand);
+  outline-offset: -2px
+}
+
+.n-radio-button__label {
+  display: inline-flex;
+  align-items: center
+}
+
+.n-input {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--el-border-l3);
+  border-radius: 6px;
+  background: var(--el-bg-l2);
+  padding: 0 10px;
+  gap: 8px
+}
+
+.n-input:focus-within {
+  border-color: var(--el-brand);
+  box-shadow: 0 0 0 2px var(--el-brand-ring)
+}
+
+.n-input__inner {
+  width: 100%;
+  min-width: 0;
+  outline: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  color: var(--el-label-1);
+  padding: 0;
+  height: 30px
+}
+
+.n-input__inner::placeholder {
+  color: var(--el-label-caption)
+}
+
+.file-search-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--el-label-3)
+}
+
+.file-search-icon svg {
+  width: 14px;
+  height: 14px
+}
+
+.input-clear {
+  border: 0;
+  background: none;
+  color: var(--el-label-3);
+  padding: 0;
+  font-size: 16px
+}
+
+.n-popover,.n-popconfirm {
+  position: fixed;
+  background: var(--el-bg-overlay);
+  border: 1px solid var(--el-border-l2);
+  border-radius: 8px;
+  box-shadow: var(--el-shadow-pop);
+  color: var(--el-label-2);
+  font-size: 12px;
+  line-height: 18px;
+  z-index: 2100
+}
+
+.n-popover {
+  transform: translate(-50%,-100%);
+  padding: 12px;
+  max-width: calc(100vw - 20px);
+  pointer-events: none
+}
+
+.popover-arrow {
+  position: absolute;
+  bottom: -4px;
+  left: calc(50% - 4px);
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  background: var(--el-bg-overlay)
+}
+
+.file-pop-title {
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  word-break: break-all
+}
+
+.file-pop-title__path {
+  min-width: 0
+}
+
+.file-pop-title__delta {
+  white-space: nowrap;
+  color: var(--el-label-3);
+  font-weight: 600;
+  font-size: 12px
+}
+
+.n-popconfirm {
+  width: 292px;
+  padding: 16px
+}
+
+.popconfirm-title {
+  display: flex;
+  align-items: center;
+  gap: 8px
+}
+
+.warning-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--el-state-warn);
+  color: var(--el-label-inverted);
+  font-weight: 700
+}
+
+.popconfirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px
+}
+
+.popconfirm-actions .n-button {
+  font-size: 12px;
+  height: 28px;
+  padding: 0 12px
+}
+
+.n-message {
+  position: fixed;
+  z-index: 2300;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  background: var(--el-bg-overlay);
+  border: 1px solid var(--el-border-l2);
+  border-radius: 8px;
+  padding: 12px 20px;
+  box-shadow: var(--el-shadow-pop);
+  color: var(--el-label-1);
+  max-width: 80vw
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin .8s linear infinite
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg)
+  }
+}
+
+.prototype-console {
+  position: fixed;
+  z-index: 2000;
+  right: 16px;
+  bottom: 16px;
+  width: 340px;
+  border: 1px solid var(--el-console-border);
+  border-radius: 8px;
+  background: var(--el-console-bg);
+  color: var(--el-console-text);
+  box-shadow: var(--el-shadow-pop);
+  font: 12px/1.6 system-ui,sans-serif;
+  overflow: hidden
+}
+
+.console-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: 0;
+  padding: 10px 14px;
+  background: var(--el-console-panel);
+  color: var(--el-console-text);
+  text-align: left;
+  font-weight: 600
+}
+
+.console-titlebar {
+  display: flex;
+  align-items: center;
+  background: var(--el-console-panel)
+}
+
+.console-titlebar .console-toggle {
+  flex: 1 1 auto;
+  width: auto
+}
+
+.console-theme-switch {
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-right: 12px;
+  border: 1px solid var(--el-console-border);
+  border-radius: 4px;
+  overflow: hidden
+}
+
+.console-theme-option {
+  height: 22px;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: var(--el-console-muted);
+  font: 11px/1 system-ui,sans-serif;
+  cursor: pointer
+}
+
+.console-theme-option + .console-theme-option {
+  border-left: 1px solid var(--el-console-border)
+}
+
+.console-theme-option.is-active {
+  background: var(--el-console-border);
+  color: var(--el-console-text)
+}
+
+.console-theme-option:focus-visible {
+  outline: 1px solid var(--el-console-text);
+  outline-offset: -1px
+}
+
+.console-content {
+  padding: 4px 14px 12px
+}
+
+.console-content p {
+  margin: 8px 0;
+  color: var(--el-console-muted);
+  font-size: 11px
+}
+
+.console-content label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px
+}
+
+.console-content select {
+  background: var(--el-console-bg);
+  color: var(--el-console-text);
+  border: 1px solid var(--el-console-border);
+  border-radius: 4px;
+  padding: 5px
+}
+
+.console-content .console-switch {
+  flex-direction: row;
+  align-items: center;
+  margin-top: 12px
+}
+
+.console-switch input {
+  accent-color: var(--el-brand)
+}
+
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important
+  }
+}
+
+/* The wrapper/editor draws the tight soft ring; the inner field must not add an outline. */
+input:not([type="checkbox"]):not([type="radio"]):focus-visible,textarea:focus-visible { outline: none; }

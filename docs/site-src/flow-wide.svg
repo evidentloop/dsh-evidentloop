@@ -1,0 +1,34 @@
+<svg class="flow-wide" viewBox="0 0 900 290" role="img" aria-labelledby="fw-t">
+<title id="fw-t">一次交付的工作流：会话里改代码，评审台评审，发回与再审形成回环，通过后合并并归档</title>
+<defs>
+<marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head"/></marker>
+<marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head-loop"/></marker>
+</defs>
+<rect class="fl-lane" data-graph-role="container" x="10" y="28" width="880" height="96" rx="12"/>
+<rect class="fl-lane" data-graph-role="container" x="10" y="166" width="880" height="96" rx="12"/>
+<text class="fl-lane-t" x="30" y="81">会话</text>
+<text class="fl-lane-t" x="30" y="219">评审台</text>
+<path class="fl-arrow" d="M195 102 V188" marker-end="url(#fa)"/>
+<path class="fl-arrow" d="M282 214 H398" marker-end="url(#fa)"/>
+<path class="fl-loop" d="M455 188 V102" marker-end="url(#fl)"/>
+<path class="fl-loop" d="M515 102 V188" marker-end="url(#fl)"/>
+<path class="fl-arrow" d="M572 214 H688" marker-end="url(#fa)"/>
+<text class="fl-label fl-label-loop" x="445" y="149" text-anchor="end">发回修改 / 继续提需求</text>
+<text class="fl-label fl-label-loop" x="525" y="149">再审</text>
+<text class="fl-label" x="630" y="204" text-anchor="middle">通过</text>
+<rect class="fl-node" x="110" y="50" width="170" height="52" rx="10"/>
+<text class="fl-t" x="195.0" y="72" text-anchor="middle">改代码</text>
+<text class="fl-s" x="195.0" y="90" text-anchor="middle">照常在会话里对话</text>
+<rect class="fl-node fl-node-loop" x="400" y="50" width="170" height="52" rx="10"/>
+<text class="fl-t" x="485.0" y="72" text-anchor="middle">按意见再改</text>
+<text class="fl-s" x="485.0" y="90" text-anchor="middle">AI 处理批注与问题</text>
+<rect class="fl-node" x="110" y="188" width="170" height="52" rx="10"/>
+<text class="fl-t" x="195.0" y="210" text-anchor="middle">交付出现</text>
+<text class="fl-s" x="195.0" y="228" text-anchor="middle">每个分支一个交付</text>
+<rect class="fl-node fl-node-key" x="400" y="188" width="170" height="52" rx="10"/>
+<text class="fl-t" x="485.0" y="210" text-anchor="middle">评审</text>
+<text class="fl-s" x="485.0" y="228" text-anchor="middle">说明 · 问题 · 需求对齐</text>
+<rect class="fl-node" x="690" y="188" width="170" height="52" rx="10"/>
+<text class="fl-t" x="775.0" y="210" text-anchor="middle">合并与归档</text>
+<text class="fl-s" x="775.0" y="228" text-anchor="middle">可随时找回或删除</text>
+</svg>

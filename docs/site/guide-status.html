@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; media-src 'self'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'">
+<title>状态、发回与导出 · EvidentLoop 使用说明</title>
+<meta name="description" content="AI 写完代码，先看懂改了什么、有没有问题：变更说明、带证据的代码评审、发回修改与审查留档。">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="bar"><a class="brand" href="index.html"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-tile" x="8" y="8" width="496" height="496" rx="112"/><g transform="translate(256 256) scale(0.78) translate(-244 -244)"><line class="mk-ink" x1="345" y1="345" x2="438" y2="438" stroke-width="96" stroke-linecap="round"/><line class="mk-handle" x1="345" y1="345" x2="438" y2="438" stroke-width="40" stroke-linecap="round"/><circle class="mk-lens" cx="233" cy="233" r="195" stroke-width="32"/><path class="mk-ink" d="M190 185 137 236l53 52M285 185l53 51-53 52" fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>EvidentLoop</span></a>
+<nav aria-label="站点"><a href="index.html">介绍</a><a href="demo.html">实录</a><a href="guide-workflow.html" aria-current="page">使用说明</a></nav></header>
+<div class="doc">
+<nav class="toc" aria-label="章节"><ol><li><a href="guide-workflow.html">工作流</a></li><li><a href="guide-workbench.html">列表与评审台</a></li><li class="on"><a href="guide-status.html" aria-current="page">状态、发回与导出</a><ul><li><a href="#status-1">审查状态</a></li><li><a href="#status-2">发回会话</a></li><li><a href="#status-3">导出</a></li></ul></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></nav>
+<details class="chapters"><summary>章节 3 / 4：状态、发回与导出</summary><ol><li><a href="guide-workflow.html">工作流</a></li><li><a href="guide-workbench.html">列表与评审台</a></li><li><a href="guide-status.html" aria-current="page">状态、发回与导出</a></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></details>
+<article>
+<header class="doc-header"><h1>状态、发回与导出</h1></header>
+<h2 id="status-1">审查状态</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>你看到的</th>
+<th>怎么办</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>待审</td>
+<td>点 「审查全部」</td>
+</tr>
+<tr>
+<td>审查中</td>
+<td>稍等，可以取消</td>
+</tr>
+<tr>
+<td>3 个文件待审</td>
+<td>点 「审查全部」 审剩下的</td>
+</tr>
+<tr>
+<td>1 个文件审查失败</td>
+<td>点重试</td>
+</tr>
+<tr>
+<td>2 条结论未通过校验</td>
+<td>引用对不上，没有展示；可以重新审查</td>
+</tr>
+<tr>
+<td>代码读取不完整</td>
+<td>按提示处理后重新审查</td>
+</tr>
+<tr>
+<td>发现 N 个问题 / 未发现问题</td>
+<td>审查完成</td>
+</tr>
+</tbody></table>
+</div><h2 id="status-2">发回会话</h2>
+<p>写进开发会话的输入框，<strong>不会自动发送</strong>。</p>
+<ul>
+<li><strong>修改问题</strong>：批注、待处理问题、未对齐的需求。</li>
+<li><strong>补充说明</strong>：让 AI 用你指定的 Skill 补充说明，比如画一张图。</li>
+</ul>
+<figure class="guide-capture"><a href="assets/draft-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/draft-dark.png"><img src="assets/draft-light.png" alt="发回前预览锁定内容，只写草稿，不自动发送" width="1600" height="1000" loading="lazy"></picture></a><figcaption>发回前预览锁定内容，只写草稿，不自动发送 · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
+
+<h2 id="status-3">导出</h2>
+<ul>
+<li><strong>变更日志（Markdown）</strong>：贴进合并请求或交付文档。</li>
+<li><strong>评审报告（HTML）</strong>：单个文件，离线可看，可以嵌入完整 Diff。</li>
+</ul>
+<figure class="guide-capture"><a href="assets/export-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/export-dark.png"><img src="assets/export-light.png" alt="导出菜单：Markdown、离线 HTML 与完整 Diff" width="1600" height="1000" loading="lazy"></picture></a><figcaption>导出菜单：Markdown、离线 HTML 与完整 Diff · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
+
+<p>导出会遮盖疑似密钥，但仍含代码片段与需求原文，分享前请检查。</p>
+
+<nav class="pager" aria-label="翻页"><a class="prev" href="guide-workbench.html"><small>上一章</small>列表与评审台</a><a class="next" href="guide-reference.html"><small>下一章</small>设置与常见问题</a></nav>
+</article>
+</div>
+<footer class="site"><span>EvidentLoop · MIT 许可</span><span>0.1.0-rc.1 · beta</span><span>界面以实际发布的版本为准</span></footer>
+</body>
+</html>

@@ -1,0 +1,9 @@
+// A structurally valid output fixture; never presented as an actual model review.
+import { loadBundle } from '../validate.mjs';
+export function modelFor(bundlePath,{findings=true,extras=true}={}){
+ const data=loadBundle(bundlePath),refs=data.targets.map(name=>{const file=data.files.get(name),side=data.texts.has('head:'+name)?'head':'base',key=side==='head'?name:file.oldPath||name;const changed=data.changed.get(name)[side==='head'?'newLines':'oldLines'];const line=[...changed][0]||1;return {path:key,side,startLine:line,endLine:line};});
+ const sources=data.requirements.flatMap(source=>source.items),ref=refs.find(ref=>ref.path==='code.js')||refs[0];
+ const model={schemaVersion:1,inputSha:data.snapshot.inputSha,promptVersion:data.snapshot.promptVersion,overview:{purpose:'夹具：验证冻结与校验链路。',requirementStatus:sources.length?'checked':'no-requirement'},features:refs.length?[{featureId:'F1',title:'承接冻结改动',purpose:'用真实冻结引用验证输入输出合同',approach:'从冻结文件引用变更处',files:[...data.targets],refs}]:[],files:data.targets.map((name,i)=>({path:name,featureIds:['F1'],semantic:{status:'stated',items:[{text:'冻结差异中的逐文件说明夹具。',refs:[refs[i]]}]}})),impacts:ref?[{kind:'behavior',text:'引用冻结的变更行为。',refs:[ref]}]:[],alignment:sources.map(item=>({requirementItemId:item.itemId,status:'implemented',codeRefs:ref?[ref]:[],note:'夹具对齐依据'})),extras:sources.length&&extras&&ref?[{text:'夹具额外说明',refs:[ref]}]:[],findings:[]};
+ if(findings&&ref){const side=data.texts.get(ref.side+':'+ref.path);model.findings.push({category:'logic',severity:'P1',ruleSource:{kind:'builtin',id:'logic.boundary'},title:'引用可核对的问题夹具',problem:'仅用于校验证据，不声称模型判断准确。',impact:'验证host的证据边界。',suggestion:{text:'保留结构合同。',code:'return 2;'},anchor:{path:ref.path,side:ref.side,line:ref.startLine},evidence:[{...ref,quote:side.lines[ref.startLine-1]}]});}
+ return model;
+}

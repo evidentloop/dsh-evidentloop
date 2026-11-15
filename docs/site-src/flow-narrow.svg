@@ -1,0 +1,30 @@
+<svg class="flow-narrow" viewBox="0 0 360 380" role="img" aria-labelledby="fn-t">
+<title id="fn-t">一次交付的工作流</title>
+<defs>
+<marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head"/></marker>
+<marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head-loop"/></marker>
+</defs>
+<path class="fl-arrow" d="M95 74 V110" marker-end="url(#fa)"/>
+<path class="fl-arrow" d="M95 164 V200" marker-end="url(#fa)"/>
+<path class="fl-loop" d="M172 218 H226" marker-end="url(#fl)"/>
+<path class="fl-loop" d="M226 242 H172" marker-end="url(#fl)"/>
+<path class="fl-arrow" d="M95 256 V312" marker-end="url(#fa)"/>
+<text class="fl-label fl-label-loop" x="199" y="210" text-anchor="middle">发回</text>
+<text class="fl-label fl-label-loop" x="199" y="260" text-anchor="middle">再审</text>
+<text class="fl-label" x="105" y="290">通过</text>
+<rect class="fl-node" x="20" y="20" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="42" text-anchor="middle">改代码</text>
+<text class="fl-s" x="95.0" y="60" text-anchor="middle">会话中与 AI 对话</text>
+<rect class="fl-node" x="20" y="110" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="132" text-anchor="middle">交付出现</text>
+<text class="fl-s" x="95.0" y="150" text-anchor="middle">评审台 · 分支交付</text>
+<rect class="fl-node fl-node-key" x="20" y="202" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="224" text-anchor="middle">评审</text>
+<text class="fl-s" x="95.0" y="242" text-anchor="middle">评审台 · 说明与问题</text>
+<rect class="fl-node fl-node-loop" x="228" y="202" width="120" height="54" rx="10"/>
+<text class="fl-t" x="288.0" y="224" text-anchor="middle">按意见再改</text>
+<text class="fl-s" x="288.0" y="242" text-anchor="middle">会话 · AI 修改</text>
+<rect class="fl-node" x="20" y="314" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="336" text-anchor="middle">合并与归档</text>
+<text class="fl-s" x="95.0" y="354" text-anchor="middle">分支合并 · 自动归档</text>
+</svg>

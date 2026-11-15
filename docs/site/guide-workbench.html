@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; media-src 'self'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'">
+<title>列表与评审台 · EvidentLoop 使用说明</title>
+<meta name="description" content="AI 写完代码，先看懂改了什么、有没有问题：变更说明、带证据的代码评审、发回修改与审查留档。">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="bar"><a class="brand" href="index.html"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-tile" x="8" y="8" width="496" height="496" rx="112"/><g transform="translate(256 256) scale(0.78) translate(-244 -244)"><line class="mk-ink" x1="345" y1="345" x2="438" y2="438" stroke-width="96" stroke-linecap="round"/><line class="mk-handle" x1="345" y1="345" x2="438" y2="438" stroke-width="40" stroke-linecap="round"/><circle class="mk-lens" cx="233" cy="233" r="195" stroke-width="32"/><path class="mk-ink" d="M190 185 137 236l53 52M285 185l53 51-53 52" fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>EvidentLoop</span></a>
+<nav aria-label="站点"><a href="index.html">介绍</a><a href="demo.html">实录</a><a href="guide-workflow.html" aria-current="page">使用说明</a></nav></header>
+<div class="doc">
+<nav class="toc" aria-label="章节"><ol><li><a href="guide-workflow.html">工作流</a></li><li class="on"><a href="guide-workbench.html" aria-current="page">列表与评审台</a><ul><li><a href="#workbench-1">交付列表</a></li><li><a href="#workbench-2">整批变更说明</a></li><li><a href="#workbench-3">文件对比与问题</a></li><li><a href="#workbench-4">审查记录</a></li></ul></li><li><a href="guide-status.html">状态、发回与导出</a></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></nav>
+<details class="chapters"><summary>章节 2 / 4：列表与评审台</summary><ol><li><a href="guide-workflow.html">工作流</a></li><li><a href="guide-workbench.html" aria-current="page">列表与评审台</a></li><li><a href="guide-status.html">状态、发回与导出</a></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></details>
+<article>
+<header class="doc-header"><h1>列表与评审台</h1></header>
+<h2 id="workbench-1">交付列表</h2>
+<ul>
+<li><strong>工作区</strong>：点页头的工作区名切换，与 DSH 左侧栏一致。</li>
+<li><strong>排序</strong>：按最近活动排列；置顶的排最前。</li>
+<li><strong>「…」菜单</strong>：置顶、归档、删除。删除会连同审查记录和批注一起删掉，不能恢复。</li>
+<li><strong>搜索</strong>：按标题、需求编号或分支，已归档的也能搜到。</li>
+</ul>
+<figure class="guide-capture"><a href="assets/deliveries-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/deliveries-dark.png"><img src="assets/deliveries-light.png" alt="正式插件交付列表：搜索、过滤与交付卡片" width="1600" height="1000" loading="lazy"></picture></a><figcaption>正式插件交付列表：搜索、过滤与交付卡片 · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
+
+<h2 id="workbench-2">整批变更说明</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>部分</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>结论</td>
+<td>交付目标、本次改动、审查结论</td>
+</tr>
+<tr>
+<td>按功能的变更</td>
+<td>为什么改、怎么改、行为影响</td>
+</tr>
+<tr>
+<td>需求对齐</td>
+<td>未对齐 / 待确认、已对齐、已调整、需求外改动</td>
+</tr>
+<tr>
+<td>问题</td>
+<td>按严重程度汇总，点击定位代码</td>
+</tr>
+<tr>
+<td>审查覆盖</td>
+<td>已审、待审、跳过、失败的文件</td>
+</tr>
+<tr>
+<td>需求依据</td>
+<td>会话里的需求原文，也可以手动添加</td>
+</tr>
+</tbody></table>
+</div><p>「已调整」指后来的要求改掉或取消了这一条，不算未对齐。每条说明都标明是「代码事实」还是「模型推断」。</p>
+<figure class="guide-capture"><a href="assets/overview-summary-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/overview-summary-dark.png"><img src="assets/overview-summary-light.png" alt="真实模型审查的变更说明；未完成的覆盖继续显示待审" width="1600" height="1000" loading="lazy"></picture></a><figcaption>真实模型审查的变更说明；未完成的覆盖继续显示待审 · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
+
+<h2 id="workbench-3">文件对比与问题</h2>
+<ul>
+<li>筛选：全部文件、风险文件、新改动（与上次审查相比有变化）。</li>
+<li>问题卡片插在代码行下：类别、严重程度（P0 阻断 / P1 严重 / P2 一般）、问题、影响、建议。</li>
+<li>每个问题都引用冻结代码的原文作为证据，核对不上的不展示。</li>
+<li>不认同可以「标记非问题」，随时恢复；也可以在代码行或问题上添加批注。</li>
+</ul>
+<figure class="guide-capture"><a href="assets/diff-finding-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/diff-finding-dark.png"><img src="assets/diff-finding-light.png" alt="双栏 Diff 与带行定位的真实候选问题" width="1600" height="1000" loading="lazy"></picture></a><figcaption>双栏 Diff 与带行定位的真实候选问题 · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
+
+<h2 id="workbench-4">审查记录</h2>
+<p>每次审查都冻结当时的代码和结论。顶栏「审查记录」可以切换到较早的记录，旧记录只读。</p>
+
+<nav class="pager" aria-label="翻页"><a class="prev" href="guide-workflow.html"><small>上一章</small>工作流</a><a class="next" href="guide-status.html"><small>下一章</small>状态、发回与导出</a></nav>
+</article>
+</div>
+<footer class="site"><span>EvidentLoop · MIT 许可</span><span>0.1.0-rc.1 · beta</span><span>界面以实际发布的版本为准</span></footer>
+</body>
+</html>

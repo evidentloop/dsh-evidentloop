@@ -1,0 +1,158 @@
+.focus-tree-complete { width: 14px; height: 14px; color: var(--el-state-success); stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+/* Variant behavior is scoped or conditional; opt=none keeps baseline geometry. */
+/* O3a: the plugin root owns focus-review; disable pane motion only in the variant. */
+.focus-review .file-diff-wrapper .splitpanes__pane { transition: none !important; will-change: auto !important; }
+.focus-review .file-list-toolbar { gap: 6px; }
+.focus-review .file-search-input { min-width: 0; }
+/* O6: the search toolbar is a sibling of the tree scroller, with no sticky layer. */
+.focus-file-browser { --focus-tree-row-background: var(--el-bg-l2); display: flex; flex-direction: column; min-height: 0; height: 100%; margin-left: 8px; padding: 8px 6px 0 4px; background: var(--focus-tree-row-background); }
+.focus-file-browser>.file-list-toolbar { flex: 0 0 auto; }
+.focus-file-browser>.focus-tree-navigation { flex: 1 1 auto; min-height: 0; height: auto; margin: 0; padding: 0 0 8px; box-shadow: none; }
+/* Shared variant-only base: browser defaults are reset once for every icon action. */
+.focus-review .focus-icon-button, .cr-icon-button { appearance: none; -webkit-appearance: none; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 20px; min-width: 20px; height: 20px; min-height: 20px; padding: 0 !important; border: 0 !important; border-radius: 4px; background: transparent; box-shadow: none; color: var(--el-label-2); }
+.focus-review .focus-icon-button svg, .cr-icon-button svg { width: 14px; height: 14px; color: inherit; }
+.focus-review .focus-icon-button svg:not([fill="none"]), .cr-icon-button svg:not([fill="none"]) { fill: currentColor; }
+.focus-review .focus-icon-button svg:not([fill="none"]) [fill], .cr-icon-button svg:not([fill="none"]) [fill] { fill: currentColor; }
+.focus-review .focus-icon-button .n-icon, .cr-icon-button .n-icon { font-size: 14px; line-height: 14px; }
+.focus-review .focus-icon-button:hover:not(:disabled), .cr-icon-button:hover:not(:disabled) { background: var(--el-hover); color: var(--el-label-1); }
+.focus-review .cr-toolbar-icon[aria-pressed="true"],
+.focus-review .cr-toolbar-icon[aria-pressed="true"]:hover { background: var(--el-brand-tint); color: var(--el-brand); }
+.focus-review .focus-icon-button:disabled, .cr-icon-button:disabled { color: var(--el-label-caption); opacity: 1; cursor: default; }
+.focus-review .focus-icon-button:focus-visible, .cr-icon-button:focus-visible { outline: 1px solid var(--el-brand); outline-offset: -2px; }
+.focus-review .focus-toggle-file-pane { width: 32px; min-width: 32px; height: 32px; min-height: 32px; margin-right: 0; }
+.focus-file-pane-collapsed>.splitpanes__splitter { display: none; }
+.focus-review .focus-file-pane-collapsed :is(.diff-container,.review-container) { margin-left: 8px; }
+.focus-review .focus-report-closed .diff-container { margin-bottom: 0; }
+.focus-review .focus-report-closed>.splitpanes__splitter { display: none; }
+.focus-review .splitpanes--horizontal:not(.focus-report-closed)>.splitpanes__pane:last-child { flex-grow: 1; }
+.focus-line-link { border: 0; padding: 0; background: transparent; font: inherit; color: var(--el-brand-link); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.focus-line-link:hover { color: var(--el-brand-link-hover); }
+.focus-console .console-content { max-height: calc(100vh - 80px); overflow: auto; }
+.focus-optimization-controls { margin: 12px 0 0; padding: 8px 10px; border: 1px solid var(--el-console-border); border-radius: 6px; }
+.focus-optimization-controls legend { padding: 0 4px; color: var(--el-console-text); }
+.focus-optimization-actions { display: flex; gap: 6px; margin-bottom: 6px; }
+.focus-optimization-actions button { background: var(--el-console-panel); color: var(--el-console-text); border: 1px solid var(--el-console-border); border-radius: 4px; padding: 3px 9px; font-size: 11px; }
+.focus-console .console-content .focus-option { display: flex; flex-direction: row; align-items: center; gap: 7px; padding: 4px 0; }
+.focus-option input { accent-color: var(--el-brand); }
+
+/* O3b: navigation occupies the existing diff header, not another toolbar row. */
+.focus-file-nav-main { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.focus-file-position { min-width: 32px; text-align: center; color: var(--el-label-2); font-size: 12px; line-height: 20px; font-variant-numeric: tabular-nums; }
+/* O6: one flattened tree; only the label is indented, so every status slot aligns. */
+.focus-tree-row { position: relative; display: grid; grid-template-columns: minmax(0,1fr) 20px; align-items: center; column-gap: 12px; width: 100%; height: 30px; padding: 0 8px; border: 0; background: var(--focus-tree-row-background); color: var(--el-label-1); text-align: left; font-family: inherit; font-size: 13px; font-weight: 400; line-height: 20px; }
+.focus-tree-row.is-folder { color: var(--el-label-1); }
+.focus-tree-row:hover { --focus-tree-row-background: var(--el-hover); }
+.focus-tree-row.is-selected { --focus-tree-row-background: var(--el-brand-tint); color: var(--el-label-1); }
+.focus-tree-row:focus-visible { outline: 1px solid var(--el-brand); outline-offset: -1px; }
+.focus-tree-label { position: relative; display: flex; align-items: center; min-width: 0; padding-left: calc(var(--tree-depth) * 12px); }
+.focus-tree-label::before { position: absolute; content: ''; top: -5px; bottom: -5px; left: 0; width: calc(var(--tree-depth) * 12px); background: repeating-linear-gradient(to right,transparent 0 5px,var(--el-border-l1) 5px 6px,transparent 6px 12px); pointer-events: none; }
+.focus-tree-kind-icon { display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; margin-right: 5px; flex: 0 0 16px; }
+.focus-tree-kind-icon svg { display: block; width: 16px; height: 16px; overflow: hidden; }
+.focus-tree-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.focus-tree-status { position: relative; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; }
+.focus-tree-badge { position: absolute; right: 2.5px; display: inline-flex; align-items: center; justify-content: center; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 999px; background: var(--el-state-error); color: var(--el-label-inverted); font-size: 11px; font-weight: 600; line-height: 15px; }
+.focus-tree-risk-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--el-state-error); }
+/* O3c: reuse baseline cards, with a scope label only when there is no line. */
+.focus-file-level-reviews { padding: 0 4px; }
+.gpt-risk-marker__scope { padding: 2px 6px; border-radius: 4px; background: var(--el-hover); color: var(--el-label-2); font-size: 12px; line-height: 18px; font-weight: 600; flex-shrink: 0; }
+.focus-file-level-card.focus-defect-highlight { box-shadow: 0 0 0 2px var(--el-state-error-border); }
+.focus-file-level-card.gpt-risk-marker--performance.focus-defect-highlight { box-shadow: 0 0 0 2px var(--el-state-warn-border); }
+.focus-review :is(.gpt-risk-marker__content,.review-container) :not(pre)>code { background: var(--el-hover); color: var(--el-label-1); border-radius: 4px; padding: 1px 4px; }
+.focus-review :is(.code-review-lite__badge--modify,.code-review-lite__badge--add,.code-review-lite__badge--delete) { background: var(--el-hover); color: var(--el-label-2); font-weight: 700; }
+.focus-bounded-popover,.focus-bounded-message { transform: none; }
+.n-popover.focus-bounded-popover { font-family: -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; font-size: 14px; font-weight: 400; line-height: 22px; padding: 6px 12px; border: 1px solid var(--el-border-l2); width: max-content; }
+.n-popover.focus-bounded-popover:not(.focus-multiline-tooltip) { white-space: nowrap; }
+.focus-bounded-popover .pop-content { max-height: inherit; overflow-wrap: anywhere; }
+.n-popconfirm.focus-bounded-popover { overflow: auto; }
+.focus-bounded-message { width: max-content; overflow-wrap: anywhere; }
+.focus-bounded-popover[data-placement="bottom"] .popover-arrow { top: -4px; bottom: auto; box-shadow: none; }
+.n-popover.focus-card-tooltip { font-variant-numeric: tabular-nums; }
+.focus-card-tooltip .pop-content { overflow: hidden; text-overflow: ellipsis; }
+.focus-tip-action { color: var(--el-label-1); }
+.focus-tip-separator { margin: 0 6px; color: var(--el-label-caption); }
+.focus-tip-destination { color: var(--el-label-3); }
+/* §2.4: WebKit sizing must not be overridden by standard scrollbar properties in Chrome. */
+.focus-review .file-list-container,.focus-review .code-review-lite__body { scrollbar-gutter: stable; --focus-scrollbar-thumb: transparent; }
+.focus-review .file-list-container:hover,.focus-review .code-review-lite__body:hover { --focus-scrollbar-thumb: var(--el-label-caption); }
+.focus-review .file-list-container::-webkit-scrollbar,.focus-review .code-review-lite__body::-webkit-scrollbar { width: 6px; height: 6px; }
+.focus-review .file-list-container::-webkit-scrollbar-track,.focus-review .code-review-lite__body::-webkit-scrollbar-track { background: transparent; }
+.focus-review .file-list-container::-webkit-scrollbar-thumb,.focus-review .code-review-lite__body::-webkit-scrollbar-thumb { background: var(--focus-scrollbar-thumb); border-radius: 3px; }
+.focus-review .file-list-container::-webkit-scrollbar-thumb:hover,.focus-review .code-review-lite__body::-webkit-scrollbar-thumb:hover { background: var(--el-label-3); }
+@supports not selector(::-webkit-scrollbar) {
+  .focus-review .file-list-container,.focus-review .code-review-lite__body { scrollbar-width: thin; scrollbar-color: var(--el-label-caption) transparent; }
+}
+
+/* §3.1: toolbar layout and export button */
+.focus-toolbar-item { display: inline-flex; align-items: center; justify-content: center; margin: 0 2px; line-height: 0; }
+.focus-toolbar-item .focus-icon-button, .focus-toolbar-item .cr-icon-button { margin: 0; }
+.focus-review .focus-export-icon-btn, .cr-icon-button.cr-toolbar-icon { width: 32px; min-width: 32px; height: 32px; min-height: 32px; border-radius: 6px; }
+.focus-review .focus-export-icon-btn .n-icon, .cr-icon-button.cr-toolbar-icon .n-icon { font-size: 18px; line-height: 18px; }
+.focus-review .focus-export-icon-btn .loading-spinner { width: 13px; height: 13px; }
+.cr-icon-button.cr-toolbar-icon svg { width: 18px; height: 18px; }
+.cr-toolbar-icon[aria-pressed="true"] { background: var(--el-brand-tint); color: var(--el-brand); }
+
+/* §3.1 & §3.9-3: tooltips for filename only; the export button no longer owns a bubble. */
+.focus-filename-tip { display: flex; flex-direction: column; max-width: 480px; }
+.focus-filename-tip__path { word-break: break-all; color: var(--el-label-1); }
+.focus-filename-tip__action { color: var(--el-label-3); }
+
+/* §3.3: diff header code review button */
+.focus-review .focus-code-review-btn { display: inline-flex; align-items: center; gap: 4px; }
+.focus-review .focus-code-review-btn .n-icon { font-size: 14px; line-height: 14px; }
+.focus-review .focus-code-review-btn .loading-spinner { width: 13px; height: 13px; }
+.focus-review .review-toggle-btn { border-color: var(--el-border-l2); background: var(--el-bg-l2); color: var(--el-label-2); }
+.focus-review .review-toggle-btn:hover:not(:disabled) { border-color: var(--el-border-l3); background: var(--el-hover); color: var(--el-label-1); }
+.focus-review .review-toggle-btn:disabled { border-color: var(--el-border-l1); background: var(--el-bg-l2); color: var(--el-label-caption); cursor: default; }
+
+/* §3.5: the copy button sits in a right gutter; long lines scroll inside the code area and never run under it. */
+.focus-review .gpt-code-block:not(.gpt-code-block--no-copy) > pre { padding-right: 48px; overflow: visible; }
+.focus-review .gpt-code-block:not(.gpt-code-block--no-copy) > pre > code { display: block; overflow-x: auto; }
+.focus-review .gpt-code-block.gpt-evidence-block > pre { padding: 8px 12px; overflow-x: auto; overflow-y: hidden; }
+.focus-review .gpt-code-block.gpt-evidence-block > pre > code { display: block; overflow-x: visible; }
+
+/* §3.2: tree file tooltip — one line, wraps only at "/" when wider than the plugin, delta inline in the secondary color. */
+.focus-file-tip { overflow-wrap: normal; word-break: normal; }
+.focus-file-tip__delta { margin-left: 6px; color: var(--el-label-3); white-space: nowrap; }
+
+.focus-review .gpt-risk-marker .file-risk-item__suppress-btn:not(.gpt-risk-marker__restore) {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  flex-basis: 24px;
+  padding: 0 !important;
+}
+.focus-review .gpt-risk-marker .file-risk-item__suppress-btn:not(.gpt-risk-marker__restore) svg {
+  width: 16px;
+  height: 16px;
+}
+/* A13 trial: suppressed reviews occupy the gutter, never a code row until opened. */
+.focus-review .code-review-lite--line-by-line .line-num1 { width: calc(100% - 3.5em); padding-right: 0; }
+.focus-review .focus-icon-button[aria-disabled="true"],
+.focus-review .focus-icon-button[aria-disabled="true"]:hover { color: var(--el-label-caption); background: transparent; cursor: default; }
+
+.focus-review .experience-diff-empty {
+  flex: 0 0 auto;
+  padding: 10px 12px;
+  color: var(--el-label-3);
+  background: var(--el-bg-l3);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.experience-state {
+  padding: 24px;
+  color: var(--el-label-3);
+  background: var(--el-bg-l2);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.experience-state__content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.focus-review .focus-file-browser { padding-right: 2px; }
+.focus-review .file-diff-wrapper.splitpanes--vertical > .splitpanes__splitter { border-left: 0; }

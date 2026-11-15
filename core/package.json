@@ -1,0 +1,30 @@
+{
+  "name": "@evidentloop/core",
+  "version": "0.1.0-rc.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": "./index.mjs",
+  "scripts": {
+    "test": "node tests/all.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "prepare.mjs",
+    "validate.mjs",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "author": "sanze.li",
+  "license": "MIT",
+  "description": "EvidentLoop 的冻结快照、证据校验、增量审查与离线导出核心库。",
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "code-review",
+    "evidentloop"
+  ]
+}

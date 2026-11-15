@@ -1,0 +1,100 @@
+{
+  "package": "PKief.material-icon-theme",
+  "version": "5.38.1",
+  "license": "MIT",
+  "sourceUrl": "https://github.com/material-extensions/vscode-material-icon-theme/tree/v5.38.1",
+  "files": [
+    {
+      "name": "css.svg",
+      "sha256": "afe20f8da21f1f2de59b11e0bd0b6bc63866a43e42238af5daca6c5669493cd5"
+    },
+    {
+      "name": "file.svg",
+      "sha256": "083ea33462b93f80b202f29703ddf57174e34aa67f193b3029869137e7f6e1a5"
+    },
+    {
+      "name": "folder-docs-open.svg",
+      "sha256": "8c33468095ebcf8021b26eeea42e14bf081872326f7ae3cfc42bc9cf33285e0d"
+    },
+    {
+      "name": "folder-docs.svg",
+      "sha256": "71bec357e64761462d18b66fa9c6095fe390ab29e1d5977c1f89e3dbd3e6fca3"
+    },
+    {
+      "name": "folder-open.svg",
+      "sha256": "532456ac9460902d6f7f9ffdb015c09a3b8d87c2493504948f9d16a2f66e22b7"
+    },
+    {
+      "name": "folder-scripts-open.svg",
+      "sha256": "7f163318b1526485f8069ffef2be8e201ce8ade739182437e122aa9bf3e92585"
+    },
+    {
+      "name": "folder-scripts.svg",
+      "sha256": "22c08cdb7bdc46362d673f24e8312d824f114686879adb997f363da235fd32ee"
+    },
+    {
+      "name": "folder-src-open.svg",
+      "sha256": "159da562a912929aa265cdee9f31ca544097ffd11abaace2dfafa1780df7db62"
+    },
+    {
+      "name": "folder-src.svg",
+      "sha256": "0615e08b96c279fe2e62bac2d34209efb3e72e43a34ba000fc4dfab8b2e31f8f"
+    },
+    {
+      "name": "folder.svg",
+      "sha256": "5b8e272caf788ff0e9b6afee97601a9f9c7ad9d381e8d7b1e63ee78368ea1332"
+    },
+    {
+      "name": "go.svg",
+      "sha256": "eb3b74fcad124042c463505961ee93dd335165275a2b84828083fb8dcb5064c9"
+    },
+    {
+      "name": "html.svg",
+      "sha256": "23e04ad5f1ae9cd16dc79fe52c4290e5bd80f2f7bfe4c0769e7485832b3eb146"
+    },
+    {
+      "name": "java.svg",
+      "sha256": "755c5b6f3fe0fb1e61e76c1a10eb96f65f59fac1b5a5a181945182639935854e"
+    },
+    {
+      "name": "javascript.svg",
+      "sha256": "00eb9422f451901565f2eb8cbaf07718b2da03f9a866fae7f68cdc3807290d6b"
+    },
+    {
+      "name": "json.svg",
+      "sha256": "649ad4f4d01cec788959017710bb0c63281a645db8cef389c50008fbd059da03"
+    },
+    {
+      "name": "markdown.svg",
+      "sha256": "42f95867350ed1f349ab29b3f254405f84ae65e6d42972d74b01442027eddfcd"
+    },
+    {
+      "name": "python.svg",
+      "sha256": "798fcd59653af34e5b8124d3fe45412eef79f9c1925e286dadd94f923486fd1f"
+    },
+    {
+      "name": "react.svg",
+      "sha256": "6a7fb2e8b5e168c0d0f605147138f0bb437eea6618008b82b708ce42e56bafae"
+    },
+    {
+      "name": "react_ts.svg",
+      "sha256": "f5caa02786d9ce9650fa25442b6605630a60e40156083679036be101b145ad37"
+    },
+    {
+      "name": "rust.svg",
+      "sha256": "a58c24641e82c1ba47c74781da039e2a8e372202cfaaaeff39559138a11bcc39"
+    },
+    {
+      "name": "typescript.svg",
+      "sha256": "1822f88268b452ced242ed06a770302c15dff46bb8a2e077e95e19597f737397"
+    },
+    {
+      "name": "vue.svg",
+      "sha256": "039814fe6b28ff71bbff54a477132b160fdc5c208553c5d154809b834069c0ff"
+    },
+    {
+      "name": "yaml.svg",
+      "sha256": "666b724d61cfa091cd085a465faa3727989ba5286c8ac99a6fbf5229cb6c8f9e"
+    }
+  ]
+}

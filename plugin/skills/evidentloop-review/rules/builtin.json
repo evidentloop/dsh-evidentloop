@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "kind": "builtin",
+  "rules": [
+    {
+      "id": "logic.boundary",
+      "category": "logic",
+      "title": "边界条件与空值"
+    },
+    {
+      "id": "logic.error-handling",
+      "category": "logic",
+      "title": "异常与失败路径"
+    },
+    {
+      "id": "logic.concurrency",
+      "category": "logic",
+      "title": "并发与竞态"
+    },
+    {
+      "id": "logic.state",
+      "category": "logic",
+      "title": "状态与数据一致性"
+    },
+    {
+      "id": "security.injection",
+      "category": "security",
+      "title": "注入"
+    },
+    {
+      "id": "security.authz",
+      "category": "security",
+      "title": "鉴权与越权"
+    },
+    {
+      "id": "security.secret",
+      "category": "security",
+      "title": "敏感信息泄露"
+    },
+    {
+      "id": "performance.complexity",
+      "category": "performance",
+      "title": "复杂度与重复计算"
+    },
+    {
+      "id": "performance.io",
+      "category": "performance",
+      "title": "重复请求与 I/O"
+    }
+  ]
+}

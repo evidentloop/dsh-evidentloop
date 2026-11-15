@@ -1,0 +1,232 @@
+/* DSH alias tokens with static fallbacks. The host's --dsw-alias-* values win;
+ * the fallbacks switch with the system color scheme so file:// still shows dark mode. */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --el-font-code: "Maple Mono NF CN", "Sarasa Mono SC", "Noto Sans Mono CJK SC", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --el-font-diff: var(--el-font-code);
+
+  --el-bg-base: var(--dsw-alias-bg-base, #ffffff);
+  --el-bg-platform: var(--dsw-alias-bg-module-platform, #f6f6f7);
+  --el-bg-l1: var(--dsw-alias-bg-layer-1, #f8f9fa);
+  --el-bg-l2: var(--dsw-alias-bg-layer-2, #ffffff);
+  --el-bg-l3: var(--dsw-alias-bg-layer-3, #f4f5f7);
+  --el-bg-overlay: var(--dsw-alias-bg-overlay, #ffffff);
+  --el-hover: var(--dsw-alias-interactive-bg-hover, rgba(38, 49, 72, 0.06));
+  --el-active: var(--dsw-alias-interactive-bg-active, rgba(38, 49, 72, 0.10));
+
+  --el-border-l1: var(--dsw-alias-border-l1, rgba(0, 0, 0, 0.05));
+  --el-border-l2: var(--dsw-alias-border-l2, rgba(0, 0, 0, 0.10));
+  --el-border-l3: var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.14));
+  --el-border-l4: var(--dsw-alias-border-l4, rgba(0, 0, 0, 0.18));
+
+  --el-label-1: var(--dsw-alias-label-primary, #0f1115);
+  --el-label-2: var(--dsw-alias-label-secondary, #61666b);
+  --el-label-3: var(--dsw-alias-label-tertiary, #81858c);
+  --el-label-caption: var(--dsw-alias-label-caption, #adb2b8);
+  --el-label-inverted: var(--dsw-alias-label-primary-inverted, #ffffff);
+
+  --el-brand: var(--dsw-alias-state-business-primary, #4176e6);
+  --el-brand-link: var(--dsw-static-deepseek-600, #4868b2);
+  --el-brand-link-hover: var(--dsw-static-deepseek-600, #4868b2);
+  --el-brand-hover: var(--dsw-static-deepseek-450, #5686fe);
+  --el-brand-active: var(--dsw-static-deepseek-600, #4868b2);
+  --el-brand-tint: var(--dsw-alias-state-business-tertiary, #e4edfd);
+  --el-brand-soft: var(--dsw-static-deepseek-50, #edf3fe);
+  --el-brand-border: rgba(65, 118, 230, 0.24);
+  --el-brand-ring: rgba(65, 118, 230, 0.16);
+  --el-brand-card-hover: rgba(65, 118, 230, 0.4);
+  --el-on-brand: #ffffff;
+
+  --el-state-error: var(--dsw-alias-state-error-primary, #df2a3f);
+  --el-state-warn: var(--dsw-alias-state-warn-primary, #d97706);
+  --el-state-success: var(--dsw-alias-state-success-primary, #10b981);
+  --el-state-idle: var(--dsw-alias-state-idle-primary, #81858c);
+  --el-state-error-tint: #fdeeee;
+  --el-state-warn-tint: #fff7e6;
+  --el-state-warn-tertiary: #fff8e8;
+  --el-state-success-tint: #edf8f1;
+  --el-state-idle-tint: #f3f4f6;
+  --el-state-error-border: rgba(223, 42, 63, 0.22);
+  --el-state-warn-border: rgba(217, 119, 6, 0.24);
+  --el-state-success-border: rgba(16, 185, 129, 0.24);
+  --el-state-idle-border: rgba(129, 133, 140, 0.20);
+
+  --el-shadow-card: 0 1px 2px rgba(15, 17, 21, 0.05);
+  --el-shadow-card-hover: 0 4px 16px rgba(15, 17, 21, 0.08);
+  --el-shadow-pop: 0 10px 24px rgba(15, 17, 21, 0.12);
+  --el-shadow-overlay: 0 12px 32px rgba(15, 17, 21, 0.16);
+
+  /* Diff2Html keeps its baseline insert/delete palette; only the bluish hunk header is neutralized. */
+  --d2h-info-bg-color: var(--el-bg-l3);
+  --d2h-info-border-color: var(--el-border-l2);
+  --d2h-selected-color: var(--el-brand-tint);
+  --d2h-moved-label-color: var(--el-brand);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --el-bg-base: var(--dsw-alias-bg-base, #16171a);
+    --el-bg-platform: var(--dsw-alias-bg-module-platform, #1e1f24);
+    --el-bg-l1: var(--dsw-alias-bg-layer-1, #1c1d22);
+    --el-bg-l2: var(--dsw-alias-bg-layer-2, #23252a);
+    --el-bg-l3: var(--dsw-alias-bg-layer-3, #282a30);
+    --el-bg-overlay: var(--dsw-alias-bg-overlay, #2c2e35);
+    --el-hover: var(--dsw-alias-interactive-bg-hover, rgba(255, 255, 255, 0.08));
+    --el-active: var(--dsw-alias-interactive-bg-active, rgba(255, 255, 255, 0.14));
+
+    --el-border-l1: var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.07));
+    --el-border-l2: var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.12));
+    --el-border-l3: var(--dsw-alias-border-l3, rgba(255, 255, 255, 0.18));
+    --el-border-l4: var(--dsw-alias-border-l4, rgba(255, 255, 255, 0.22));
+
+    --el-label-1: var(--dsw-alias-label-primary, #f1f3f5);
+    --el-label-2: var(--dsw-alias-label-secondary, #adb2b8);
+    --el-label-3: var(--dsw-alias-label-tertiary, #81858c);
+    --el-label-caption: var(--dsw-alias-label-caption, #61666b);
+    --el-label-inverted: var(--dsw-alias-label-primary-inverted, #0f1115);
+
+    --el-brand: var(--dsw-alias-state-business-primary, #7aaaff);
+    --el-brand-link: var(--dsw-alias-link, #7aaaff);
+    --el-brand-link-hover: var(--dsw-alias-link, #7aaaff);
+    --el-brand-hover: var(--dsw-static-deepseek-300, #b7c8fe);
+    --el-brand-active: var(--dsw-static-deepseek-450, #5686fe);
+    --el-brand-tint: rgba(122, 170, 255, 0.14);
+    --el-brand-soft: rgba(122, 170, 255, 0.08);
+    --el-brand-border: rgba(122, 170, 255, 0.28);
+    --el-brand-ring: rgba(122, 170, 255, 0.20);
+    --el-brand-card-hover: rgba(122, 170, 255, 0.4);
+    --el-on-brand: #0f1115;
+
+    --el-state-error: var(--dsw-alias-state-error-primary, #f85149);
+    --el-state-warn: var(--dsw-alias-state-warn-primary, #f59e0b);
+    --el-state-success: var(--dsw-alias-state-success-primary, #34d399);
+    --el-state-idle: var(--dsw-alias-state-idle-primary, #81858c);
+    --el-state-error-tint: rgba(248, 81, 73, 0.14);
+    --el-state-warn-tint: rgba(245, 158, 11, 0.14);
+    --el-state-warn-tertiary: rgba(245, 158, 11, 0.12);
+    --el-state-success-tint: rgba(52, 211, 153, 0.14);
+    --el-state-idle-tint: rgba(255, 255, 255, 0.06);
+    --el-state-error-border: rgba(248, 81, 73, 0.32);
+    --el-state-warn-border: rgba(245, 158, 11, 0.32);
+    --el-state-success-border: rgba(52, 211, 153, 0.32);
+    --el-state-idle-border: rgba(255, 255, 255, 0.14);
+
+    --el-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --el-shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.45);
+    --el-shadow-pop: 0 10px 24px rgba(0, 0, 0, 0.5);
+    --el-shadow-overlay: 0 12px 32px rgba(0, 0, 0, 0.55);
+
+    --d2h-bg-color: #23252a;
+    --d2h-border-color: #303237;
+    --d2h-dim-color: #81858c;
+    --d2h-line-border-color: #2e3036;
+    --d2h-file-header-bg-color: #282a30;
+    --d2h-file-header-border-color: #303237;
+    --d2h-empty-placeholder-bg-color: #1c1d22;
+    --d2h-empty-placeholder-border-color: #303237;
+    --d2h-ins-bg-color: rgba(46, 160, 67, 0.15);
+    --d2h-ins-border-color: rgba(46, 160, 67, 0.4);
+    --d2h-ins-highlight-bg-color: rgba(46, 160, 67, 0.4);
+    --d2h-ins-label-color: #3fb950;
+    --d2h-del-bg-color: rgba(248, 81, 73, 0.15);
+    --d2h-del-border-color: rgba(248, 81, 73, 0.4);
+    --d2h-del-highlight-bg-color: rgba(248, 81, 73, 0.4);
+    --d2h-del-label-color: #f85149;
+    --d2h-change-del-color: rgba(210, 153, 34, 0.2);
+    --d2h-change-ins-color: rgba(46, 160, 67, 0.25);
+    --d2h-info-bg-color: #282a30;
+    --d2h-info-border-color: #303237;
+    --d2h-selected-color: rgba(122, 170, 255, 0.14);
+    --d2h-moved-label-color: var(--el-brand);
+    --d2h-dark-info-bg-color: #282a30;
+    --d2h-dark-info-border-color: #303237;
+    --d2h-dark-selected-color: rgba(122, 170, 255, 0.14);
+    --d2h-dark-moved-label-color: var(--el-brand);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --el-bg-base: var(--dsw-alias-bg-base, #16171a);
+  --el-bg-platform: var(--dsw-alias-bg-module-platform, #1e1f24);
+  --el-bg-l1: var(--dsw-alias-bg-layer-1, #1c1d22);
+  --el-bg-l2: var(--dsw-alias-bg-layer-2, #23252a);
+  --el-bg-l3: var(--dsw-alias-bg-layer-3, #282a30);
+  --el-bg-overlay: var(--dsw-alias-bg-overlay, #2c2e35);
+  --el-hover: var(--dsw-alias-interactive-bg-hover, rgba(255, 255, 255, 0.08));
+  --el-active: var(--dsw-alias-interactive-bg-active, rgba(255, 255, 255, 0.14));
+
+  --el-border-l1: var(--dsw-alias-border-l1, rgba(255, 255, 255, 0.07));
+  --el-border-l2: var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.12));
+  --el-border-l3: var(--dsw-alias-border-l3, rgba(255, 255, 255, 0.18));
+  --el-border-l4: var(--dsw-alias-border-l4, rgba(255, 255, 255, 0.22));
+
+  --el-label-1: var(--dsw-alias-label-primary, #f1f3f5);
+  --el-label-2: var(--dsw-alias-label-secondary, #adb2b8);
+  --el-label-3: var(--dsw-alias-label-tertiary, #81858c);
+  --el-label-caption: var(--dsw-alias-label-caption, #61666b);
+  --el-label-inverted: var(--dsw-alias-label-primary-inverted, #0f1115);
+
+  --el-brand: var(--dsw-alias-state-business-primary, #7aaaff);
+    --el-brand-link: var(--dsw-alias-link, #7aaaff);
+    --el-brand-link-hover: var(--dsw-alias-link, #7aaaff);
+  --el-brand-hover: var(--dsw-static-deepseek-300, #b7c8fe);
+  --el-brand-active: var(--dsw-static-deepseek-450, #5686fe);
+  --el-brand-tint: rgba(122, 170, 255, 0.14);
+  --el-brand-soft: rgba(122, 170, 255, 0.08);
+  --el-brand-border: rgba(122, 170, 255, 0.28);
+  --el-brand-ring: rgba(122, 170, 255, 0.20);
+  --el-brand-card-hover: rgba(122, 170, 255, 0.4);
+  --el-on-brand: #0f1115;
+
+  --el-state-error: var(--dsw-alias-state-error-primary, #f85149);
+  --el-state-warn: var(--dsw-alias-state-warn-primary, #f59e0b);
+  --el-state-success: var(--dsw-alias-state-success-primary, #34d399);
+  --el-state-idle: var(--dsw-alias-state-idle-primary, #81858c);
+  --el-state-error-tint: rgba(248, 81, 73, 0.14);
+  --el-state-warn-tint: rgba(245, 158, 11, 0.14);
+  --el-state-warn-tertiary: rgba(245, 158, 11, 0.12);
+  --el-state-success-tint: rgba(52, 211, 153, 0.14);
+  --el-state-idle-tint: rgba(255, 255, 255, 0.06);
+  --el-state-error-border: rgba(248, 81, 73, 0.32);
+  --el-state-warn-border: rgba(245, 158, 11, 0.32);
+  --el-state-success-border: rgba(52, 211, 153, 0.32);
+  --el-state-idle-border: rgba(255, 255, 255, 0.14);
+
+  --el-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --el-shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --el-shadow-pop: 0 10px 24px rgba(0, 0, 0, 0.5);
+  --el-shadow-overlay: 0 12px 32px rgba(0, 0, 0, 0.55);
+
+  --d2h-bg-color: #23252a;
+  --d2h-border-color: #303237;
+  --d2h-dim-color: #81858c;
+  --d2h-line-border-color: #2e3036;
+  --d2h-file-header-bg-color: #282a30;
+  --d2h-file-header-border-color: #303237;
+  --d2h-empty-placeholder-bg-color: #1c1d22;
+  --d2h-empty-placeholder-border-color: #303237;
+  --d2h-ins-bg-color: rgba(46, 160, 67, 0.15);
+  --d2h-ins-border-color: rgba(46, 160, 67, 0.4);
+  --d2h-ins-highlight-bg-color: rgba(46, 160, 67, 0.4);
+  --d2h-ins-label-color: #3fb950;
+  --d2h-del-bg-color: rgba(248, 81, 73, 0.15);
+  --d2h-del-border-color: rgba(248, 81, 73, 0.4);
+  --d2h-del-highlight-bg-color: rgba(248, 81, 73, 0.4);
+  --d2h-del-label-color: #f85149;
+  --d2h-change-del-color: rgba(210, 153, 34, 0.2);
+  --d2h-change-ins-color: rgba(46, 160, 67, 0.25);
+  --d2h-info-bg-color: #282a30;
+  --d2h-info-border-color: #303237;
+  --d2h-selected-color: rgba(122, 170, 255, 0.14);
+  --d2h-moved-label-color: var(--el-brand);
+  --d2h-dark-info-bg-color: #282a30;
+  --d2h-dark-info-border-color: #303237;
+  --d2h-dark-selected-color: rgba(122, 170, 255, 0.14);
+  --d2h-dark-moved-label-color: var(--el-brand);
+}
