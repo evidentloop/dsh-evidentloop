@@ -2466,7 +2466,7 @@ var DshAdapter = class {
           }
         });
       } });
-      titles.rename(handle.agent.session, "\u9605\u53D8\u5BA1\u67E5 \xB7 " + delivery.title);
+      titles.rename(handle.agent.session, "AI \u53D8\u66F4\u8BC4\u5BA1 \xB7 " + delivery.title);
       this.registry[sessionId] = { runId: request.runId, callerId, projectKey: request.snapshot.projectKey };
       this.saveRegistry();
       this.active.set(request.runId, handle.agent);

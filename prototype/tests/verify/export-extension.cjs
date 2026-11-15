@@ -126,7 +126,7 @@ module.exports = {
       cancelledOverview.alignment.includes('审查已取消') && cancelledOverview.basisCount === 0 &&
       cancelledOverview.problemDom === cancelledOverview.problemGroups &&
       /^\d+ 个文件待审/.test(cancelledOverview.banner.trim()) &&
-      cancelledOverview.banner.includes('点 Review All 审查剩下的文件'));    await page.getByRole('tab', { name: '文件对比' }).click();
+      cancelledOverview.banner.includes('点击“审查全部”审查剩余文件'));    await page.getByRole('tab', { name: '文件对比' }).click();
     await page.waitForTimeout(150);
     await page.getByRole('button', { name: '导出与发回', exact: true }).click();
     await page.waitForTimeout(120);
@@ -454,7 +454,7 @@ module.exports = {
       extensionBudget.extension.sha256 === extensionBudget.originalSha &&
       extensionBudget.extension.originalLength === extensionBudget.originalLength);
     await open({ scenario: 'extension-changed' });
-    check('changed extension scenario shows the review banner', (await page.locator('.wb-extension-banner').innerText()).includes('扩展提示词已更改，Review All 后按新要求审查') &&
+    check('changed extension scenario shows the review banner', (await page.locator('.wb-extension-banner').innerText()).includes('扩展提示词已更改，重新审查全部后按新要求生成结论') &&
       await page.evaluate(() => CRPrototype.app.extensionPromptChanged) === true);
 
     await open({ scenario: 'extension-none' });
@@ -503,7 +503,7 @@ module.exports = {
     await page.locator('.extension-textarea').fill(savedExtension);
     await page.getByRole('button', { name: '保存', exact: true }).click();
     await page.waitForTimeout(200);
-    check('saving a changed extension shows the review banner', (await page.locator('.wb-extension-banner').innerText()).includes('扩展提示词已更改，Review All 后按新要求审查') &&
+    check('saving a changed extension shows the review banner', (await page.locator('.wb-extension-banner').innerText()).includes('扩展提示词已更改，重新审查全部后按新要求生成结论') &&
       await page.evaluate(() => CRPrototype.app.extensionPromptChanged) === true);
     await page.locator('.wb-extension-banner button').click();
     await page.waitForTimeout(150);

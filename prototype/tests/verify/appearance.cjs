@@ -255,7 +255,7 @@ module.exports = {
     s = await state();
     check('adding a requirement creates a new pending snapshot', s.requirements === data.requirements.length + 1 &&
       s.pending === data.reviewable && s.runStatus === null && s.mainView === 'overview' && s.panelMode === null);
-    check('adding a requirement shows the Review All notice', await page.locator('.panel-notice').innerText() === '需求依据已更新，Review All 后更新对齐判断');
+    check('adding a requirement shows the Review All notice', await page.locator('.panel-notice').innerText() === '需求依据已更新，审查全部后更新对齐判断');
     await shot('25-requirement-added-interactive');
     await page.locator('.run-primary').click();
     await page.waitForFunction(() => window.CRPrototype.app.run?.status === 'succeeded', null, { timeout: 30000 });

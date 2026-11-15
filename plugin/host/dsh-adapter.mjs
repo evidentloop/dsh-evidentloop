@@ -98,7 +98,7 @@ export class DshAdapter {
         agentCtx.on('agent/pre-step', async (_payload, next) => { if (++steps > 1 || this.ctx.tools.schemas(agent).length) throw Error('Controlled review may not expose tools or start another step'); return next(); });
         agentCtx.on('agent/assistant-stream', ({ frame }) => { if (frame.type === 'chunk' && frame.chunk.type === 'finish' && frame.chunk.reason?.kind === 'error') { failureCode = frame.chunk.reason.failure?.code; queueMicrotask(() => agent.cancel({ kind: 'hook', reason: 'No retry budget' })); } });
       } });
-      titles.rename(handle.agent.session, '阅变审查 · ' + delivery.title);
+      titles.rename(handle.agent.session, 'AI 变更评审 · ' + delivery.title);
       this.registry[sessionId] = { runId: request.runId, callerId, projectKey: request.snapshot.projectKey }; this.saveRegistry(); this.active.set(request.runId, handle.agent);
       const cancel = () => handle.agent.cancel({ kind: 'user' }); signal.addEventListener('abort', cancel, { once: true });
       try {

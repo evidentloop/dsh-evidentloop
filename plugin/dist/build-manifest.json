@@ -141,7 +141,7 @@
     },
     {
       "path": "plugin/client/app.jsx",
-      "sha256": "8b222759c0d11062641f2f45a6df558cb136a5ab7a165dd9d8d41ebe1dcc8bd5"
+      "sha256": "ca79583a2eb09f2cca6862f1b55be22b8abfe1ebb124ab25437a3377882f9ffc"
     },
     {
       "path": "plugin/client/diff.jsx",
@@ -189,7 +189,7 @@
     },
     {
       "path": "plugin/host/dsh-adapter.mjs",
-      "sha256": "64874ea2066b43964825531cf890e209b4245b709f0efcf8c86839f652aef1d4"
+      "sha256": "e8579a6a4b46fd0ae24b34e8065fda343c2ca9a2fb47c5e74de4a3c66afe4320"
     },
     {
       "path": "plugin/host/index.mjs",

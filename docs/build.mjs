@@ -58,16 +58,16 @@ const shell = ({ title, page, main }) => `<!doctype html>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="bar"><a class="brand" href="index.html">${mark}<span>EvidentLoop</span></a>
+<header class="bar"><a class="brand" href="index.html">${mark}<span>AI 变更评审</span></a>
 <nav aria-label="站点"><a href="index.html"${page === 'home' ? ' aria-current="page"' : ''}>介绍</a><a href="demo.html"${page === 'demo' ? ' aria-current="page"' : ''}>实录</a><a href="${chapters[0].file}"${page === 'guide' ? ' aria-current="page"' : ''}>使用说明</a></nav></header>
 ${main}
-<footer class="site"><span>EvidentLoop · MIT 许可</span><span>${esc(meta.version || '')}</span><span>界面以实际发布的版本为准</span></footer>
+<footer class="site"><span>AI 变更评审 · EvidentLoop · MIT 许可</span><span>${esc(meta.version || '')}</span><span>界面以实际发布的版本为准</span></footer>
 </body>
 </html>
 `;
 
 const home = shell({
-  title: 'EvidentLoop AI 变更评审',
+  title: 'AI 变更评审 · EvidentLoop',
   page: 'home',
   main: `<main>
 <section class="hero">
@@ -81,14 +81,14 @@ const home = shell({
 </section>
 <section class="band" id="demo" aria-labelledby="demo-h">
   <h2 id="demo-h">从看懂改动，到发回修改</h2>
-  <p>正式插件实录：加载一份已冻结的真实模型审查记录，查看说明和代码，复核候选问题，导出报告，再写入会话草稿。</p>
+  <p>正式插件实录：加载一份真实历史审查记录快照，查看说明和代码，复核审查意见，导出报告，再写入会话草稿。</p>
   ${read('video.html')}
   <p class="note">公开项目 sopify 的真实记录；本次采集没有重新调用模型。该记录只审查了 1 个文件，24 个文件尚未完成。<a href="demo.html">查看浅深主题截图与完整说明 →</a></p>
 </section>
 <section class="band" id="flow" aria-labelledby="flow-h">
   <h2 id="flow-h">在会话和评审台之间循环</h2>
   <p>你在会话里改，在评审台里看；修改要求发回会话，改完再审，直到可以放心合并。</p>
-  <div class="flow">${read('flow-wide.svg')}${read('flow-narrow.svg')}</div>
+  <div class="flow"><img class="flow-wide" src="flow-wide.svg" alt="AI 变更评审工作流：手动审查、人工复核、发回修改或导出"><img class="flow-narrow" src="flow-narrow.svg" alt="AI 变更评审工作流：修改、审查、复核与反馈循环"></div>
 </section>
 <section class="band" aria-labelledby="caps-h">
   <h2 id="caps-h">你会得到什么</h2>
@@ -116,7 +116,7 @@ mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), home);
 writeFileSync(join(out, 'demo.html'), shell({
   title: '正式插件实录 · EvidentLoop', page: 'demo',
-  main: `<main class="media-page"><header><p class="eyebrow">0.1.0-rc.1 · beta</p><h1>一次真实审查的复核过程</h1><p class="lead">加载已冻结的 DeepSeek-V4.1-Flash 审查记录，在正式插件中完成查看、复核、导出与发回草稿。</p></header>${read('video.html')}<p class="note">本次采集新增模型调用为 0。展示源是公开项目 sopify；此记录的覆盖为 1 / 25 个可审文件，其他文件保留待审状态。画面中的 P2 候选在人工复核后标记为非问题，不作为已确认缺陷宣传。批注来自本次演示操作。</p>${read('gallery.html')}</main>`,
+  main: `<main class="media-page"><header><p class="eyebrow">0.1.0-rc.1 · Beta</p><h1>一次真实审查的复核过程</h1><p class="lead">加载DeepSeek-V4.1-Flash 真实历史审查记录快照，在正式插件中完成查看、复核、导出与发回草稿。</p></header>${read('video.html')}<p class="note">本次采集新增模型调用为 0。展示源是公开项目 sopify；此记录的覆盖为 25 个变更文件中的 1 个，其他文件保留待审状态。画面中的 P2 审查意见在人工复核后标记为非问题，不作为已确认缺陷宣传。批注来自本次演示操作。</p>${read('gallery.html')}</main>`,
 }));
 
 // Page 1 lead: the intro paragraph under the H1 in guide.md (the H1 itself is replaced by each chapter's own h1).
@@ -127,7 +127,7 @@ chapters.forEach((chapter, i) => {
   const next = chapters[i + 1];
   const toc = chapters.map((c, k) => `<li${k === i ? ' class="on"' : ''}><a href="${c.file}"${k === i ? ' aria-current="page"' : ''}>${c.title}</a>${k === i && subs.length ? `<ul>${subs.map(s => `<li><a href="#${s.id}">${s.text}</a></li>`).join('')}</ul>` : ''}</li>`).join('');
   const page = shell({
-    title: `${chapter.title} · EvidentLoop 使用说明`,
+    title: `${chapter.title} · AI 变更评审 · EvidentLoop 使用说明`,
     page: 'guide',
     main: `<div class="doc">
 <nav class="toc" aria-label="章节"><ol>${toc}</ol></nav>
@@ -143,6 +143,7 @@ ${html}
   if (i === 0) writeFileSync(join(out, 'guide.html'), page);
 });
 copyFileSync(join(src, 'style.css'), join(out, 'style.css'));
+for (const file of ['flow-wide.svg', 'flow-narrow.svg']) copyFileSync(join(src, file), join(out, file));
 copyFileSync(join(here, 'icon.svg'), join(out, 'favicon.svg'));
 cpSync(join(src, 'assets'), join(out, 'assets'), { recursive: true });
 console.log(`built docs/site: home + ${chapters.length} chapters (${chapters.map(c => c.slug).join(', ')})`);

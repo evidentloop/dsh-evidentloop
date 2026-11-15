@@ -17,7 +17,7 @@ module.exports = {
     await open({ scenario: 'partial' });
     s = await state();
     check('partial: pending is visible without a partial label', s.runStatus === 'partial' && s.pending > 0 &&
-      s.counts.pending > 0 && s.runState === '' && await page.locator('.run-primary').innerText() === 'Review All');
+      s.counts.pending > 0 && s.runState === '' && await page.locator('.run-primary').innerText() === '审查全部');
     check('partial: filters stay all/risk/pending without a changed tab', s.filterModes.join(',') === 'all,risk,pending' &&
       await page.locator('input[name="file-filter"][value="turn"]').count() === 0 &&
       await page.locator('.file-filter-label--changed').count() === 0);
@@ -48,7 +48,7 @@ module.exports = {
     check('unreviewed: no run, every reviewable file pending', s.runStatus === null && s.pending === data.reviewable &&
       s.counts.pending === data.reviewable && s.active === 0);
     check('unreviewed: Review All is offered without an idle label', s.runState === '' &&
-      (await page.locator('.run-primary').innerText()) === 'Review All' &&
+      (await page.locator('.run-primary').innerText()) === '审查全部' &&
       !(await page.getByRole('button', { name: '导出与发回', exact: true }).isDisabled()));
     const reviewLeftBefore = await page.evaluate(() => document.querySelector('.run-primary').getBoundingClientRect().left);
     await page.getByRole('tab', { name: '变更说明' }).click();
@@ -243,7 +243,7 @@ module.exports = {
     await open({ scenario: 'incremental' });
     s = await state();
     check('incremental: carried files plus pending files', s.runStatus === 'partial' && s.pending > 0 &&
-      s.runState === '' && await page.locator('.run-primary').innerText() === 'Review All');
+      s.runState === '' && await page.locator('.run-primary').innerText() === '审查全部');
     await ensureOverview();
     check('incremental: no turn group remains', await page.locator('.carry-grid').count() === 0 &&
       !(await page.locator('.overview-main').innerText()).includes('本轮'));
@@ -368,7 +368,7 @@ module.exports = {
     s = await state();
     check('added requirement: all reviewable files return to pending', s.runStatus === null &&
       s.pending === data.reviewable && s.requirements === data.requirements.length + 1);
-    check('added requirement: notice asks for Review All', await page.locator('.panel-notice').innerText() === '需求依据已更新，Review All 后更新对齐判断');
+    check('added requirement: notice asks for Review All', await page.locator('.panel-notice').innerText() === '需求依据已更新，审查全部后更新对齐判断');
     check('added requirement scenario exports against its previous snapshot', await page.evaluate(() =>
       CRPrototype.exports.buildMarkdown(CRPrototype.app.exportContext()).includes('需求依据已更新') &&
       !CRPrototype.exports.buildMarkdown(CRPrototype.app.exportContext()).includes('这是该交付的第一份审查记录。')));

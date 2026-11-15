@@ -49,6 +49,8 @@
     "prototype/README.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
-    "README.md"
+    "README.md",
+    "plugin/locale",
+    "plugin/icon.svg"
   ]
 }

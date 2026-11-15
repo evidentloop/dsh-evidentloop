@@ -1,4 +1,4 @@
-# 阅变 / EvidentLoop · 0.1.0-rc.1（beta）
+# AI 变更评审 / EvidentLoop · 0.1.0-rc.1（Beta）
 
 面向人工验收的 AI 变更评审插件，当前为未公开发布的候选版本。由人工点击 Review All 或单文件审查；自动触发尚未接入。
 

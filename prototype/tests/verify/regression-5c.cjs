@@ -201,7 +201,7 @@ module.exports = {
     if (scoped('list')) {
       await open({ scenario: 'list' });
       const tableRows = [
-        ['del-demo-partial-pending', ['3 个文件待审'], 'Review All', '3 个文件待审', null, '不完整（3 个文件待审）'],
+        ['del-demo-partial-pending', ['3 个文件待审'], '审查全部', '3 个文件待审', null, '不完整（3 个文件待审）'],
         ['del-demo-partial-failed', ['1 个文件审查失败'], '重试', '1 个文件审查失败', null, '不完整（1 个文件审查失败）'],
         ['del-demo-withheld-only', ['2 条结论未通过校验'], '2 条结论未通过校验', '2 条结论未通过校验', null, '不完整（2 条结论未通过校验）'],
         ['del-demo-run-failed', ['审查失败'], '重试', '审查失败', null, '审查失败'],
