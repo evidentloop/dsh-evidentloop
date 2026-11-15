@@ -32,7 +32,7 @@
           "source": {
             "type": "git",
             "url": "https://github.com/evidentloop/dsh-evidentloop",
-            "commit": "d34fc515df518f9c67329fc7cce278b8b6dd40fd",
+            "commit": "1e3e9f23c8d2897a5a81058d25a933da39b366e3",
             "path": "plugin"
           },
           "engines": {

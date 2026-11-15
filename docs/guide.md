@@ -1,16 +1,16 @@
 ---
 title: EvidentLoop AI 变更评审 · 使用说明
 description: AI 写完代码，先看懂改了什么、有没有问题：变更说明、带证据的代码评审、发回修改与审查留档。
-version: 0.1.0-rc.1 · Beta
+version: 0.1.0-rc.1 · beta
 ---
 
-# AI 变更评审 · EvidentLoop 使用说明
+# EvidentLoop 使用说明
 
 在线说明书：[evidentloop.sanze.dev](https://evidentloop.sanze.dev/guide.html)。
 
 AI 写代码越来越快时，EvidentLoop 帮你把每批改动整理成一份可以验收的交付：看懂改动、核对需求、查出带证据的问题，再发回修改并留档。
 
-当前为 **0.1.0-rc.1（Beta）发布候选**，需手动点击「审查全部」或对单个文件发起审查。自动触发尚未接入，留待后续版本；安装方式见 [仓库安装指南](https://github.com/evidentloop/dsh-evidentloop#安装指南)，Release 附件尚待发布。
+当前为 **0.1.0-rc.1（beta）**。点击「审查全部」或对单个文件发起审查；自动触发尚未接入。安装方式见[仓库安装指南](https://github.com/evidentloop/dsh-evidentloop#安装)。
 
 ## 工作流 {#workflow}
 
@@ -24,7 +24,7 @@ AI 写代码越来越快时，EvidentLoop 帮你把每批改动整理成一份�
 6. **合并与归档**：合并到目标分支后，交付自动收进「已归档」。
 7. **找回或删除**：搜索或展开分组找回；不需要的删除。
 
-本页截图与 [正式插件实录](demo.html) 使用公开项目 Sopify 的真实历史审查记录快照；采集时没有重新调用模型。该快照共 34 个变更文件：已实际审查 1 个，24 个待审，9 个按规则跳过；P2 审查意见经人工复核可标记为非问题，批注为演示操作添加。
+本页截图与[正式插件实录](demo.html)使用公开项目 sopify 的已冻结真实模型记录；采集时没有重新调用模型。该记录仅覆盖 1 个可审文件，其余 24 个保留待审；P2 候选经人工复核可标记为非问题，批注为演示操作添加。
 
 ## 列表与评审台 {#workbench}
 
@@ -36,7 +36,7 @@ AI 写代码越来越快时，EvidentLoop 帮你把每批改动整理成一份�
 - **搜索**：按标题、需求编号或分支，已归档的也能搜到。
 
 
-<figure class="guide-capture"><a href="assets/deliveries-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/deliveries-dark.png"><img src="assets/deliveries-light.png" alt="正式插件交付列表：搜索、过滤与交付卡片" width="760" height="407" loading="lazy"></picture></a><figcaption>正式插件交付列表：搜索、过滤与交付卡片 · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
+<figure class="guide-capture"><a href="assets/deliveries-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/deliveries-dark.png"><img src="assets/deliveries-light.png" alt="正式插件交付列表：搜索、过滤与交付卡片" width="1600" height="1000" loading="lazy"></picture></a><figcaption>正式插件交付列表：搜索、过滤与交付卡片 · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
 
 ### 整批变更说明
 
@@ -62,7 +62,7 @@ AI 写代码越来越快时，EvidentLoop 帮你把每批改动整理成一份�
 - 不认同可以「标记非问题」，随时恢复；也可以在代码行或问题上添加批注。
 
 
-<figure class="guide-capture"><a href="assets/diff-finding-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/diff-finding-dark.png"><img src="assets/diff-finding-light.png" alt="单栏 Diff 与带行定位的真实审查意见" width="1600" height="1000" loading="lazy"></picture></a><figcaption>单栏 Diff 与带行定位的真实审查意见 · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
+<figure class="guide-capture"><a href="assets/diff-finding-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/diff-finding-dark.png"><img src="assets/diff-finding-light.png" alt="单栏 Diff 与带行定位的真实候选问题" width="1600" height="1000" loading="lazy"></picture></a><figcaption>单栏 Diff 与带行定位的真实候选问题 · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
 
 ### 审查记录
 
@@ -78,9 +78,9 @@ AI 写代码越来越快时，EvidentLoop 帮你把每批改动整理成一份�
 
 | 你看到的 | 怎么办 |
 |---|---|
-| 待审 | 点击「审查全部」 |
+| 待审 | 点 「审查全部」 |
 | 审查中 | 稍等，可以取消 |
-| 3 个文件待审 | 点击「审查全部」继续审查剩余文件 |
+| 3 个文件待审 | 点 「审查全部」 审剩下的 |
 | 1 个文件审查失败 | 点重试 |
 | 2 条结论未通过校验 | 引用对不上，没有展示；可以重新审查 |
 | 代码读取不完整 | 按提示处理后重新审查 |

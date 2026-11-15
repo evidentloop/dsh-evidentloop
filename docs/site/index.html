@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; media-src 'self'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'">
-<title>AI 变更评审 · EvidentLoop</title>
+<title>EvidentLoop AI 变更评审</title>
 <meta name="description" content="AI 写完代码，先看懂改了什么、有没有问题：变更说明、带证据的代码评审、发回修改与审查留档。">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
 <link rel="canonical" href="https://evidentloop.sanze.dev/index.html">
 </head>
 <body>
-<header class="bar"><a class="brand" href="index.html"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-tile" x="8" y="8" width="496" height="496" rx="112"/><g transform="translate(256 256) scale(0.78) translate(-244 -244)"><line class="mk-ink" x1="345" y1="345" x2="438" y2="438" stroke-width="96" stroke-linecap="round"/><line class="mk-handle" x1="345" y1="345" x2="438" y2="438" stroke-width="40" stroke-linecap="round"/><circle class="mk-lens" cx="233" cy="233" r="195" stroke-width="32"/><path class="mk-ink" d="M190 185 137 236l53 52M285 185l53 51-53 52" fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>AI 变更评审</span></a>
+<header class="bar"><a class="brand" href="index.html"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-tile" x="8" y="8" width="496" height="496" rx="112"/><g transform="translate(256 256) scale(0.78) translate(-244 -244)"><line class="mk-ink" x1="345" y1="345" x2="438" y2="438" stroke-width="96" stroke-linecap="round"/><line class="mk-handle" x1="345" y1="345" x2="438" y2="438" stroke-width="40" stroke-linecap="round"/><circle class="mk-lens" cx="233" cy="233" r="195" stroke-width="32"/><path class="mk-ink" d="M190 185 137 236l53 52M285 185l53 51-53 52" fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>EvidentLoop</span></a>
 <nav aria-label="站点"><a href="index.html" aria-current="page">介绍</a><a href="demo.html">实录</a><a href="guide-workflow.html">使用说明</a></nav></header>
 <main>
 <section class="hero">
@@ -19,18 +19,18 @@
     <h1>看清 AI 改了什么，<br>再决定要不要合并</h1>
     <p class="lead">AI 写代码越来越快。EvidentLoop 把每批改动整理成可以验收的交付：按功能看懂改动，逐条核对需求，查出带证据的问题；发回会话修改，改完再审。</p>
     <div class="cta"><a class="btn primary" href="guide-workflow.html">阅读使用说明</a><a class="btn ghost" href="#flow">查看工作流</a></div>
-    <p class="note">DeepSeek Harness 插件 · 0.1.0-rc.1 · Beta</p>
+    <p class="note">DeepSeek Harness 插件 · 0.1.0-rc.1 · beta</p>
   </div>
   <figure class="product-preview">
-  <a href="demo.html" aria-label="查看正式插件实录和完整截图">
-    <picture><source media="(prefers-color-scheme: dark)" srcset="assets/diff-finding-dark.png"><img src="assets/diff-finding-light.png" alt="正式插件文件对比：真实模型审查、单栏代码与带行定位的问题卡片" width="1600" height="1000"></picture>
+  <a href="demo.html" aria-label="查看正式插件实录和核心截图">
+    <picture><source media="(prefers-color-scheme: dark)" srcset="assets/diff-finding-dark.png"><img src="assets/diff-finding-light.png" alt="正式插件文件对比：真实模型审查、单栏 Diff 与带行定位的问题卡片" width="1600" height="1000"></picture>
   </a>
   <figcaption>正式插件 · 真实审查记录 <a href="demo.html">查看实录 →</a></figcaption>
 </figure>
 </section>
 <section class="band" id="demo" aria-labelledby="demo-h">
   <h2 id="demo-h">从看懂改动，到发回修改</h2>
-  <p>正式插件实录：加载一份真实历史审查记录快照，查看说明和代码，复核审查意见，导出报告，再写入会话草稿。</p>
+  <p>正式插件实录：加载一份已冻结的真实模型审查记录，查看说明和代码，复核候选问题，导出报告，再写入会话草稿。</p>
   <figure class="workflow-recording">
   <video controls muted playsinline loop preload="none" poster="assets/diff-finding-light.png" aria-label="正式插件工作流录屏：交付列表、变更说明、文件对比、标记非问题、导出、发回草稿">
     <source src="assets/workflow.webm" type="video/webm">
@@ -39,12 +39,74 @@
   </video>
   <figcaption>交付列表 → 变更说明 → 文件对比 → 标记非问题 → 导出 → 发回草稿。点击播放，可随时暂停。</figcaption>
 </figure>
-  <p class="note">公开项目 Sopify 的真实记录；本次采集没有重新调用模型。该快照共 34 个变更文件：已实际审查 1 个，24 个待审，9 个按规则跳过。<a href="demo.html">查看浅深主题截图与完整说明 →</a></p>
+  <p class="note">公开项目 sopify 的真实记录；本次采集没有重新调用模型。该记录只审查了 1 个文件，24 个文件尚未完成。<a href="demo.html">查看浅深主题截图与完整说明 →</a></p>
 </section>
 <section class="band" id="flow" aria-labelledby="flow-h">
   <h2 id="flow-h">在会话和评审台之间循环</h2>
   <p>你在会话里改，在评审台里看；修改要求发回会话，改完再审，直到可以放心合并。</p>
-  <div class="flow"><img class="flow-wide" src="flow-wide.svg" alt="AI 变更评审工作流：手动审查、人工复核、发回修改或导出"><img class="flow-narrow" src="flow-narrow.svg" alt="AI 变更评审工作流：修改、审查、复核与反馈循环"></div>
+  <div class="flow"><svg class="flow-wide" viewBox="0 0 900 290" role="img" aria-labelledby="fw-t">
+<title id="fw-t">一次交付的工作流：会话里改代码，评审台评审，发回与再审形成回环，通过后合并并归档</title>
+<defs>
+<marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head"/></marker>
+<marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head-loop"/></marker>
+</defs>
+<rect class="fl-lane" data-graph-role="container" x="10" y="28" width="880" height="96" rx="12"/>
+<rect class="fl-lane" data-graph-role="container" x="10" y="166" width="880" height="96" rx="12"/>
+<text class="fl-lane-t" x="30" y="81">会话</text>
+<text class="fl-lane-t" x="30" y="219">评审台</text>
+<path class="fl-arrow" d="M195 102 V188" marker-end="url(#fa)"/>
+<path class="fl-arrow" d="M282 214 H398" marker-end="url(#fa)"/>
+<path class="fl-loop" d="M455 188 V102" marker-end="url(#fl)"/>
+<path class="fl-loop" d="M515 102 V188" marker-end="url(#fl)"/>
+<path class="fl-arrow" d="M572 214 H688" marker-end="url(#fa)"/>
+<text class="fl-label fl-label-loop" x="445" y="149" text-anchor="end">发回修改 / 继续提需求</text>
+<text class="fl-label fl-label-loop" x="525" y="149">再审</text>
+<text class="fl-label" x="630" y="204" text-anchor="middle">通过</text>
+<rect class="fl-node" x="110" y="50" width="170" height="52" rx="10"/>
+<text class="fl-t" x="195.0" y="72" text-anchor="middle">改代码</text>
+<text class="fl-s" x="195.0" y="90" text-anchor="middle">照常在会话里对话</text>
+<rect class="fl-node fl-node-loop" x="400" y="50" width="170" height="52" rx="10"/>
+<text class="fl-t" x="485.0" y="72" text-anchor="middle">按意见再改</text>
+<text class="fl-s" x="485.0" y="90" text-anchor="middle">AI 处理批注与问题</text>
+<rect class="fl-node" x="110" y="188" width="170" height="52" rx="10"/>
+<text class="fl-t" x="195.0" y="210" text-anchor="middle">交付出现</text>
+<text class="fl-s" x="195.0" y="228" text-anchor="middle">每个分支一个交付</text>
+<rect class="fl-node fl-node-key" x="400" y="188" width="170" height="52" rx="10"/>
+<text class="fl-t" x="485.0" y="210" text-anchor="middle">评审</text>
+<text class="fl-s" x="485.0" y="228" text-anchor="middle">说明 · 问题 · 需求对齐</text>
+<rect class="fl-node" x="690" y="188" width="170" height="52" rx="10"/>
+<text class="fl-t" x="775.0" y="210" text-anchor="middle">合并与归档</text>
+<text class="fl-s" x="775.0" y="228" text-anchor="middle">可随时找回或删除</text>
+</svg><svg class="flow-narrow" viewBox="0 0 360 380" role="img" aria-labelledby="fn-t">
+<title id="fn-t">一次交付的工作流</title>
+<defs>
+<marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head"/></marker>
+<marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head-loop"/></marker>
+</defs>
+<path class="fl-arrow" d="M95 74 V110" marker-end="url(#fa)"/>
+<path class="fl-arrow" d="M95 164 V200" marker-end="url(#fa)"/>
+<path class="fl-loop" d="M172 218 H226" marker-end="url(#fl)"/>
+<path class="fl-loop" d="M226 242 H172" marker-end="url(#fl)"/>
+<path class="fl-arrow" d="M95 256 V312" marker-end="url(#fa)"/>
+<text class="fl-label fl-label-loop" x="199" y="210" text-anchor="middle">发回</text>
+<text class="fl-label fl-label-loop" x="199" y="260" text-anchor="middle">再审</text>
+<text class="fl-label" x="105" y="290">通过</text>
+<rect class="fl-node" x="20" y="20" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="42" text-anchor="middle">改代码</text>
+<text class="fl-s" x="95.0" y="60" text-anchor="middle">会话中与 AI 对话</text>
+<rect class="fl-node" x="20" y="110" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="132" text-anchor="middle">交付出现</text>
+<text class="fl-s" x="95.0" y="150" text-anchor="middle">评审台 · 分支交付</text>
+<rect class="fl-node fl-node-key" x="20" y="202" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="224" text-anchor="middle">评审</text>
+<text class="fl-s" x="95.0" y="242" text-anchor="middle">评审台 · 说明与问题</text>
+<rect class="fl-node fl-node-loop" x="228" y="202" width="120" height="54" rx="10"/>
+<text class="fl-t" x="288.0" y="224" text-anchor="middle">按意见再改</text>
+<text class="fl-s" x="288.0" y="242" text-anchor="middle">会话 · AI 修改</text>
+<rect class="fl-node" x="20" y="314" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="336" text-anchor="middle">合并与归档</text>
+<text class="fl-s" x="95.0" y="354" text-anchor="middle">分支合并 · 自动归档</text>
+</svg></div>
 </section>
 <section class="band" aria-labelledby="caps-h">
   <h2 id="caps-h">你会得到什么</h2>
@@ -65,6 +127,6 @@
   </div>
 </section>
 </main>
-<footer class="site"><span>AI 变更评审 · EvidentLoop · MIT 许可</span><span>0.1.0-rc.1 · Beta</span><span>界面以实际发布的版本为准</span></footer>
+<footer class="site"><span>EvidentLoop · MIT 许可</span><span>0.1.0-rc.1 · beta</span><span>界面以实际发布的版本为准</span></footer>
 </body>
 </html>

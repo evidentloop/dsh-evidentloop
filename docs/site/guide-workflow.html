@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self'; media-src 'self'; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'">
-<title>工作流 · AI 变更评审 · EvidentLoop 使用说明</title>
+<title>工作流 · EvidentLoop 使用说明</title>
 <meta name="description" content="AI 写完代码，先看懂改了什么、有没有问题：变更说明、带证据的代码评审、发回修改与审查留档。">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
 <link rel="canonical" href="https://evidentloop.sanze.dev/guide-workflow.html">
 </head>
 <body>
-<header class="bar"><a class="brand" href="index.html"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-tile" x="8" y="8" width="496" height="496" rx="112"/><g transform="translate(256 256) scale(0.78) translate(-244 -244)"><line class="mk-ink" x1="345" y1="345" x2="438" y2="438" stroke-width="96" stroke-linecap="round"/><line class="mk-handle" x1="345" y1="345" x2="438" y2="438" stroke-width="40" stroke-linecap="round"/><circle class="mk-lens" cx="233" cy="233" r="195" stroke-width="32"/><path class="mk-ink" d="M190 185 137 236l53 52M285 185l53 51-53 52" fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>AI 变更评审</span></a>
+<header class="bar"><a class="brand" href="index.html"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-tile" x="8" y="8" width="496" height="496" rx="112"/><g transform="translate(256 256) scale(0.78) translate(-244 -244)"><line class="mk-ink" x1="345" y1="345" x2="438" y2="438" stroke-width="96" stroke-linecap="round"/><line class="mk-handle" x1="345" y1="345" x2="438" y2="438" stroke-width="40" stroke-linecap="round"/><circle class="mk-lens" cx="233" cy="233" r="195" stroke-width="32"/><path class="mk-ink" d="M190 185 137 236l53 52M285 185l53 51-53 52" fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>EvidentLoop</span></a>
 <nav aria-label="站点"><a href="index.html">介绍</a><a href="demo.html">实录</a><a href="guide-workflow.html" aria-current="page">使用说明</a></nav></header>
 <div class="doc">
 <nav class="toc" aria-label="章节"><ol><li class="on"><a href="guide-workflow.html" aria-current="page">工作流</a></li><li><a href="guide-workbench.html">列表与评审台</a></li><li><a href="guide-status.html">状态、发回与导出</a></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></nav>
@@ -19,7 +19,7 @@
 <article>
 <header class="doc-header"><h1>工作流</h1><p class="lead">在线说明书：<a href="https://evidentloop.sanze.dev/guide.html">evidentloop.sanze.dev</a>。</p>
 <p>AI 写代码越来越快时，EvidentLoop 帮你把每批改动整理成一份可以验收的交付：看懂改动、核对需求、查出带证据的问题，再发回修改并留档。</p>
-<p>当前为 <strong>0.1.0-rc.1（Beta）发布候选</strong>，需手动点击「审查全部」或对单个文件发起审查。自动触发尚未接入，留待后续版本；安装方式见 <a href="https://github.com/evidentloop/dsh-evidentloop#%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97">仓库安装指南</a>，Release 附件尚待发布。</p>
+<p>当前为 <strong>0.1.0-rc.1（beta）</strong>。点击「审查全部」或对单个文件发起审查；自动触发尚未接入。安装方式见<a href="https://github.com/evidentloop/dsh-evidentloop#%E5%AE%89%E8%A3%85">仓库安装指南</a>。</p>
 </header>
 <p>无需先提交：仓库尚无历史提交时，本地工作树中的文件全部视为新增，可直接审查。已有提交的仓库继续按目标分支对比；工作区没有文件时显示空态。</p>
 <ol>
@@ -31,11 +31,11 @@
 <li><strong>合并与归档</strong>：合并到目标分支后，交付自动收进「已归档」。</li>
 <li><strong>找回或删除</strong>：搜索或展开分组找回；不需要的删除。</li>
 </ol>
-<p>本页截图与 <a href="demo.html">正式插件实录</a> 使用公开项目 Sopify 的真实历史审查记录快照；采集时没有重新调用模型。该快照共 34 个变更文件：已实际审查 1 个，24 个待审，9 个按规则跳过；P2 审查意见经人工复核可标记为非问题，批注为演示操作添加。</p>
+<p>本页截图与<a href="demo.html">正式插件实录</a>使用公开项目 sopify 的已冻结真实模型记录；采集时没有重新调用模型。该记录仅覆盖 1 个可审文件，其余 24 个保留待审；P2 候选经人工复核可标记为非问题，批注为演示操作添加。</p>
 
 <nav class="pager" aria-label="翻页"><span></span><a class="next" href="guide-workbench.html"><small>下一章</small>列表与评审台</a></nav>
 </article>
 </div>
-<footer class="site"><span>AI 变更评审 · EvidentLoop · MIT 许可</span><span>0.1.0-rc.1 · Beta</span><span>界面以实际发布的版本为准</span></footer>
+<footer class="site"><span>EvidentLoop · MIT 许可</span><span>0.1.0-rc.1 · beta</span><span>界面以实际发布的版本为准</span></footer>
 </body>
 </html>

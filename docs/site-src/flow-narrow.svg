@@ -1,73 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="flow-narrow" viewBox="0 0 460 1080" width="460" height="1080" role="img" aria-labelledby="eln-title eln-desc">
-<title id="eln-title">AI 变更评审：从代码改动到人工验收</title>
-<desc id="eln-desc">会话中改代码，打开分支交付，手动发起审查，人工复核；确认完成后导出，需修改时发回草稿，由用户发送后继续修改与再审。</desc>
-<style>
-.eln-canvas{fill:#f6f8fc}.eln-node{fill:#fff;stroke:#dce3ef;stroke-width:1.5}.eln-key{fill:#edf3ff;stroke:#b2c9fa}.eln-text{fill:#17243c;font:600 16px system-ui,"PingFang SC",sans-serif}.eln-sub{fill:#596a83;font:12px system-ui,"PingFang SC",sans-serif}.eln-eyebrow{fill:#4868b2;font:600 12px system-ui,sans-serif;letter-spacing:1.5px}.eln-title{fill:#17243c;font:600 24px system-ui,"PingFang SC",sans-serif}.eln-icon{fill:none;stroke:#4176e6;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.eln-main{fill:none;stroke:#4176e6;stroke-width:2}.eln-feedback{fill:none;stroke:#74849d;stroke-width:2;stroke-dasharray:6 5}.eln-badge{fill:#edf3ff}
-@media(prefers-color-scheme:dark){.eln-canvas{fill:#111927}.eln-node{fill:#1a2536;stroke:#34435a}.eln-key{fill:#1b2e4e;stroke:#4d6a98}.eln-text,.eln-title{fill:#e4edff}.eln-sub{fill:#adbbd1}.eln-eyebrow{fill:#7aaaff}.eln-icon{stroke:#7aaaff}.eln-main{stroke:#7aaaff}.eln-feedback{stroke:#9baac1}.eln-badge{fill:#233956}}
-</style><defs>
-<marker id="eln-main-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 7 4 1 7" fill="none" stroke="#4176e6" stroke-width="1.5"/></marker>
-<marker id="eln-feedback-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M1 1 7 4 1 7" fill="none" stroke="#74849d" stroke-width="1.5"/></marker>
+<svg class="flow-narrow" viewBox="0 0 360 380" role="img" aria-labelledby="fn-t">
+<title id="fn-t">一次交付的工作流</title>
+<defs>
+<marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head"/></marker>
+<marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head-loop"/></marker>
 </defs>
-<rect class="eln-canvas" width="460" height="1080" rx="20"/>
-<text class="eln-eyebrow" x="40" y="42">EVIDENTLOOP / WORKFLOW</text>
-<text class="eln-title" x="40" y="78">看清变更，再决定合并</text>
-<path data-graph-role="edge" data-source="edit" data-target="delivery" class="eln-main" d="M205 224V280" marker-end="url(#eln-main-arrow)"/>
-<path data-graph-role="edge" data-source="delivery" data-target="review" class="eln-main" d="M205 376V432" marker-end="url(#eln-main-arrow)"/>
-<path data-graph-role="edge" data-source="review" data-target="human" class="eln-main" d="M205 528V584" marker-end="url(#eln-main-arrow)"/>
-<path data-graph-role="edge" data-source="human" data-target="feedback" class="eln-feedback" d="M205 680V736" marker-end="url(#eln-feedback-arrow)"/>
-<path data-graph-role="edge" data-source="human" data-target="export" class="eln-main" d="M330 632H372V936H330" marker-end="url(#eln-main-arrow)"/>
-<path data-graph-role="edge" data-source="feedback" data-target="edit" class="eln-feedback" d="M80 784H40V176H80" marker-end="url(#eln-feedback-arrow)"/>
-<g data-graph-role="node" data-node-id="edit" data-bounds="80,128,250,96">
-<rect class="eln-node" x="80" y="128" width="250" height="96" rx="12"/>
-<rect class="eln-badge" x="96" y="142" width="32" height="32" rx="8"/>
-<g class="eln-icon" transform="translate(100 146)"><path d="m5 15 9-9 4 4-9 9-5 1zM13 7l4 4M4 22h16"/></g>
-<text class="eln-eyebrow" x="314" y="162" text-anchor="end">01</text>
-<text class="eln-text" x="96" y="194">会话中改代码</text>
-<text class="eln-sub" x="96" y="214">照常让 AI 完成修改</text>
-</g>
-<g data-graph-role="node" data-node-id="delivery" data-bounds="80,280,250,96">
-<rect class="eln-node" x="80" y="280" width="250" height="96" rx="12"/>
-<rect class="eln-badge" x="96" y="294" width="32" height="32" rx="8"/>
-<g class="eln-icon" transform="translate(100 298)"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 10h18M8 4v6m8-6v6M8 15h8"/></g>
-<text class="eln-eyebrow" x="314" y="314" text-anchor="end">02</text>
-<text class="eln-text" x="96" y="346">打开分支交付</text>
-<text class="eln-sub" x="96" y="366">左侧「变更评审」</text>
-</g>
-<g data-graph-role="node" data-node-id="review" data-bounds="80,432,250,96">
-<rect class="eln-node eln-key" x="80" y="432" width="250" height="96" rx="12"/>
-<rect class="eln-badge" x="96" y="446" width="32" height="32" rx="8"/>
-<g class="eln-icon" transform="translate(100 450)"><path d="m8 5-5 7 5 7m8-14 5 7-5 7m-3-16-2 18"/></g>
-<text class="eln-eyebrow" x="314" y="466" text-anchor="end">03</text>
-<text class="eln-text" x="96" y="498">手动发起审查</text>
-<text class="eln-sub" x="96" y="518">看说明 · 核需求 · 对 Diff</text>
-</g>
-<g data-graph-role="node" data-node-id="human" data-bounds="80,584,250,96">
-<rect class="eln-node eln-key" x="80" y="584" width="250" height="96" rx="12"/>
-<rect class="eln-badge" x="96" y="598" width="32" height="32" rx="8"/>
-<g class="eln-icon" transform="translate(100 602)"><circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></g>
-<text class="eln-eyebrow" x="314" y="618" text-anchor="end">04</text>
-<text class="eln-text" x="96" y="650">人工复核</text>
-<text class="eln-sub" x="96" y="670">对照代码，确认 AI 判断</text>
-</g>
-<g data-graph-role="node" data-node-id="export" data-bounds="80,888,250,96">
-<rect class="eln-node" x="80" y="888" width="250" height="96" rx="12"/>
-<rect class="eln-badge" x="96" y="902" width="32" height="32" rx="8"/>
-<g class="eln-icon" transform="translate(100 906)"><path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/></g>
-<text class="eln-eyebrow" x="314" y="922" text-anchor="end">05</text>
-<text class="eln-text" x="96" y="954">导出与归档</text>
-<text class="eln-sub" x="96" y="974">导出报告 · 合并后归档</text>
-</g>
-<g data-graph-role="node" data-node-id="feedback" data-bounds="80,736,250,96">
-<rect class="eln-node" x="80" y="736" width="250" height="96" rx="12"/>
-<rect class="eln-badge" x="96" y="750" width="32" height="32" rx="8"/>
-<g class="eln-icon" transform="translate(100 754)"><path d="M20 14V4H4v14h6m2-6h9m-4-4 4 4-4 4M5 8h10"/></g>
-<text class="eln-eyebrow" x="314" y="770" text-anchor="end">↺</text>
-<text class="eln-text" x="96" y="802">发回修改草稿</text>
-<text class="eln-sub" x="96" y="822">你确认发送，再改再审</text>
-</g>
-<text class="eln-sub" x="354" y="824" text-anchor="middle" transform="rotate(90 354 824)">确认完成</text>
-<text class="eln-sub" x="52" y="478" transform="rotate(-90 52 478)">确认发送后修改 · 改完再审</text>
-<text class="eln-sub" x="218" y="714">需要修改</text>
-<path class="eln-main" d="M48 1052h24"/><text class="eln-sub" x="80" y="1056">评审流程</text>
-<path class="eln-feedback" d="M190 1052h24"/><text class="eln-sub" x="222" y="1056">需人工确认的反馈</text>
+<path class="fl-arrow" d="M95 74 V110" marker-end="url(#fa)"/>
+<path class="fl-arrow" d="M95 164 V200" marker-end="url(#fa)"/>
+<path class="fl-loop" d="M172 218 H226" marker-end="url(#fl)"/>
+<path class="fl-loop" d="M226 242 H172" marker-end="url(#fl)"/>
+<path class="fl-arrow" d="M95 256 V312" marker-end="url(#fa)"/>
+<text class="fl-label fl-label-loop" x="199" y="210" text-anchor="middle">发回</text>
+<text class="fl-label fl-label-loop" x="199" y="260" text-anchor="middle">再审</text>
+<text class="fl-label" x="105" y="290">通过</text>
+<rect class="fl-node" x="20" y="20" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="42" text-anchor="middle">改代码</text>
+<text class="fl-s" x="95.0" y="60" text-anchor="middle">会话中与 AI 对话</text>
+<rect class="fl-node" x="20" y="110" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="132" text-anchor="middle">交付出现</text>
+<text class="fl-s" x="95.0" y="150" text-anchor="middle">评审台 · 分支交付</text>
+<rect class="fl-node fl-node-key" x="20" y="202" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="224" text-anchor="middle">评审</text>
+<text class="fl-s" x="95.0" y="242" text-anchor="middle">评审台 · 说明与问题</text>
+<rect class="fl-node fl-node-loop" x="228" y="202" width="120" height="54" rx="10"/>
+<text class="fl-t" x="288.0" y="224" text-anchor="middle">按意见再改</text>
+<text class="fl-s" x="288.0" y="242" text-anchor="middle">会话 · AI 修改</text>
+<rect class="fl-node" x="20" y="314" width="150" height="54" rx="10"/>
+<text class="fl-t" x="95.0" y="336" text-anchor="middle">合并与归档</text>
+<text class="fl-s" x="95.0" y="354" text-anchor="middle">分支合并 · 自动归档</text>
 </svg>
