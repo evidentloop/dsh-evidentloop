@@ -9,7 +9,7 @@ import { fixture, bundle, until, syntheticModel } from '../../core/tests/helpers
 import { validate } from '../../core/validate.mjs';
 import { modelFor } from '../../core/fixtures/model.mjs';
 import { badCases } from '../../core/fixtures/cases.mjs';
-import { errorMessage, UNBORN_HEAD_MESSAGE } from '../shared/contracts.ts';
+import { errorMessage, EMPTY_WORKTREE_MESSAGE } from '../shared/contracts.ts';
 import { freezeMethod } from '../../core/lib/method.mjs';
 import { loadBundle, projectFor, SyntheticAdapter } from '../../core/index.mjs';
 import { ClientBridge } from '../host/bridge.ts';
@@ -74,16 +74,15 @@ await test('presentation envelopes preserve every existing four-layer rejection 
     assert.deepEqual(fenced, direct);
   }
 });
-await test('unborn preparation errors are friendly in the shared host and UI formatter', () => {
-  const e = Object.assign(new Error('raw diagnostics'), {code:'unborn-head'}); assert.equal(errorMessage(e), UNBORN_HEAD_MESSAGE);
-  assert.equal(errorMessage(new Error("Read-only git rev-parse failed: fatal: ambiguous argument 'HEAD': unknown revision")), UNBORN_HEAD_MESSAGE);
+await test('empty working trees retain a friendly message through the shared host and UI formatter', () => {
+  assert.equal(errorMessage(new Error(EMPTY_WORKTREE_MESSAGE)), '当前仓库还没有文件。');
   assert.equal(errorMessage(new Error('An unrelated filesystem failure')), 'An unrelated filesystem failure');
 });
 await test('conversation capture failure stays in the conversation; success reveals only the ready review panel', async () => {
   let shown = 0, opened = null; const runtime = new ClientRuntime({showPanel:()=>shown++});
   runtime.api = async()=>({available:true,workspaceId:'w1',sessionId:'dev'});
-  runtime.run = async()=>({status:'incomplete',code:'unborn-head',reason:UNBORN_HEAD_MESSAGE});
-  await assert.rejects(runtime.openFromSession('dev'), e=>e.message===UNBORN_HEAD_MESSAGE);
+  runtime.run = async()=>({status:'incomplete',code:'empty-worktree',reason:EMPTY_WORKTREE_MESSAGE});
+  await assert.rejects(runtime.openFromSession('dev'), e=>e.message===EMPTY_WORKTREE_MESSAGE);
   assert.equal(shown,0); assert.equal(runtime.state.page,'list'); assert.equal(runtime.state.error,'');
   runtime.run = async()=>({status:'pending',deliveryId:'delivery',snapshotId:'snapshot'});
   runtime.open = async (...args)=>{assert.equal(shown,0);opened=args;};

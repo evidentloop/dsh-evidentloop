@@ -26,7 +26,8 @@ export interface FileEntry {
   deletions?: number;
 }
 export interface Range {
-  headSha: string;
+  kind?: "merge-base-worktree" | "empty-tree-worktree";
+  headSha: string | null;
   baseSha: string;
   targetRef: string;
   headSubject?: string;

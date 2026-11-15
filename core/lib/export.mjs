@@ -110,8 +110,8 @@ export function sections(data) {
 }
 function heading(data) {
   const range = data.snapshot.range;
-  return [`${data.delivery.title}${data.delivery.externalRef ? ' · ' + data.delivery.externalRef : ''}`, `分支：${data.delivery.branch || '分支信息不可用'} · 范围：${range.targetRef} merge-base ↔ 工作树`,
-    `审查时间：${data.run?.endedAt || data.snapshot.createdAt} · 基于提交：${range.headSubject || '提交'}（${(range.headSha || '').slice(0, 8)}）${range.dirty ? ' · 含未提交改动' : ''}`,
+  return [`${data.delivery.title}${data.delivery.externalRef ? ' · ' + data.delivery.externalRef : ''}`, `分支：${data.delivery.branch || '分支信息不可用'} · 范围：${range.kind==='empty-tree-worktree'?'无历史提交，全部视为新增':range.targetRef+' merge-base ↔ 工作树'}`,
+    `审查时间：${data.run?.endedAt || data.snapshot.createdAt} · 基于提交：${range.kind==='empty-tree-worktree'?'无历史提交':(range.headSubject||'提交')+'（'+(range.headSha||'').slice(0,8)+'）'}${range.dirty ? ' · 含未提交改动' : ''}`,
     (data.summaryOnly ? '报告仅摘要（正文有省略） · 原审查状态：' : '') + (data.run?.model?.adapter === 'synthetic' ? '合成测试（未调用真实模型） · 合同推导状态：' : '') + data.status, `内置规则版本：${data.snapshot.rulesVersion} · 扩展提示词：${data.snapshot.extensionPrompt ? '已使用 · ' + data.snapshot.extensionPrompt.originalLength + ' 字' : '未使用'}`];
 }
 export function markdown(context, options = {}) {

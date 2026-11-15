@@ -38,7 +38,7 @@ export class Drafts {
       if (!u || !(u.features.length || u.files.some(f => f.semantic.items.length) || u.impacts.length)) return { available: false, reason: '先完成审查，尚无通过校验的说明' };
       const safeSkill = Array.from(redactText(skillName, this.patterns).replace(/[\r\n]/g, ' ')).slice(0, 120).join('');
       const range = data.snapshot.range;
-      groups.push(['补充说明', [{ id: 'source', text: `${footer}\n范围：${range.targetRef} merge-base ↔ 工作树\n基于提交：${range.headSubject || '提交'}（${(range.headSha || '').slice(0, 8)}）${range.dirty ? '，含未提交改动' : ''}\n请用本地Skill「${safeSkill}」增强以下说明。以所附说明为输入，资料不足请指出；不改写审查结论；本任务不修改业务代码。\n交付目标：${u.overview.purpose}` },
+      groups.push(['补充说明', [{ id: 'source', text: `${footer}\n范围：${range.kind==='empty-tree-worktree'?'无历史提交，全部视为新增':range.targetRef+' merge-base ↔ 工作树'}\n基于提交：${range.kind==='empty-tree-worktree'?'无历史提交':(range.headSubject||'提交')+'（'+(range.headSha||'').slice(0,8)+'）'}${range.dirty ? '，含未提交改动' : ''}\n请用本地Skill「${safeSkill}」增强以下说明。以所附说明为输入，资料不足请指出；不改写审查结论；本任务不修改业务代码。\n交付目标：${u.overview.purpose}` },
         ...u.features.map(f => ({ id: f.featureId, text: `${f.title}：${f.approach}\n文件：${f.files.join('、')}\n引用：${f.refs.map(r => `${r.path}:${r.startLine}–${r.endLine}（${r.side}）`).join('、')}` })),
         { id: 'coverage', text: `已审查${run.coverage.reviewed.length}个文件；未通过校验${run.coverage.withheld.length}条；失败${run.coverage.failed.length}个文件。` }]]);
     }

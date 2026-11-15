@@ -15,7 +15,7 @@
     },
     {
       "path": "core/lib/deliveries.mjs",
-      "sha256": "cccc98dacf9bf4dded576f85c692bce1ecfaf96148a6a032bcc19864db9a5a4c"
+      "sha256": "aaa7a63d1c03ebdffbbbc23dacd4a19362d85d598e0ab9f0823698487f450307"
     },
     {
       "path": "core/lib/diff.mjs",
@@ -23,19 +23,19 @@
     },
     {
       "path": "core/lib/drafts.mjs",
-      "sha256": "da483a8059b2f9416e4f4be8f1934f74e771b33436a123717156333bc2d9b073"
+      "sha256": "fe2251634efa78e0b7e24bb0d60803bc0eafb6e5eeecda29c89735edd1348a6f"
     },
     {
       "path": "core/lib/engine.mjs",
-      "sha256": "e9cb63c174026210b3b35e02340c1c7be54eb9e518ebddd55e126e17e2729364"
+      "sha256": "a349c2f3a805a60e482d4b5947fd02681a5b284154fcfb333d928d415ebd8377"
     },
     {
       "path": "core/lib/export.mjs",
-      "sha256": "5cd6c1306ac45400b95b1ddc4d305ebf240be10aae389512d8591b9582c32f00"
+      "sha256": "91e0b9991d1aad6aef50bb596d789c6e201dbc0cb24cdef12b09b65425f03368"
     },
     {
       "path": "core/lib/git.mjs",
-      "sha256": "88b39adf229ec1f9616f9e9b738cb93f162ba165767c3c1371c9cfcb0d8e0d54"
+      "sha256": "7ff1a652c492bba0e4d53966984a7fa51aa3ad3636ccb26472b8737071129a9c"
     },
     {
       "path": "core/lib/incremental.mjs",
@@ -63,7 +63,7 @@
     },
     {
       "path": "core/prepare.mjs",
-      "sha256": "07e03eda760d93a8b9888db6237b4e504ef76210456dbe9d97f71bef3b27aa2a"
+      "sha256": "ca277d04b5121ddd3d243e6b1c9ce5e7ca5706c730d0b894dd1f659ab3c6274e"
     },
     {
       "path": "core/validate.mjs",
@@ -85,7 +85,7 @@
     },
     {
       "path": "core/lib/deliveries.mjs",
-      "sha256": "cccc98dacf9bf4dded576f85c692bce1ecfaf96148a6a032bcc19864db9a5a4c"
+      "sha256": "aaa7a63d1c03ebdffbbbc23dacd4a19362d85d598e0ab9f0823698487f450307"
     },
     {
       "path": "core/lib/diff.mjs",
@@ -93,19 +93,19 @@
     },
     {
       "path": "core/lib/drafts.mjs",
-      "sha256": "da483a8059b2f9416e4f4be8f1934f74e771b33436a123717156333bc2d9b073"
+      "sha256": "fe2251634efa78e0b7e24bb0d60803bc0eafb6e5eeecda29c89735edd1348a6f"
     },
     {
       "path": "core/lib/engine.mjs",
-      "sha256": "e9cb63c174026210b3b35e02340c1c7be54eb9e518ebddd55e126e17e2729364"
+      "sha256": "a349c2f3a805a60e482d4b5947fd02681a5b284154fcfb333d928d415ebd8377"
     },
     {
       "path": "core/lib/export.mjs",
-      "sha256": "5cd6c1306ac45400b95b1ddc4d305ebf240be10aae389512d8591b9582c32f00"
+      "sha256": "91e0b9991d1aad6aef50bb596d789c6e201dbc0cb24cdef12b09b65425f03368"
     },
     {
       "path": "core/lib/git.mjs",
-      "sha256": "88b39adf229ec1f9616f9e9b738cb93f162ba165767c3c1371c9cfcb0d8e0d54"
+      "sha256": "7ff1a652c492bba0e4d53966984a7fa51aa3ad3636ccb26472b8737071129a9c"
     },
     {
       "path": "core/lib/incremental.mjs",
@@ -133,7 +133,7 @@
     },
     {
       "path": "core/prepare.mjs",
-      "sha256": "07e03eda760d93a8b9888db6237b4e504ef76210456dbe9d97f71bef3b27aa2a"
+      "sha256": "ca277d04b5121ddd3d243e6b1c9ce5e7ca5706c730d0b894dd1f659ab3c6274e"
     },
     {
       "path": "core/validate.mjs",
@@ -141,7 +141,7 @@
     },
     {
       "path": "plugin/client/app.tsx",
-      "sha256": "1012950d4120fb317422cf2446756cf9f3a3db810bfaf2080c0b750a33bb2046"
+      "sha256": "77b4aed70a1aa44c129c76e222779124fe9b83d2c05b98c26f6b926e33c99a64"
     },
     {
       "path": "plugin/client/diff.tsx",
@@ -149,7 +149,7 @@
     },
     {
       "path": "plugin/client/index.tsx",
-      "sha256": "659541721a1b681a3aa09044f351c95baa66183be17de895d4e457dd1c1de1f7"
+      "sha256": "3dfebd4d0cbe7cc3c87a8a5e181a29be4eb670fbb79e3fd593b18e668db8b0ad"
     },
     {
       "path": "plugin/client/list.tsx",
@@ -165,7 +165,7 @@
     },
     {
       "path": "plugin/client/review.tsx",
-      "sha256": "d21347915d58605ea01535718c2ed21ac28acd3e27710d624ea2a0967d73244f"
+      "sha256": "c76821607e6353341823b594f70658068d6a572cc12c1e424e2f8251b5e21984"
     },
     {
       "path": "plugin/client/runtime.ts",
@@ -177,7 +177,7 @@
     },
     {
       "path": "plugin/client/styles.css",
-      "sha256": "ac3f2f4ab793553e60b511e4ffc0218fe3cd2cf42f50ff9880a673fcde5f271d"
+      "sha256": "bb55c561a7fd590ffbba5c0f419c62f18191be9c4dcc1121171814a2d8932bd8"
     },
     {
       "path": "plugin/client/ui.tsx",
@@ -201,11 +201,11 @@
     },
     {
       "path": "plugin/host/service.ts",
-      "sha256": "b5d665f5642a815c531cad1280532d863c85ebfa9150bebd1b0f5477574f5e03"
+      "sha256": "d4e2460296b91fe815efd15796fe43081ad7b28520f5d6836c555f8f1014f9cd"
     },
     {
       "path": "plugin/shared/contracts.ts",
-      "sha256": "4ad22485ee8c514295c8eeeb8ca09aa54acb1eb4eb6dd17b05a7711bd6b4811e"
+      "sha256": "cd50733f5dd357d2a0bb8cb59ee2baa3086a790bc2b3deb191dff41252a27de7"
     }
   ],
   "methodFiles": [

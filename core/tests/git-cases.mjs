@@ -6,7 +6,7 @@ import { prepare, loadBundle, ReviewCore, SyntheticAdapter } from '../index.mjs'
 import { fixture, treeDigest, setup, bundle } from './helpers.mjs';
 import { repository } from './repo-fixture.mjs';
 
-function writeIndex(repo, entries, extension = null) {
+export function writeIndex(repo, entries, extension = null) {
   const header = Buffer.alloc(12); header.write('DIRC'); header.writeUInt32BE(2, 4); header.writeUInt32BE(entries.length, 8);
   const rows = entries.sort((a, b) => a.name.localeCompare(b.name) || a.stage - b.stage).map(e => {
     const fixed = Buffer.alloc(62); fixed.writeUInt32BE(parseInt(e.mode || '100644', 8), 24); Buffer.from(e.oid, 'hex').copy(fixed, 40);

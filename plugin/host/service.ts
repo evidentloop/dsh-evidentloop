@@ -26,7 +26,7 @@ import {
   compareSnapshots,
   redactText,
 } from "../../core/index.mjs";
-import { createGit, rangeOf, branchLabelOf } from "../../core/lib/git.mjs";
+import { createGit, rangeOf, branchLabelOf, currentBranchOf } from "../../core/lib/git.mjs";
 import { inside, isTarget } from "../../core/lib/common.mjs";
 import { ClientBridge } from "./bridge.ts";
 import { DshAdapter } from "./dsh-adapter.ts";
@@ -335,17 +335,14 @@ export class PluginService {
         this.core.writable(project.projectKey, body.snapshotId, false);
       }
       const git = createGit(project.repoRoot),
-        branch = git
-          .run(["rev-parse", "--abbrev-ref", "HEAD"])
-          .toString()
-          .trim();
+        branch = currentBranchOf(git);
       const range = rangeOf(
         git,
         this.core.store.settings(project.projectKey).targetBranch || undefined,
       );
       delivery ||= this.core.deliveries.findOpen(project.projectKey, {
         branch,
-        targetBranch: branchLabelOf(git, range.targetRef),
+        targetBranch: range.kind === "empty-tree-worktree" ? branch : branchLabelOf(git, range.targetRef),
         session: source,
       });
       if (delivery) {

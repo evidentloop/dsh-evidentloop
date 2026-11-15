@@ -4,24 +4,40 @@ import assert from 'node:assert/strict';
 import { setup, bundle, syntheticModel, fixture, deferred, until } from './helpers.mjs';
 import { FileStore, ReviewCore, SyntheticAdapter, Drafts, markdown, html, reviewStatus, methodVersion } from '../index.mjs';
 import { repository } from './repo-fixture.mjs';
-import { createGit, preflight, rangeOf, currentBranchOf, UNBORN_HEAD_MESSAGE } from '../lib/git.mjs';
+import { createGit, preflight, rangeOf, currentBranchOf, EMPTY_WORKTREE_MESSAGE } from '../lib/git.mjs';
+import { writeIndex } from './git-cases.mjs';
+import { prepare, loadBundle, projectFor } from '../index.mjs';
 import { treeDigest } from './helpers.mjs';
 import { METHOD_ROOT } from '../lib/common.mjs';
 export async function runDomain(test, root) {
-  await test('unborn repositories with and without an index report friendly preparation without model calls or repository writes', async dir => {
+  await test('unborn repositories freeze staged and untracked working-tree bytes against an empty tree without Git writes', async dir => {
     for (const withIndex of [true, false]) {
       const repo = repository(path.join(dir, withIndex ? 'indexed' : 'no-index'));
-      if (!withIndex) fs.unlinkSync(path.join(repo.root, '.git/index'));
-      const before = treeDigest(repo.root), git = createGit(repo.root), adapter = new SyntheticAdapter();
-      assert.equal(currentBranchOf(git), '');
-      for (const check of [() => preflight(git), () => rangeOf(git, 'main')]) assert.throws(check, error => error.code === 'unborn-head' && error.message === UNBORN_HEAD_MESSAGE);
-      const core = await new ReviewCore({storageRoot:path.join(dir, withIndex ? 'state-indexed' : 'state-no-index'),adapter}).initialize();
-      const result = await core.trigger({repo:repo.root,target:'main',captureOnly:true});
-      assert.deepEqual(result,{status:'incomplete',code:'unborn-head',reason:UNBORN_HEAD_MESSAGE}); assert.equal(adapter.calls.length,0); assert.deepEqual(treeDigest(repo.root),before);
-      const base = repo.commit({'code.js':'export const value = 1;\n'}); repo.ref('main',base); repo.ref('feature',base); repo.worktree({'code.js':'export const value = 2;\n'});
-      if (!withIndex) fs.copyFileSync(path.join(dir,'indexed/.git/index'),path.join(repo.root,'.git/index'));
-      const ready = await core.trigger({repo:repo.root,target:'main',captureOnly:true}); assert.equal(ready.status,'pending'); assert.ok(ready.snapshotId); assert.equal(adapter.calls.length,0);
+      repo.worktree({'code.js':'export const value = 2;\n','other.js':'export const other = 1;\n','.env':'PRIVATE_NOT_FROZEN'});
+      if (withIndex) writeIndex(repo,[{name:'code.js',oid:repo.object('blob','export const value = 1;\n'),stage:0}]);
+      else fs.unlinkSync(path.join(repo.root,'.git/index'));
+      const key=projectFor(repo.root).projectKey, adapter=new SyntheticAdapter({model:syntheticModel,sessions:[{id:'dev',kind:'development',projectKey:key}]}),core=await new ReviewCore({storageRoot:path.join(dir,withIndex?'state-indexed':'state-no-index'),adapter}).initialize();
+      const before=treeDigest(repo.root),git=createGit(repo.root);assert.equal(currentBranchOf(git),'feature');preflight(git);
+      const frozen=await core.trigger({repo:repo.root,target:'main',sessionId:'dev',captureOnly:true});assert.equal(frozen.status,'pending');assert.equal(adapter.calls.length,0);
+      const snapshot=core.store.snapshot(key,frozen.snapshotId);assert.equal(snapshot.range.kind,'empty-tree-worktree');assert.equal(snapshot.range.headSha,null);assert.equal(snapshot.range.baseSha,'4b825dc642cb6eb9a060e54bf8d69288fbee4904');assert.ok(snapshot.files.every(f=>f.change==='added'&&f.baseSha256===null));
+      const view=core.selected(key,frozen.snapshotId),data=loadBundle(view.bundleRoot);assert.equal(data.texts.get('head:code.js').text,'export const value = 2;\n');assert.equal(data.texts.has('base:code.js'),false);assert.deepEqual(data.targets,['code.js','other.js']);assert.deepEqual(treeDigest(repo.root),before);
+      const reviewed=await core.reviewCurrent(key,frozen.deliveryId);assert.equal(reviewed.complete,true);assert.equal(adapter.calls.length,1);assert.ok(markdown(core.selected(key,frozen.snapshotId)).includes('无历史提交，全部视为新增'));
+      const replay=await core.trigger({repo:repo.root,target:'main',sessionId:'dev'});assert.equal(replay.inputSha,reviewed.inputSha);assert.equal(adapter.calls.length,1);
+      fs.writeFileSync(path.join(repo.root,'code.js'),'export const value = 3;\n');const next=await core.trigger({repo:repo.root,target:'main',sessionId:'dev'});assert.equal(next.complete,true);assert.equal(adapter.calls.length,2);assert.ok(next.understanding.files.find(f=>f.path==='other.js').carriedFrom);
+      const base=repo.commit({'code.js':'export const value = 3;\n','other.js':'export const other = 1;\n'});repo.ref('main',base);repo.ref('feature',base);fs.writeFileSync(path.join(repo.root,'code.js'),'export const value = 4;\n');if(!withIndex)writeIndex(repo,[]);
+      const normal=await core.trigger({repo:repo.root,target:'main',sessionId:'dev',captureOnly:true});assert.equal(normal.status,'pending');assert.equal(core.store.snapshot(key,normal.snapshotId).range.kind,'merge-base-worktree');assert.equal(core.store.snapshot(key,normal.snapshotId).range.headSha,base);
     }
+  });
+  await test('empty unborn repositories have a friendly empty state; SHA-256 unborn repositories freeze without materializing a tree object',async dir=>{
+    for(const format of ['sha1','sha256']){
+      const repo=repository(path.join(dir,format),{format});fs.unlinkSync(path.join(repo.root,'.git/index'));const adapter=new SyntheticAdapter(),core=await new ReviewCore({storageRoot:path.join(dir,format+'-state'),adapter}).initialize(),before=treeDigest(repo.root);
+      const empty=await core.trigger({repo:repo.root,captureOnly:true});assert.deepEqual(empty,{status:'incomplete',code:'empty-worktree',reason:EMPTY_WORKTREE_MESSAGE});assert.equal(adapter.calls.length,0);assert.deepEqual(treeDigest(repo.root),before);
+      const output=path.join(dir,format+'-empty-bundle');assert.equal(prepare({repo:repo.root,out:output}).code,'empty-worktree');assert.equal(fs.existsSync(output),false);
+      repo.worktree({'example.js':'export const example = 1;\n'});const withFile=prepare({repo:repo.root,out:path.join(dir,format+'-bundle')});assert.equal(withFile.status,'complete');const data=loadBundle(withFile.bundle);assert.equal(data.snapshot.range.headSha,null);assert.equal(data.snapshot.range.baseSha.length,format==='sha1'?40:64);assert.equal(data.files.get('example.js').change,'added');
+    }
+  });
+  await test('missing HEAD objects are rejected instead of being mistaken for a new repository',async dir=>{
+    const repo=repository(path.join(dir,'repo'));repo.ref('feature','f'.repeat(40));repo.worktree({'example.js':'export const example = 1;\n'});assert.throws(()=>rangeOf(createGit(repo.root)),e=>e.code==='head-unavailable');
   });
 
   await test('single-file coverage stays partial; subsequent file review accumulates coverage', async dir => {

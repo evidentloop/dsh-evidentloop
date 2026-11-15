@@ -133,7 +133,7 @@ export function Review({
       }),
     );
   const sourceLabel = (range: ReviewRecord["snapshot"]["range"]) =>
-    range.headSha === range.baseSha
+    range.kind === "empty-tree-worktree" ? "无历史提交，全部视为新增" : range.headSha === range.baseSha
       ? "未提交的改动"
       : "提交「" +
         (range.headSubject || "提交") +
@@ -176,7 +176,7 @@ export function Review({
                 (r.snapshot.range.baseSha || "").slice(0, 8)
               }
             >
-              {r.delivery.branch ===
+              {r.snapshot.range.kind === "empty-tree-worktree" ? "无历史提交，全部视为新增" : r.delivery.branch ===
               r.snapshot.range.targetRef?.replace(/^refs\/heads\//, "")
                 ? "未提交的改动"
                 : "相比 " +

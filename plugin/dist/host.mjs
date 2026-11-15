@@ -9,13 +9,7 @@ function eventIs(event, type) {
 }
 
 // plugin/shared/contracts.ts
-var UNBORN_HEAD_MESSAGE = "\u5F53\u524D\u4ED3\u5E93\u8FD8\u6CA1\u6709\u63D0\u4EA4\u3002\u4EA7\u751F\u9996\u4E2A\u63D0\u4EA4\u540E\uFF0C\u5373\u53EF\u5BA1\u67E5\u53D8\u66F4\u3002";
-var errorMessage = (error) => {
-  const message = error instanceof Error ? error.message : String(error);
-  const code = error && typeof error === "object" && "code" in error ? error.code : "";
-  if (code === "unborn-head" || /Read-only git rev-parse failed:[\s\S]*(?:ambiguous argument ['"]HEAD['"]|bad revision ['"]HEAD['"]|Needed a single revision)/i.test(message)) return UNBORN_HEAD_MESSAGE;
-  return message;
-};
+var errorMessage = (error) => error instanceof Error ? error.message : String(error);
 
 // plugin/host/service.ts
 import fs11 from "node:fs";
@@ -226,13 +220,17 @@ function inspectIndex(buffer, oidBytes = 20) {
   }
   return { version, count, split };
 }
-var UNBORN_HEAD_MESSAGE2 = "\u5F53\u524D\u4ED3\u5E93\u8FD8\u6CA1\u6709\u63D0\u4EA4\u3002\u4EA7\u751F\u9996\u4E2A\u63D0\u4EA4\u540E\uFF0C\u5373\u53EF\u5BA1\u67E5\u53D8\u66F4\u3002";
+var EMPTY_WORKTREE_MESSAGE = "\u5F53\u524D\u4ED3\u5E93\u8FD8\u6CA1\u6709\u6587\u4EF6\u3002";
 function currentBranchOf(git) {
-  if (!git.resolve("HEAD")) return "";
+  if (!git.resolve("HEAD")) {
+    const file = path2.join(git.gitDir, "HEAD"), stat = fs2.lstatSync(file);
+    if (!stat.isFile() || stat.isSymbolicLink()) throw new PreparationError("branch-unconfirmed", "\u65E0\u6CD5\u786E\u8BA4\u5F53\u524D\u5206\u652F");
+    const match = fs2.readFileSync(file, "utf8").trim().match(/^ref: refs\/heads\/(.+)$/);
+    return match ? safeRelative(match[1]) : "";
+  }
   return git.run(["rev-parse", "--verify", "--quiet", "--abbrev-ref", "HEAD"]).toString().trim();
 }
 function preflight(git) {
-  if (!git.resolve("HEAD")) throw new PreparationError("unborn-head", UNBORN_HEAD_MESSAGE2);
   for (const directory of /* @__PURE__ */ new Set([git.gitDir, git.commonDir])) {
     if (fs2.readdirSync(directory).some((name2) => name2.startsWith("sharedindex."))) throw new PreparationError("split-index", "sharedindex.* present; no ls-files or freeze performed");
     for (const name2 of ["config", "config.worktree"]) {
@@ -252,12 +250,22 @@ function preflight(git) {
     }
   }
   const index = path2.join(git.gitDir, "index");
+  if (!fs2.existsSync(index) && !git.resolve("HEAD") && currentBranchOf(git)) return;
   if (!fs2.existsSync(index) || !fs2.lstatSync(index).isFile() || fs2.lstatSync(index).isSymbolicLink()) throw new PreparationError("index-unconfirmed", "Index absent or not a regular file; no ls-files performed");
   if (fs2.existsSync(index) && inspectIndex(fs2.readFileSync(index), git.oidBytes).split) throw new PreparationError("split-index", "Index link extension found before ls-files");
 }
 function rangeOf(git, target) {
   const headSha = git.resolve("HEAD"), emptyTree = crypto2.createHash(git.objectFormat).update("tree 0\0").digest("hex");
-  if (!headSha) throw new PreparationError("unborn-head", UNBORN_HEAD_MESSAGE2);
+  if (!headSha) {
+    let rawHead = "";
+    try {
+      rawHead = git.run(["rev-parse", "--verify", "--quiet", "HEAD"]).toString().trim();
+    } catch {
+    }
+    const branch = currentBranchOf(git);
+    if (rawHead || !branch) throw new PreparationError("head-unavailable", "\u65E0\u6CD5\u8BFB\u53D6\u5F53\u524D\u63D0\u4EA4\uFF0C\u8BF7\u68C0\u67E5\u4ED3\u5E93\u5F15\u7528\u662F\u5426\u5B8C\u6574");
+    return { kind: "empty-tree-worktree", targetRef: target || branch, targetSha: null, baseSha: emptyTree, headSha: null, dirty: false, emptyTree };
+  }
   if (git.run(["rev-parse", "--is-shallow-repository"]).toString().trim() === "true") throw new PreparationError("shallow-history", "Repository history is shallow");
   let targetRef = target, targetSha = target && git.resolve(target);
   if (target && !targetSha) throw new PreparationError("target-missing", "Explicit target does not resolve to a commit");
@@ -345,7 +353,7 @@ function blobsOf(git, oids) {
 }
 function renamesOf(git, range) {
   const map = /* @__PURE__ */ new Map();
-  if (range.baseSha === range.headSha) return map;
+  if (!range.headSha || range.baseSha === range.headSha) return map;
   const records = nul(git.run(["diff-tree", "--no-commit-id", "-r", "--name-status", "-z", "-M", "--no-ext-diff", "--no-textconv", range.baseSha, range.headSha]));
   for (let i = 0; i < records.length; ) {
     const status = records[i++];
@@ -534,7 +542,7 @@ var sensitive = (name2) => /(^|\/)(\.env(?:\.|$)|\.sopify(?:\/|$)|\.codex(?:\/|$
 var excluded = (name2) => sensitive(name2) || /(^|\/)(?:node_modules|vendor)(\/|$)/.test(name2);
 function readState(git, target) {
   preflight(git);
-  const range = rangeOf(git, target), base = treeOf(git, range.baseSha), head = treeOf(git, range.headSha), index = indexOf(git), untracked = untrackedOf(git), renames = renamesOf(git, range);
+  const range = rangeOf(git, target), base = range.kind === "empty-tree-worktree" ? /* @__PURE__ */ new Map() : treeOf(git, range.baseSha), head = range.headSha ? treeOf(git, range.headSha) : /* @__PURE__ */ new Map(), index = indexOf(git), untracked = untrackedOf(git), renames = renamesOf(git, range);
   const gitlinks = new Set([...base, ...head].filter(([, entry]) => entry.mode === "160000").map(([name2]) => name2));
   for (const [name2, entries] of index) if (entries.some((entry) => entry.mode === "160000")) gitlinks.add(name2);
   const names = [.../* @__PURE__ */ new Set([...base.keys(), ...head.keys(), ...index.keys(), ...untracked])].filter((name2) => ![...gitlinks].some((parent) => name2.startsWith(parent + "/"))).sort();
@@ -655,7 +663,8 @@ function prepare({ repo, out, target, requirements = [], extension = "", methodR
       attempts.push({ attempt, stable: false });
     }
     if (!captured) throw new PreparationError("changed-during-read", "Repository did not stabilize after two retries");
-    const commits = blobsOf(git, [captured.range.headSha, captured.range.baseSha]);
+    if (captured.range.kind === "empty-tree-worktree" && !captured.files.length) throw new PreparationError("empty-worktree", EMPTY_WORKTREE_MESSAGE);
+    const commits = captured.range.kind === "empty-tree-worktree" ? /* @__PURE__ */ new Map() : blobsOf(git, [captured.range.headSha, captured.range.baseSha]);
     const subject = (id2) => Array.from((commits.get(id2)?.toString("utf8").split(/\n\n/).slice(1).join("\n\n").split("\n")[0] || "").replace(/[\u0000-\u001f\u007f]/g, "")).slice(0, 200).join("");
     captured.range.headSubject = subject(captured.range.headSha);
     captured.range.baseSubject = subject(captured.range.baseSha);
@@ -1342,7 +1351,7 @@ var Deliveries = class {
     const bindKey = this.binding({ branch, targetBranch, session });
     let delivery = this.findOpen(key, { branch, bindKey });
     let closed = null;
-    if (delivery?.everAhead && delivery.lastHeadSha && await reachable(delivery.lastHeadSha, targetSha)) {
+    if (delivery?.everAhead && delivery.lastHeadSha && targetSha && await reachable(delivery.lastHeadSha, targetSha)) {
       closed = await this.store.updateDelivery(key, delivery.deliveryId, (d) => {
         if (!d.closedAt) {
           d.closedAt = now();
@@ -1377,7 +1386,7 @@ var Deliveries = class {
     }
     delivery = await this.store.updateDelivery(key, delivery.deliveryId, (d) => {
       d.lastHeadSha = headSha;
-      d.everAhead ||= headSha !== baseSha;
+      d.everAhead ||= Boolean(headSha && headSha !== baseSha);
       if (session) d.sessionIds = [...d.sessionIds.filter((id2) => id2 !== session.id), session.id];
     });
     return { delivery, closed, shouldFreeze: true };
@@ -1597,8 +1606,9 @@ var ReviewCore = class {
       const effectiveTarget = target ?? (settings.targetBranch || void 0), range = rangeOf(git, effectiveTarget);
       const branchName = currentBranchOf(git), branch = branchName === "HEAD" ? "" : branchName;
       if (!branch) return { status: "incomplete", code: "branch-unavailable", reason: "Cannot group a delivery without a confirmed current branch" };
-      const targetBranch = branchLabelOf(git, range.targetRef);
+      const targetBranch = range.kind === "empty-tree-worktree" ? branch : branchLabelOf(git, range.targetRef);
       const observedState = readState(git, effectiveTarget);
+      if (range.kind === "empty-tree-worktree" && !observedState.files.length) return { status: "incomplete", code: "empty-worktree", reason: EMPTY_WORKTREE_MESSAGE };
       const session = await developmentSession(this.adapter, sessionId);
       if (trigger === "auto" && !session) return { status: "skipped", code: "own-review-or-missing-parent" };
       if (expectedDeliveryId && this.deliveries.findOpen(project.projectKey, { branch, targetBranch, session })?.deliveryId !== expectedDeliveryId) return { status: "incomplete", code: "delivery-context-changed", reason: "\u5F53\u524D\u5206\u652F\u6216\u5F00\u53D1\u4F1A\u8BDD\u5DF2\u6539\u53D8\uFF0C\u8BF7\u91CD\u65B0\u6253\u5F00\u4EA4\u4ED8" };
@@ -2077,8 +2087,8 @@ function heading(data) {
   const range = data.snapshot.range;
   return [
     `${data.delivery.title}${data.delivery.externalRef ? " \xB7 " + data.delivery.externalRef : ""}`,
-    `\u5206\u652F\uFF1A${data.delivery.branch || "\u5206\u652F\u4FE1\u606F\u4E0D\u53EF\u7528"} \xB7 \u8303\u56F4\uFF1A${range.targetRef} merge-base \u2194 \u5DE5\u4F5C\u6811`,
-    `\u5BA1\u67E5\u65F6\u95F4\uFF1A${data.run?.endedAt || data.snapshot.createdAt} \xB7 \u57FA\u4E8E\u63D0\u4EA4\uFF1A${range.headSubject || "\u63D0\u4EA4"}\uFF08${(range.headSha || "").slice(0, 8)}\uFF09${range.dirty ? " \xB7 \u542B\u672A\u63D0\u4EA4\u6539\u52A8" : ""}`,
+    `\u5206\u652F\uFF1A${data.delivery.branch || "\u5206\u652F\u4FE1\u606F\u4E0D\u53EF\u7528"} \xB7 \u8303\u56F4\uFF1A${range.kind === "empty-tree-worktree" ? "\u65E0\u5386\u53F2\u63D0\u4EA4\uFF0C\u5168\u90E8\u89C6\u4E3A\u65B0\u589E" : range.targetRef + " merge-base \u2194 \u5DE5\u4F5C\u6811"}`,
+    `\u5BA1\u67E5\u65F6\u95F4\uFF1A${data.run?.endedAt || data.snapshot.createdAt} \xB7 \u57FA\u4E8E\u63D0\u4EA4\uFF1A${range.kind === "empty-tree-worktree" ? "\u65E0\u5386\u53F2\u63D0\u4EA4" : (range.headSubject || "\u63D0\u4EA4") + "\uFF08" + (range.headSha || "").slice(0, 8) + "\uFF09"}${range.dirty ? " \xB7 \u542B\u672A\u63D0\u4EA4\u6539\u52A8" : ""}`,
     (data.summaryOnly ? "\u62A5\u544A\u4EC5\u6458\u8981\uFF08\u6B63\u6587\u6709\u7701\u7565\uFF09 \xB7 \u539F\u5BA1\u67E5\u72B6\u6001\uFF1A" : "") + (data.run?.model?.adapter === "synthetic" ? "\u5408\u6210\u6D4B\u8BD5\uFF08\u672A\u8C03\u7528\u771F\u5B9E\u6A21\u578B\uFF09 \xB7 \u5408\u540C\u63A8\u5BFC\u72B6\u6001\uFF1A" : "") + data.status,
     `\u5185\u7F6E\u89C4\u5219\u7248\u672C\uFF1A${data.snapshot.rulesVersion} \xB7 \u6269\u5C55\u63D0\u793A\u8BCD\uFF1A${data.snapshot.extensionPrompt ? "\u5DF2\u4F7F\u7528 \xB7 " + data.snapshot.extensionPrompt.originalLength + " \u5B57" : "\u672A\u4F7F\u7528"}`
   ];
@@ -2226,8 +2236,8 @@ ${r.codeRefs.length ? r.codeRefs.map((x) => `${x.path}:${x.startLine}\u2013${x.e
       const range = data.snapshot.range;
       groups.push(["\u8865\u5145\u8BF4\u660E", [
         { id: "source", text: `${footer}
-\u8303\u56F4\uFF1A${range.targetRef} merge-base \u2194 \u5DE5\u4F5C\u6811
-\u57FA\u4E8E\u63D0\u4EA4\uFF1A${range.headSubject || "\u63D0\u4EA4"}\uFF08${(range.headSha || "").slice(0, 8)}\uFF09${range.dirty ? "\uFF0C\u542B\u672A\u63D0\u4EA4\u6539\u52A8" : ""}
+\u8303\u56F4\uFF1A${range.kind === "empty-tree-worktree" ? "\u65E0\u5386\u53F2\u63D0\u4EA4\uFF0C\u5168\u90E8\u89C6\u4E3A\u65B0\u589E" : range.targetRef + " merge-base \u2194 \u5DE5\u4F5C\u6811"}
+\u57FA\u4E8E\u63D0\u4EA4\uFF1A${range.kind === "empty-tree-worktree" ? "\u65E0\u5386\u53F2\u63D0\u4EA4" : (range.headSubject || "\u63D0\u4EA4") + "\uFF08" + (range.headSha || "").slice(0, 8) + "\uFF09"}${range.dirty ? "\uFF0C\u542B\u672A\u63D0\u4EA4\u6539\u52A8" : ""}
 \u8BF7\u7528\u672C\u5730Skill\u300C${safeSkill}\u300D\u589E\u5F3A\u4EE5\u4E0B\u8BF4\u660E\u3002\u4EE5\u6240\u9644\u8BF4\u660E\u4E3A\u8F93\u5165\uFF0C\u8D44\u6599\u4E0D\u8DB3\u8BF7\u6307\u51FA\uFF1B\u4E0D\u6539\u5199\u5BA1\u67E5\u7ED3\u8BBA\uFF1B\u672C\u4EFB\u52A1\u4E0D\u4FEE\u6539\u4E1A\u52A1\u4EE3\u7801\u3002
 \u4EA4\u4ED8\u76EE\u6807\uFF1A${u.overview.purpose}` },
         ...u.features.map((f) => ({ id: f.featureId, text: `${f.title}\uFF1A${f.approach}
@@ -2922,14 +2932,14 @@ var PluginService = class {
         this.selected(project, body.deliveryId, body.snapshotId);
         this.core.writable(project.projectKey, body.snapshotId, false);
       }
-      const git = createGit(project.repoRoot), branch = git.run(["rev-parse", "--abbrev-ref", "HEAD"]).toString().trim();
+      const git = createGit(project.repoRoot), branch = currentBranchOf(git);
       const range = rangeOf(
         git,
         this.core.store.settings(project.projectKey).targetBranch || void 0
       );
       delivery ||= this.core.deliveries.findOpen(project.projectKey, {
         branch,
-        targetBranch: branchLabelOf(git, range.targetRef),
+        targetBranch: range.kind === "empty-tree-worktree" ? branch : branchLabelOf(git, range.targetRef),
         session: source
       });
       if (delivery) {

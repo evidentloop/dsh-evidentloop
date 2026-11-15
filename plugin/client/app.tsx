@@ -1,4 +1,4 @@
-import { UNBORN_HEAD_MESSAGE } from "../shared/contracts.ts";
+import { EMPTY_WORKTREE_MESSAGE } from "../shared/contracts.ts";
 import type { ClientRuntime } from "./runtime.ts";
 import type { Settings as WorkspaceSettings } from "../shared/contracts.ts";
 interface SettingsDialog {
@@ -74,7 +74,7 @@ export function Panel({ runtime }: { runtime: ClientRuntime }) {
         </header>
       )}
       {state.error && (
-        <div role={state.error === UNBORN_HEAD_MESSAGE ? "status" : "alert"} className={state.error === UNBORN_HEAD_MESSAGE ? "el-notice" : "el-error"}>
+        <div role={state.error === EMPTY_WORKTREE_MESSAGE ? "status" : "alert"} className={state.error === EMPTY_WORKTREE_MESSAGE ? "el-notice" : "el-error"}>
           {state.error}
           <button className="el-btn" onClick={() => runtime.refresh()}>
             重新加载

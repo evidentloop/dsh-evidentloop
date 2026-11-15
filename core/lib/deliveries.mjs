@@ -30,7 +30,7 @@ export class Deliveries {
     const bindKey = this.binding({ branch, targetBranch, session });
     let delivery = this.findOpen(key, { branch, bindKey });
     let closed = null;
-    if (delivery?.everAhead && delivery.lastHeadSha && await reachable(delivery.lastHeadSha, targetSha)) {
+    if (delivery?.everAhead && delivery.lastHeadSha && targetSha && await reachable(delivery.lastHeadSha, targetSha)) {
       closed = await this.store.updateDelivery(key, delivery.deliveryId, d => {
         if (!d.closedAt) { d.closedAt = now(); d.archivedAt = d.closedAt; delete d.pinnedAt; }
       }); delivery = null;
@@ -48,7 +48,7 @@ export class Deliveries {
       await this.store.putDelivery(key, delivery, { create: true });
     }
     delivery = await this.store.updateDelivery(key, delivery.deliveryId, d => {
-      d.lastHeadSha = headSha; d.everAhead ||= headSha !== baseSha;
+      d.lastHeadSha = headSha; d.everAhead ||= Boolean(headSha && headSha !== baseSha);
       if (session) d.sessionIds = [...d.sessionIds.filter(id => id !== session.id), session.id];
     });
     return { delivery, closed, shouldFreeze: true };

@@ -6,3 +6,4 @@ export interface Git {
 export function createGit(root: string): Git;
 export function rangeOf(git: Git, target?: string): Range;
 export function branchLabelOf(git: Git, ref: string): string;
+export function currentBranchOf(git: Git): string;

@@ -4,14 +4,14 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { canonical,sha256,methodVersion,METHOD_ROOT,prepareRequirements,inputFingerprint,isTarget,writeJson,inside,normalizeLF,linesOf,safeRelative,externalDestination } from './lib/common.mjs';
-import { createGit,preflight,rangeOf,treeOf,indexOf,untrackedOf,blobsOf,renamesOf,readWorktree,PreparationError } from './lib/git.mjs';
+import { createGit,preflight,rangeOf,treeOf,indexOf,untrackedOf,blobsOf,renamesOf,readWorktree,PreparationError,EMPTY_WORKTREE_MESSAGE } from './lib/git.mjs';
 import { unifiedDiff,changedLineSets } from './lib/diff.mjs';
 const SIZE_LIMIT=256*1024;
 const sensitive=name=>/(^|\/)(\.env(?:\.|$)|\.sopify(?:\/|$)|\.codex(?:\/|$)|\.agents(?:\/|$)|\.aws(?:\/|$)|\.ssh(?:\/|$)|(?:credentials?|secrets?)(?:\.|\/|$)|id_(?:rsa|dsa|ecdsa|ed25519)(?:\.|$))|\.(?:pem|key|p12|pfx|jks|keystore)$/i.test(name);
 const excluded=name=>sensitive(name)||/(^|\/)(?:node_modules|vendor)(\/|$)/.test(name);
 export function readState(git,target) {
   preflight(git); // Must precede every ls-files, including the consistency reread.
-  const range=rangeOf(git,target),base=treeOf(git,range.baseSha),head=treeOf(git,range.headSha),index=indexOf(git),untracked=untrackedOf(git),renames=renamesOf(git,range);
+  const range=rangeOf(git,target),base=range.kind==='empty-tree-worktree'?new Map():treeOf(git,range.baseSha),head=range.headSha?treeOf(git,range.headSha):new Map(),index=indexOf(git),untracked=untrackedOf(git),renames=renamesOf(git,range);
   const gitlinks=new Set([...base,...head].filter(([,entry])=>entry.mode==='160000').map(([name])=>name));
   for(const [name,entries] of index)if(entries.some(entry=>entry.mode==='160000'))gitlinks.add(name);
   const names=[...new Set([...base.keys(),...head.keys(),...index.keys(),...untracked])].filter(name=>![...gitlinks].some(parent=>name.startsWith(parent+'/'))).sort();
@@ -90,7 +90,8 @@ export function prepare({repo,out,target,requirements=[],extension='',methodRoot
       attempts.push({attempt,stable:false});
     }
     if(!captured)throw new PreparationError('changed-during-read','Repository did not stabilize after two retries');
-    const commits=blobsOf(git,[captured.range.headSha,captured.range.baseSha]);
+    if(captured.range.kind==='empty-tree-worktree'&&!captured.files.length)throw new PreparationError('empty-worktree',EMPTY_WORKTREE_MESSAGE);
+    const commits=captured.range.kind==='empty-tree-worktree'?new Map():blobsOf(git,[captured.range.headSha,captured.range.baseSha]);
     const subject=id=>Array.from((commits.get(id)?.toString('utf8').split(/\n\n/).slice(1).join('\n\n').split('\n')[0]||'').replace(/[\u0000-\u001f\u007f]/g,'')).slice(0,200).join('');
     captured.range.headSubject=subject(captured.range.headSha);captured.range.baseSubject=subject(captured.range.baseSha);
     const rulesVersion=sha256(canonical(rules));

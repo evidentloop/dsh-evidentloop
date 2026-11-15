@@ -1,6 +1,6 @@
 import type { ClientContext } from "./context.ts";
 import type { SessionContext } from "../shared/contracts.ts";
-import { errorMessage, UNBORN_HEAD_MESSAGE } from "../shared/contracts.ts";
+import { errorMessage, EMPTY_WORKTREE_MESSAGE } from "../shared/contracts.ts";
 import React from "react";
 import { Panel } from "./app.tsx";
 import { NativeClient } from "./native.ts";
@@ -109,7 +109,7 @@ export function DeliveryTail({
         {busy ? "正在冻结" : "审查本次变更"}
         <Icon name="arrowRight" size={14} />
       </button>
-      {error && <p className={error === UNBORN_HEAD_MESSAGE ? "el-tail-notice" : "el-tail-error"} role={error === UNBORN_HEAD_MESSAGE ? "status" : "alert"}>{error}</p>}
+      {error && <p className={error === EMPTY_WORKTREE_MESSAGE ? "el-tail-notice" : "el-tail-error"} role={error === EMPTY_WORKTREE_MESSAGE ? "status" : "alert"}>{error}</p>}
     </section>
   );
 }

@@ -53,13 +53,17 @@ export function inspectIndex(buffer,oidBytes=20) {
   while(offset<end){if(offset+8>end)fail('Truncated index extension');const name=buffer.toString('ascii',offset,offset+4),size=buffer.readUInt32BE(offset+4);if(name==='link')split=true;else if(name==='sdir')throw new PreparationError('sparse-checkout','Sparse index is not frozen');else if(name[0]===name[0].toLowerCase())fail('Unknown required index extension');offset+=8+size;if(offset>end)fail('Invalid index extension size');}
   return {version,count,split};
 }
-export const UNBORN_HEAD_MESSAGE = '当前仓库还没有提交。产生首个提交后，即可审查变更。';
+export const EMPTY_WORKTREE_MESSAGE = '当前仓库还没有文件。';
 export function currentBranchOf(git) {
-  if (!git.resolve('HEAD')) return '';
+  if (!git.resolve('HEAD')) {
+    const file = path.join(git.gitDir, 'HEAD'), stat = fs.lstatSync(file);
+    if (!stat.isFile() || stat.isSymbolicLink()) throw new PreparationError('branch-unconfirmed', '无法确认当前分支');
+    const match = fs.readFileSync(file, 'utf8').trim().match(/^ref: refs\/heads\/(.+)$/);
+    return match ? safeRelative(match[1]) : '';
+  }
   return git.run(['rev-parse', '--verify', '--quiet', '--abbrev-ref', 'HEAD']).toString().trim();
 }
 export function preflight(git) {
-  if (!git.resolve('HEAD')) throw new PreparationError('unborn-head', UNBORN_HEAD_MESSAGE);
   for(const directory of new Set([git.gitDir,git.commonDir])) {
     if(fs.readdirSync(directory).some(name=>name.startsWith('sharedindex.')))throw new PreparationError('split-index','sharedindex.* present; no ls-files or freeze performed');
     for(const name of ['config','config.worktree']){
@@ -74,12 +78,18 @@ export function preflight(git) {
     }
   }
   const index=path.join(git.gitDir,'index');
+  if(!fs.existsSync(index)&&!git.resolve('HEAD')&&currentBranchOf(git))return;
   if(!fs.existsSync(index)||!fs.lstatSync(index).isFile()||fs.lstatSync(index).isSymbolicLink())throw new PreparationError('index-unconfirmed','Index absent or not a regular file; no ls-files performed');
   if(fs.existsSync(index)&&inspectIndex(fs.readFileSync(index),git.oidBytes).split)throw new PreparationError('split-index','Index link extension found before ls-files');
 }
 export function rangeOf(git,target) {
   const headSha=git.resolve('HEAD'),emptyTree=crypto.createHash(git.objectFormat).update('tree 0\0').digest('hex');
-  if(!headSha)throw new PreparationError('unborn-head',UNBORN_HEAD_MESSAGE);
+  if(!headSha) {
+    let rawHead = ''; try { rawHead = git.run(['rev-parse','--verify','--quiet','HEAD']).toString().trim(); } catch {}
+    const branch = currentBranchOf(git);
+    if(rawHead || !branch) throw new PreparationError('head-unavailable','无法读取当前提交，请检查仓库引用是否完整');
+    return {kind:'empty-tree-worktree',targetRef:target||branch,targetSha:null,baseSha:emptyTree,headSha:null,dirty:false,emptyTree};
+  }
   if(git.run(['rev-parse','--is-shallow-repository']).toString().trim()==='true')throw new PreparationError('shallow-history','Repository history is shallow');
   let targetRef=target,targetSha=target&&git.resolve(target);
   if(target&&!targetSha)throw new PreparationError('target-missing','Explicit target does not resolve to a commit');
@@ -126,7 +136,7 @@ export function blobsOf(git,oids) {
   return map;
 }
 export function renamesOf(git,range) {
-  const map=new Map();if(range.baseSha===range.headSha)return map;
+  const map=new Map();if(!range.headSha||range.baseSha===range.headSha)return map;
   const records=nul(git.run(['diff-tree','--no-commit-id','-r','--name-status','-z','-M','--no-ext-diff','--no-textconv',range.baseSha,range.headSha]));
   for(let i=0;i<records.length;){const status=records[i++];if(status.startsWith('R')||status.startsWith('C')){const old=safeRelative(records[i++]),name=safeRelative(records[i++]);if(status.startsWith('R'))map.set(name,old);}else safeRelative(records[i++]);}
   return map;
