@@ -153,7 +153,7 @@
     },
     {
       "path": "plugin/client/list.tsx",
-      "sha256": "adc459cb3514eb161cbf59479f41dfe4875eb9f6151440572f1a75fa87af7ca5"
+      "sha256": "e30f024ccd4bdba655f86571792442bf45c0a579a9a59c5e156ac7783dc65656"
     },
     {
       "path": "plugin/client/native.ts",
@@ -161,11 +161,11 @@
     },
     {
       "path": "plugin/client/overview.tsx",
-      "sha256": "214d3d4d75baea3f761fa46ca2104697280568ddcd604ba5a0048d6f8c6df443"
+      "sha256": "f9e32f1ae3b112391ebc7b786cc8de04b9e134d0eea357730b02006e6bc09ee5"
     },
     {
       "path": "plugin/client/review.tsx",
-      "sha256": "c76821607e6353341823b594f70658068d6a572cc12c1e424e2f8251b5e21984"
+      "sha256": "7b02998280060a7b9e8abfd0a936bf8d0f3c894e8c16fc6fd581af066e525990"
     },
     {
       "path": "plugin/client/runtime.ts",
@@ -173,11 +173,11 @@
     },
     {
       "path": "plugin/client/settings.tsx",
-      "sha256": "d19f547aba9331ee17b5213cd9c28e3015a2e9a578206b8d4da48fd21e886e28"
+      "sha256": "5addd1196aa82d3f5b42c1c60c10e859a058f5571d5d1dc48a463cb3c02b1289"
     },
     {
       "path": "plugin/client/styles.css",
-      "sha256": "bb55c561a7fd590ffbba5c0f419c62f18191be9c4dcc1121171814a2d8932bd8"
+      "sha256": "ebf245ec50043ea4d941a444b55642b5bcd1ab1354e8828624585dec61b0f738"
     },
     {
       "path": "plugin/client/ui.tsx",

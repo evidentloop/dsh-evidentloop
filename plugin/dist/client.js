@@ -477,7 +477,7 @@ function DeliveryList({ runtime, state }) {
     listPreferences: { ...runtime.state.listPreferences, [key]: value }
   });
   const setArchived = (value) => preference("archived", value), setOnlyIssues = (value) => preference("onlyIssues", value), setSort = (value) => preference("sort", value), setCompact = (value) => preference("compact", value);
-  const data = state.data, all = data?.deliveries || [], query = (state.query || "").trim().toLowerCase();
+  const data = state.data, all = data?.deliveries || [], activeCount = all.filter((d) => !d.archivedAt).length, archivedCount = all.length - activeCount, query = (state.query || "").trim().toLowerCase();
   const sessions = new Map((data?.sessions || []).map((s) => [s.sessionId, s]));
   const sessionFor = (d) => sessions.get(d.sessionIds.at(-1) || "");
   const updated = (d) => Math.max(
@@ -570,8 +570,8 @@ function DeliveryList({ runtime, state }) {
       onClick: () => setArchived(false)
     },
     "\u5168\u90E8 ",
-    /* @__PURE__ */ import_react2.default.createElement("span", null, all.filter((d) => !d.archivedAt).length)
-  ), /* @__PURE__ */ import_react2.default.createElement(
+    activeCount > 0 && /* @__PURE__ */ import_react2.default.createElement("span", null, activeCount)
+  ), (archived || archivedCount > 0) && /* @__PURE__ */ import_react2.default.createElement(
     "button",
     {
       className: "el-btn",
@@ -579,8 +579,8 @@ function DeliveryList({ runtime, state }) {
       onClick: () => setArchived(true)
     },
     "\u5F52\u6863 ",
-    /* @__PURE__ */ import_react2.default.createElement("span", null, all.filter((d) => d.archivedAt).length)
-  )), /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement(
+    archivedCount > 0 && /* @__PURE__ */ import_react2.default.createElement("span", null, archivedCount)
+  )), (onlyIssues || all.some((d) => d.activeFindingCount > 0)) && /* @__PURE__ */ import_react2.default.createElement("label", null, /* @__PURE__ */ import_react2.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -756,7 +756,7 @@ function Overview({
   const u = record.run?.understanding, findings = record.run?.findings || [], suppressed = new Set(
     record.marks.filter((m) => m.suppressed).map((m) => m.findingId)
   ), active = findings.filter((f) => !suppressed.has(f.findingId)), [mode, setMode] = import_react3.default.useState("severity"), [adding, setAdding] = import_react3.default.useState(false);
-  const features = u?.features || [], requirements = record.snapshot.requirements, requirementMap = new Map(
+  const features = u?.features || [], alignedCount = (u?.alignment || []).filter((row) => row.status === "implemented").length, requirements = record.snapshot.requirements, requirementMap = new Map(
     requirements.flatMap(
       (s) => s.items.map((i) => [
         i.itemId,
@@ -783,22 +783,22 @@ function Overview({
     },
     row.supersededQuote
   )), /* @__PURE__ */ import_react3.default.createElement(Prose, { text: row.note }), /* @__PURE__ */ import_react3.default.createElement(Refs, { refs: row.codeRefs, jump }));
-  const group = (title, rows, folded = false) => folded ? /* @__PURE__ */ import_react3.default.createElement("details", { className: "el-alignment-group" }, /* @__PURE__ */ import_react3.default.createElement("summary", null, title, " \xB7 ", rows.length), rows.map(alignment)) : /* @__PURE__ */ import_react3.default.createElement("div", { className: "el-alignment-group" }, /* @__PURE__ */ import_react3.default.createElement("h3", null, title, " \xB7 ", rows.length), rows.map(alignment));
+  const group = (title, rows, folded = false) => !rows.length ? null : folded ? /* @__PURE__ */ import_react3.default.createElement("details", { className: "el-alignment-group" }, /* @__PURE__ */ import_react3.default.createElement("summary", null, title, " \xB7 ", rows.length), rows.map(alignment)) : /* @__PURE__ */ import_react3.default.createElement("div", { className: "el-alignment-group" }, /* @__PURE__ */ import_react3.default.createElement("h3", null, title, " \xB7 ", rows.length), rows.map(alignment));
   const byFile = /* @__PURE__ */ new Map();
   for (const f of active) {
     if (!byFile.has(f.anchor.path)) byFile.set(f.anchor.path, []);
     byFile.get(f.anchor.path).push(f);
   }
-  const coverage = record.run?.coverage, covList = (name2, rows = []) => /* @__PURE__ */ import_react3.default.createElement("div", { className: "el-coverage-group" }, /* @__PURE__ */ import_react3.default.createElement("h3", null, name2, " \xB7 ", rows.length), /* @__PURE__ */ import_react3.default.createElement("ul", null, rows.map((v, i) => {
+  const coverage = record.run?.coverage, covList = (name2, rows = []) => rows.length > 0 ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "el-coverage-group" }, /* @__PURE__ */ import_react3.default.createElement("h3", null, name2, " \xB7 ", rows.length), /* @__PURE__ */ import_react3.default.createElement("ul", null, rows.map((v, i) => {
     const p = typeof v === "string" ? v : v.path;
     return /* @__PURE__ */ import_react3.default.createElement("li", { key: i }, /* @__PURE__ */ import_react3.default.createElement(Refs, { refs: p ? [{ path: p }] : [], jump }), typeof v === "object" && v.reason && /* @__PURE__ */ import_react3.default.createElement("span", { className: "el-muted" }, " \xB7 ", v.reason));
-  })));
+  }))) : null;
   return /* @__PURE__ */ import_react3.default.createElement("div", { className: "el-overview" }, /* @__PURE__ */ import_react3.default.createElement("section", { id: "overview-conclusion", className: "el-hero" }, /* @__PURE__ */ import_react3.default.createElement("h2", null, "\u7ED3\u8BBA", " ", u && /* @__PURE__ */ import_react3.default.createElement("small", { className: "el-basis" }, u.overview.basis === "fact" ? "\u4EE3\u7801\u4E8B\u5B9E" : "\u6A21\u578B\u63A8\u65AD")), /* @__PURE__ */ import_react3.default.createElement(
     Prose,
     {
       text: u?.overview.purpose || "\u4EE3\u7801\u5DF2\u51BB\u7ED3\uFF0C\u5C1A\u65E0\u901A\u8FC7\u6821\u9A8C\u7684\u53D8\u66F4\u8BF4\u660E\u3002"
     }
-  ), /* @__PURE__ */ import_react3.default.createElement("div", { className: "el-stat-pills" }, /* @__PURE__ */ import_react3.default.createElement(
+  ), /* @__PURE__ */ import_react3.default.createElement("div", { className: "el-stat-pills" }, (active.length > 0 || !record.run?.complete) && /* @__PURE__ */ import_react3.default.createElement(
     "button",
     {
       className: "el-btn",
@@ -807,7 +807,7 @@ function Overview({
     active.length || record.run?.complete ? active.length : "\u5F85\u5BA1",
     " ",
     "\u95EE\u9898"
-  ), /* @__PURE__ */ import_react3.default.createElement(
+  ), features.length > 0 && /* @__PURE__ */ import_react3.default.createElement(
     "button",
     {
       className: "el-btn",
@@ -815,16 +815,16 @@ function Overview({
     },
     features.length,
     " \u529F\u80FD"
-  ), /* @__PURE__ */ import_react3.default.createElement(
+  ), alignedCount > 0 && /* @__PURE__ */ import_react3.default.createElement(
     "button",
     {
       className: "el-btn",
       onClick: () => scroll("overview-alignment")
     },
-    (u?.alignment || []).filter((x) => x.status === "implemented").length,
+    alignedCount,
     " ",
     "\u5DF2\u5BF9\u9F50"
-  ), /* @__PURE__ */ import_react3.default.createElement(
+  ), (coverage?.reviewed.length || 0) > 0 && /* @__PURE__ */ import_react3.default.createElement(
     "button",
     {
       className: "el-btn",
@@ -2022,6 +2022,11 @@ function Review({
   (0, import_react5.useEffect)(() => {
     if (!files.some((f) => f.path === selected)) setSelected(files[0]?.path);
   }, [r.snapshot.snapshotId]);
+  (0, import_react5.useEffect)(() => {
+    if (filter === "risk" && !risk.size || filter === "changed" && !changed.size) {
+      setFilter("all");
+    }
+  }, [filter, risk.size, changed.size]);
   const jump = (ref) => {
     if (!ref?.path) return;
     const file = files.find(
@@ -2046,6 +2051,7 @@ function Review({
     })
   );
   const sourceLabel = (range) => range.kind === "empty-tree-worktree" ? "\u65E0\u5386\u53F2\u63D0\u4EA4\uFF0C\u5168\u90E8\u89C6\u4E3A\u65B0\u589E" : range.headSha === range.baseSha ? "\u672A\u63D0\u4EA4\u7684\u6539\u52A8" : "\u63D0\u4EA4\u300C" + (range.headSubject || "\u63D0\u4EA4") + "\u300D" + (range.dirty ? " + \u672A\u63D0\u4EA4\u6539\u52A8" : "");
+  const modelNote = run?.model?.adapter === "synthetic" ? "\u6D4B\u8BD5\u8BB0\u5F55 \xB7 \u672A\u8C03\u7528\u771F\u5B9E AI \u6A21\u578B" : run?.model?.adapter === "dsh" && run.model.provider ? "\u771F\u5B9E\u6A21\u578B \xB7 " + (run.model.name || run.model.model) + " \xB7 " + run.model.provider : "";
   const startResize = (e) => {
     e.preventDefault();
     const start = e.clientX, original = width, max = Math.min(480, bodyRef.current.clientWidth * 0.45);
@@ -2069,7 +2075,7 @@ function Review({
       label: "\u5207\u6362\u5BA1\u67E5\u8BB0\u5F55\uFF08\u5171" + r.history.length + "\u6B21\uFF09",
       items: r.history.map((h, i) => ({
         label: localTime(h.createdAt) + (i === 0 ? " \xB7 \u6700\u65B0" : "") + " \xB7 " + h.statusText,
-        note: sourceLabel(h.range),
+        note: [sourceLabel(h.range), h.snapshotId === r.snapshot.snapshotId ? modelNote : ""].filter(Boolean).join(" \xB7 "),
         selected: h.snapshotId === r.snapshot.snapshotId,
         action: () => runtime.perform(
           () => runtime.open(
@@ -2091,7 +2097,7 @@ function Review({
       )
     },
     "\u6253\u5F00\u6700\u65B0\u5BA1\u67E5"
-  )), r.run?.model?.adapter === "synthetic" && /* @__PURE__ */ import_react5.default.createElement("p", { className: "el-review-notice" }, "\u6D4B\u8BD5\u8BB0\u5F55\uFF1A\u672C\u8BB0\u5F55\u7531\u6D4B\u8BD5\u6837\u4F8B\u751F\u6210\uFF0C\u672A\u8C03\u7528\u771F\u5B9E AI \u6A21\u578B\u3002"), r.run?.model?.adapter === "dsh" && r.run.model.provider && /* @__PURE__ */ import_react5.default.createElement("p", { className: "el-review-notice" }, "\u771F\u5B9E\u6A21\u578B \xB7 ", r.run.model.name || r.run.model.model, " \xB7", " ", r.run.model.provider), r.extensionChanged && /* @__PURE__ */ import_react5.default.createElement("p", { className: "el-review-notice" }, "\u6269\u5C55\u63D0\u793A\u8BCD\u5DF2\u66F4\u6539\uFF0C\u91CD\u65B0\u5BA1\u67E5\u5168\u90E8\u540E\u6309\u65B0\u8981\u6C42\u751F\u6210\u7ED3\u8BBA\u3002"), /* @__PURE__ */ import_react5.default.createElement("div", { className: "el-review-toolbar" }, /* @__PURE__ */ import_react5.default.createElement(
+  )), r.extensionChanged && /* @__PURE__ */ import_react5.default.createElement("p", { className: "el-review-notice" }, "\u6269\u5C55\u63D0\u793A\u8BCD\u5DF2\u66F4\u6539\uFF0C\u91CD\u65B0\u5BA1\u67E5\u5168\u90E8\u540E\u6309\u65B0\u8981\u6C42\u751F\u6210\u7ED3\u8BBA\u3002"), /* @__PURE__ */ import_react5.default.createElement("div", { className: "el-review-toolbar" }, /* @__PURE__ */ import_react5.default.createElement(
     IconButton,
     {
       label: tree ? "\u6536\u8D77\u6587\u4EF6\u680F" : "\u5C55\u5F00\u6587\u4EF6\u680F",
@@ -2159,7 +2165,7 @@ function Review({
     },
     [
       ["all", "\u5168\u90E8\u6587\u4EF6", files.length],
-      ["risk", "\u98CE\u9669\u6587\u4EF6", risk.size],
+      ...risk.size > 0 ? [["risk", "\u98CE\u9669\u6587\u4EF6", risk.size]] : [],
       ...changed.size > 0 && changed.size < files.length ? [["changed", "\u65B0\u6539\u52A8", changed.size]] : []
     ].map(([id, label, count]) => /* @__PURE__ */ import_react5.default.createElement("label", { key: id, "data-filter-mode": id }, /* @__PURE__ */ import_react5.default.createElement(
       "input",
@@ -2547,7 +2553,7 @@ function Settings({
         }
       },
       /* @__PURE__ */ import_react6.default.createElement("h2", null, "\u5DE5\u4F5C\u533A\u8BBE\u7F6E"),
-      /* @__PURE__ */ import_react6.default.createElement("p", { className: "el-model-status" }, runtime.state.data?.modelTestGate.approved ? "\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u5DF2\u83B7\u672C\u8F6E\u6388\u6743\u3002" : "\u672A\u5F00\u542F\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u3002\u9700\u5148\u83B7\u5F97\u672C\u8F6E\u8C03\u7528\u6388\u6743\uFF0C\u518D\u53D1\u8D77\u5BA1\u67E5\u3002", " ", /* @__PURE__ */ import_react6.default.createElement("a", { href: "https://evidentloop.sanze.dev/guide-status.html", target: "_blank", rel: "noopener noreferrer" }, "\u67E5\u770B\u8C03\u7528\u6388\u6743\u8BF4\u660E \u2197")),
+      /* @__PURE__ */ import_react6.default.createElement("p", { className: "el-model-status" }, runtime.state.data?.modelTestGate.approved ? "\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u5DF2\u83B7\u672C\u8F6E\u6388\u6743\u3002" : "\u672A\u5F00\u542F\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u3002\u9700\u5148\u83B7\u5F97\u672C\u8F6E\u8C03\u7528\u6388\u6743\uFF0C\u518D\u53D1\u8D77\u5BA1\u67E5\u3002", " ", /* @__PURE__ */ import_react6.default.createElement("a", { className: "el-link", href: "https://evidentloop.sanze.dev/guide-status.html", target: "_blank", rel: "noopener noreferrer" }, "\u67E5\u770B\u8C03\u7528\u6388\u6743\u8BF4\u660E \u2197")),
       /* @__PURE__ */ import_react6.default.createElement("p", { className: "el-muted" }, sharedRepo ? "\u8FD9\u4E9B\u8BBE\u7F6E\u5BF9\u540C\u4E00\u4ED3\u5E93\u7684\u6240\u6709\u5DE5\u4F5C\u533A\u751F\u6548" : "\u8FD9\u4E9B\u8BBE\u7F6E\u5BF9\u5F53\u524D\u5DE5\u4F5C\u533A\u6240\u5C5E\u4ED3\u5E93\u751F\u6548"),
       /* @__PURE__ */ import_react6.default.createElement("label", { className: "el-setting-row" }, /* @__PURE__ */ import_react6.default.createElement("span", null, /* @__PURE__ */ import_react6.default.createElement("strong", null, "\u81EA\u52A8\u5BA1\u67E5"), /* @__PURE__ */ import_react6.default.createElement("small", null, "\u81EA\u52A8\u5BA1\u67E5\u5C1A\u672A\u542F\u7528\uFF0C\u6B64\u504F\u597D\u4F1A\u4FDD\u7559\u3002")), /* @__PURE__ */ import_react6.default.createElement(
         "input",
@@ -3181,7 +3187,7 @@ var ClientRuntime = class {
 // plugin/client/styles.css
 var styles_default = `/* Component colors resolve through --el-*; literals exist only in these token definitions. */
 .el-plugin { --el-brand: var(--dsw-alias-state-business-primary, #4176e6); --el-brand-hover: var(--dsw-static-deepseek-450, #5686fe); --el-brand-tint: var(--dsw-alias-state-business-tertiary, #e4edfd); --el-brand-link: var(--dsw-static-deepseek-600, #4868b2); --el-brand-link-hover: var(--dsw-static-deepseek-600, #4868b2); --el-brand-ring: rgba(65, 118, 230, .16); --el-brand-border: rgba(65, 118, 230, .24); --el-label-1: var(--dsw-alias-label-primary, #202124); --el-label-2: var(--dsw-alias-label-secondary, #626772); --el-label-3: var(--dsw-alias-label-tertiary, #858a93); --el-bg-l1: var(--dsw-alias-bg-layer-2, #fff); --el-bg-l2: var(--dsw-alias-bg-layer-1, #f7f8fa); --el-border-l1: var(--dsw-alias-border-l2, #e5e7eb); --el-state-error: var(--dsw-alias-state-error-primary, #df2a3f); --el-state-error-tint: #fdeeee; --el-state-warn: var(--dsw-alias-state-warn-primary, #c37806); --el-state-success: var(--dsw-alias-state-success-primary, #199a68); --el-hover: var(--dsw-alias-interactive-bg-hover, rgba(38, 49, 72, 0.06)); --el-bg-l3: var(--dsw-alias-bg-layer-3, #f1f2f4); --el-shadow-card: 0 1px 3px var(--el-shadow); --el-on-brand: #fff; --el-bg-overlay: rgb(0 0 0 / 28%); --el-shadow: rgb(0 0 0 / 10%); --el-font-code: "Maple Mono NF CN", "Sarasa Mono SC", "Noto Sans Mono CJK SC", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; --el-font-diff: var(--el-font-code); color: var(--el-label-1); background: var(--el-bg-l2); height: 100%; min-height: 0; min-width: 0; display: flex; flex-direction: column; font: 14px/1.6 -apple-system, system-ui, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif; --el-frame-top-inset: 0px; padding-top: var(--el-frame-top-inset); box-sizing: border-box; }
-main.el-plugin { --el-page-gutter: clamp(24px, 4vw, 48px); }
+main.el-plugin { --el-page-gutter: clamp(24px, 4vw, 32px); }
 /* The host mounts its leading controls only for collapsed/drawer navigation. */
 html[data-platform=darwin] :is([data-sidebar-collapsed], [data-sidebar-drawer]) main.el-plugin { --el-frame-top-inset: var(--dsh-frame-top-clearance, 0px); }
 body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business-primary, #7aaaff); --el-brand-hover: var(--dsw-static-deepseek-300, #b7c8fe); --el-brand-tint: rgba(122, 170, 255, .14); --el-brand-link: var(--dsw-alias-link, #7aaaff); --el-brand-link-hover: var(--dsw-alias-link, #7aaaff); --el-brand-ring: rgba(122, 170, 255, .20); --el-brand-border: rgba(122, 170, 255, .28); --el-label-1: var(--dsw-alias-label-primary, #eceef1); --el-label-2: var(--dsw-alias-label-secondary, #afb4be); --el-label-3: var(--dsw-alias-label-tertiary, #858c97); --el-bg-l1: var(--dsw-alias-bg-layer-2, #24262c); --el-bg-l2: var(--dsw-alias-bg-layer-1, #1d1f24); --el-border-l1: var(--dsw-alias-border-l2, #3a3e48); --el-state-error: var(--dsw-alias-state-error-primary, #f85149); --el-state-error-tint: rgba(248, 81, 73, .14); --el-hover: var(--dsw-alias-interactive-bg-hover, rgba(255, 255, 255, 0.08)); --el-bg-l3: var(--dsw-alias-bg-layer-3, #2c2e34); --el-on-brand: #19151f; --el-shadow: rgb(0 0 0 / 25%); }
@@ -3202,12 +3208,13 @@ body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business
 .el-plugin .el-icon-button[aria-pressed=true] { color: var(--el-brand); background: var(--el-brand-tint); }
 .el-plugin .el-link, .el-plugin .el-ref, .el-plugin .el-summary-link { border: 0; padding: 0; background: transparent; color: var(--el-brand-link); min-height: 0; display: inline; text-align: left; cursor: pointer; }
 .el-plugin .el-link { display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; white-space: nowrap; }
+.el-plugin a.el-link:focus-visible { outline: 2px solid var(--el-brand); outline-offset: 2px; }
 .el-link-arrow { opacity: 0; width: 12px; display: inline-block; transform: translateX(-3px); transition: opacity .3s ease-out, transform .3s ease-out; }
 .el-plugin .el-link:hover, .el-plugin .el-link:focus-visible, .el-plugin .el-ref:hover, .el-plugin .el-ref:focus-visible { color: var(--el-brand-link-hover); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; background: transparent; }
 .el-link:hover .el-link-arrow, .el-link:focus-visible .el-link-arrow { opacity: 1; transform: translateX(0); }
 .el-header-spacer { flex: 1; min-width: 8px; } .el-muted { color: var(--el-label-2); } .el-path { font-family: var(--el-font-code); } .el-clip { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
 .el-plugin .el-danger, .el-plugin .el-error { color: var(--el-state-error); } .el-error, .el-notice { padding: 8px 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .el-notice { color: var(--el-label-2); background: var(--el-bg-l1); border-bottom: 1px solid var(--el-border-l1); }
-.el-page-header { display: flex; align-items: center; gap: 12px; width: 100%; padding: 76px var(--el-page-gutter) 24px; background: transparent; border-bottom: 0; flex-wrap: wrap; max-width: 1280px; margin-inline: auto; }
+.el-page-header { display: flex; align-items: center; gap: 12px; width: 100%; padding: max(16px, calc(64px - var(--el-frame-top-inset))) var(--el-page-gutter) 16px; background: transparent; border-bottom: 0; flex-wrap: wrap; margin-inline: auto; }
 .el-page-header h1 { flex: 0 0 auto; font-weight: 500; line-height: 28px; }
 .el-search { display: flex; align-items: center; gap: 8px; width: 248px; max-width: 100%; height: 32px; padding: 0 10px; border: 1px solid var(--el-border-l1); border-radius: 6px; background: var(--el-bg-l2); color: var(--el-label-3); }
 .el-search>svg { flex: 0 0 14px; } .el-plugin .el-search input { flex: 1; min-width: 0; width: 100%; height: 30px; padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent; color: var(--el-label-1); font-size: 12px; }
@@ -3216,8 +3223,8 @@ body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business
 .el-plugin .el-workspace-picker .el-menu-trigger { padding: 4px 8px; border: 0; background: transparent; } .el-plugin .el-workspace-picker .el-menu-trigger:hover { background: var(--el-hover); }
 .el-plugin .el-list-controls>.el-menu-trigger { gap: 12px; background: var(--el-bg-l2); font-size: 12px; }
 .el-workspace-picker { min-width: 0; max-width: 260px; } .el-menu-trigger { display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; max-width: 100%; }
-.el-delivery-area { container-type: inline-size; display: flex; flex-direction: column; min-height: 0; flex: 1; width: 100%; max-width: 1280px; margin-inline: auto; padding: 0 var(--el-page-gutter) 48px; }
-.el-list-controls { display: flex; align-items: center; gap: 12px; padding: 0 0 24px; flex-wrap: wrap; font-size: 13px; }
+.el-delivery-area { container-type: inline-size; display: flex; flex-direction: column; min-height: 0; flex: 1; width: 100%; margin-inline: auto; padding: 0 var(--el-page-gutter) 32px; }
+.el-list-controls { display: flex; align-items: center; gap: 12px; padding: 0 0 16px; flex-wrap: wrap; font-size: 13px; }
 .el-plugin .el-list-controls [role=group] button { min-height: 32px; padding: 0 10px; border: 0; background: transparent; color: var(--el-label-2); }
 .el-plugin .el-list-controls [role=group] .el-icon-button { padding: 0; }
 .el-plugin .el-list-controls [role=group] button:hover, .el-plugin .el-list-controls [role=group] button[aria-pressed=true] { background: var(--el-hover); color: var(--el-label-1); }
@@ -3257,7 +3264,7 @@ body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business
 .el-dialog footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 0; } .el-setting-row { display: flex; justify-content: space-between; gap: 16px; } .el-setting-row>span:first-child { display: flex; flex-direction: column; } .el-setting-field { display: flex; flex-direction: column; }
 .el-file-button { display: inline-flex!important; justify-content: center; align-items: center; position: relative; cursor: pointer; font-size: 13px; } .el-file-button input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; } .el-file-button:focus-within { outline: 2px solid var(--el-brand); }
 .el-extension-tools { display: flex; align-items: center; gap: 8px; } .el-extension-tools>span:last-child { margin-left: auto; } .el-extension-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; min-height: 280px; } .el-extension-columns>section { overflow: auto; padding: 12px; border: 1px solid var(--el-border-l1); border-radius: 6px; max-height: 55vh; } .el-extension-columns textarea { height: 100%; min-height: 280px; }
-.el-review { display: flex; flex-direction: column; min-height: 0; min-width: 0; flex: 1; width: 100%; max-width: 1280px; align-self: center; padding: 24px var(--el-page-gutter) 48px; }
+.el-review { display: flex; flex-direction: column; min-height: 0; min-width: 0; flex: 1; width: 100%; align-self: stretch; padding: 0; }
 .el-review-heading { display: flex; gap: 12px; align-items: center; padding: 12px 16px; background: var(--el-bg-l1); min-height: 76px; }
 .el-review-heading>button:first-child { flex-shrink: 0; white-space: nowrap; }
 .el-review-title { min-width: 0; } .el-review-title h2 { font-size: 16px; } .el-review-title p { color: var(--el-label-2); font-size: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
@@ -3266,7 +3273,7 @@ body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business
 .el-review-toolbar { display: flex; align-items: center; gap: 8px; height: 40px; flex: 0 0 40px; padding: 0 16px; background: var(--el-bg-l1); border-bottom: 1px solid var(--el-border-l1); flex-wrap: nowrap; overflow-x: auto; }
 .el-view-switch { display: inline-flex; flex-shrink: 0; gap: 2px; height: 32px; padding: 2px; border-radius: 7px; background: var(--el-hover); } .el-plugin .el-view-switch button { min-height: 28px; height: 28px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: var(--el-label-2); font-size: 12px; line-height: 28px; white-space: nowrap; }
 .el-plugin .el-view-switch button[aria-pressed=true] { background: var(--el-bg-l2); color: var(--el-brand-link); font-weight: 600; }
-.el-review-body { display: flex; min-height: 0; min-width: 0; flex: 1; overflow: hidden; }
+.el-review-body { display: flex; min-height: 0; min-width: 0; flex: 1; overflow: hidden; background: var(--el-bg-l2); }
 .el-file-tree { flex: 0 0 auto; min-width: 180px; max-width: 45%; background: var(--el-bg-l1); padding: 12px 8px; overflow: auto; }
 .el-file-tree .el-search { width: 100%; margin-bottom: 12px; } .el-plugin .el-tree-file { display: flex; justify-content: flex-start; gap: 6px; border: 0; background: transparent; border-radius: 5px; min-height: 32px; padding: 4px 6px; width: 100%; font: 12px/1.6 var(--el-font-code); }
 .el-tree-file svg { flex-shrink: 0; color: var(--el-state-success); margin-left: auto; } .el-plugin .el-tree-selected { background: var(--el-brand-tint); color: var(--el-brand-link); } .el-plugin .el-tree-weak { background: var(--el-bg-l2); }
@@ -3276,6 +3283,7 @@ body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business
 .el-overview>section, .el-overview>details { margin-bottom: 24px; } .el-overview h2 { margin-bottom: 12px; } .el-overview h3 { margin: 12px 0 8px; } .el-overview ul { padding-left: 20px; margin: 8px 0; }
 .el-hero { background: var(--el-bg-l1); border: 1px solid var(--el-border-l1); border-radius: 8px; padding: 16px; } .el-basis { color: var(--el-label-3); font-size: 11px; font-weight: 400; border: 1px dotted var(--el-border-l1); border-radius: 3px; padding: 1px 5px; vertical-align: middle; margin-left: 6px; }
 .el-stat-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; } .panel-status { background: var(--el-bg-l2); border: 1px solid var(--el-border-l1); border-left: 3px solid var(--el-label-3); padding: 8px 12px; border-radius: 6px; }
+.el-stat-pills:empty { display: none; }
 .el-change-list li { margin: 8px 0; line-height: 1.8; } .el-change-list small { font-size: 12px; white-space: nowrap; } .el-feature { border: 1px solid var(--el-border-l1); border-radius: 8px; background: var(--el-bg-l1); padding: 16px; margin-bottom: 12px; } .el-feature>h3:first-child { margin-top: 0; }
 .el-plugin summary { cursor: pointer; color: var(--el-label-2); padding: 6px 0; } .el-refs { display: inline-flex; flex-wrap: wrap; gap: 8px; font: 12px/1.7 var(--el-font-code); margin: 4px 0; }
 .el-alignment { border-left: 2px solid var(--el-border-l1); padding: 8px 12px; margin: 8px 0; } .el-alignment-group { margin-bottom: 12px; } .el-section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; } .el-section-heading>div { display: flex; gap: 4px; }
@@ -3285,7 +3293,7 @@ body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business
 .el-plugin .el-problem-link { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; border: 0; background: transparent; padding: 6px 0; width: 100%; justify-content: flex-start; text-align: left; } .el-problem-link>span:first-child { color: var(--el-state-error); } .el-problem-link[data-severity=P2]>span:first-child { color: var(--el-state-warn); } .el-problem-link small { color: var(--el-label-2); }
 .el-withheld { color: var(--el-state-warn); background: var(--el-bg-l1); padding: 12px; border: 1px solid var(--el-border-l1); border-radius: 6px; } .overview-requirements { border-top: 1px solid var(--el-border-l1); padding-top: 12px; } .overview-requirements>summary { color: var(--el-label-1); font-weight: 650; display: flex; align-items: center; gap: 10px; list-style: none; } .overview-requirements article { padding: 8px 0; }
 .el-prose { min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; } .el-prose p+p { margin-top: 8px; } .el-plugin pre { white-space: pre; overflow: auto; font: 13px/1.6 var(--el-font-code); max-width: 100%; } .el-prose pre { padding: 12px; background: var(--el-bg-l2); border: 1px solid var(--el-border-l1); border-radius: 6px; } .el-plugin code { font-family: var(--el-font-code); }
-.el-diff-pane { display: flex; flex: 1; min-width: 0; min-height: 0; flex-direction: column; position: relative; background: var(--el-bg-l1); }
+.el-diff-pane { display: flex; flex: 1 1 0%; min-width: 0; min-height: 0; flex-direction: column; position: relative; margin: 8px; border: 1px solid var(--el-border-l1); border-radius: 8px; overflow: hidden; background: var(--el-bg-l1); }
 .el-file-heading { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 8px 12px; border-bottom: 1px solid var(--el-border-l1); flex-wrap: wrap; font-size: 12px; }
 .el-file-heading strong { overflow-wrap: anywhere; } .el-diff-scroll { overflow: auto; min-height: 0; flex: 1; }
 .el-diff-rendered { min-width: 0; } .el-diff-rendered .d2h-file-header { display: none; } .el-diff-rendered .d2h-file-wrapper { border: 0; margin: 0; } .el-diff-rendered .d2h-code-line-ctn { font: 13px/20px var(--el-font-diff); } .el-diff-rendered .d2h-code-linenumber, .el-diff-rendered .d2h-code-side-linenumber { position: relative; }
@@ -3314,7 +3322,7 @@ body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business
 .el-file-explanation { flex: 0 0 auto; resize: vertical; overflow: auto; height: 180px; min-height: 80px; max-height: 50vh; padding: 12px 16px; border-top: 1px solid var(--el-border-l1); background: var(--el-bg-l1); } .el-file-explanation h3 { margin: 0 0 8px; } .el-file-explanation ul { margin: 0 0 12px; padding-left: 20px; } .el-file-explanation .el-summary-link { color: var(--el-label-2); } .el-file-explanation .el-summary-link:hover { color: var(--el-brand-link); }
 .el-undo { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-top: 1px solid var(--el-border-l1); background: var(--el-bg-l1); }
 .el-issue-pulse { animation: el-pulse 1.6s ease-out; } @keyframes el-pulse { 0%, 40% { box-shadow: 0 0 0 2px var(--el-brand); } 100% { box-shadow: 0 0 0 0 transparent; } }
-@media (max-width: 720px) { main.el-plugin { --el-page-gutter: 16px; } .el-review { padding: 16px 12px 24px; } .el-page-header { padding: 40px 16px 24px; } .el-page-header>.el-search { flex: 1; min-width: 180px; }   .el-extension-columns { grid-template-columns: 1fr; } .el-extension-columns>section { max-height: 220px; } .el-issue-card>header { flex-wrap: wrap; } .el-issue-actions { margin-left: auto; } .el-issue-content { padding: 10px 12px; } }
+@media (max-width: 720px) { main.el-plugin { --el-page-gutter: 16px; } .el-review { padding: 0; } .el-page-header { padding: max(0px, calc(40px - var(--el-frame-top-inset))) 16px 24px; } .el-page-header>.el-search { flex: 1; min-width: 180px; }   .el-extension-columns { grid-template-columns: 1fr; } .el-extension-columns>section { max-height: 220px; } .el-issue-card>header { flex-wrap: wrap; } .el-issue-actions { margin-left: auto; } .el-issue-content { padding: 10px 12px; } }
 @media (hover:none) { .el-link-arrow { opacity: 1; transform: none; } .el-line-add-slot { opacity: 1; } }
 @media (prefers-reduced-motion:reduce) { .el-plugin *, .el-plugin *::before, .el-plugin *::after { scroll-behavior: auto!important; animation: none!important; transition: none!important; } .el-link-arrow { transform: none; } }
 .el-material-icon { width: 16px; height: 16px; flex: 0 0 16px; object-fit: contain; }

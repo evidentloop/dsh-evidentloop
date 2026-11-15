@@ -1,5 +1,33 @@
-<svg class="flow-wide" viewBox="0 0 900 290" role="img" aria-labelledby="fw-t">
+<svg xmlns="http://www.w3.org/2000/svg" class="flow-wide" viewBox="0 0 900 290" role="img" aria-labelledby="fw-t">
 <title id="fw-t">一次交付的工作流：会话里改代码，评审台评审，发回与再审形成回环，通过后合并并归档</title>
+<style>
+svg:root {
+  --panel: #ffffff; --ink: #1b1b22; --muted: #565864; --faint: #6f717c;
+  --line: rgba(27,27,34,.10); --line-strong: rgba(27,27,34,.18);
+  --accent: #4868b2; --accent-soft: #efecfc;
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  svg:root {
+    --panel: #1d1d24; --ink: #ececf1; --muted: #a6a8b3; --faint: #8f919c;
+    --line: rgba(255,255,255,.10); --line-strong: rgba(255,255,255,.20);
+    --accent: #7aaaff; --accent-soft: rgba(122,170,255,.14);
+  }
+}
+.fl-lane { fill: var(--panel); stroke: var(--line); }
+.fl-lane-t { fill: var(--faint); font: 600 13px var(--font-sans); }
+.fl-node { fill: var(--panel); stroke: var(--line-strong); stroke-width: 1.2; }
+.fl-node-key { fill: var(--accent-soft); stroke: var(--accent); }
+.fl-node-loop { stroke: var(--accent); stroke-dasharray: 4 3; }
+.fl-t { fill: var(--ink); font: 600 14px var(--font-sans); }
+.fl-s { fill: var(--faint); font: 12px var(--font-sans); }
+.fl-arrow { stroke: var(--faint); stroke-width: 1.5; fill: none; }
+.fl-loop { stroke: var(--accent); stroke-width: 1.75; fill: none; }
+.fl-head { fill: var(--faint); }
+.fl-head-loop { fill: var(--accent); }
+.fl-label { fill: var(--muted); font: 12px var(--font-sans); }
+.fl-label-loop { fill: var(--accent); font-weight: 600; }
+</style>
 <defs>
 <marker id="fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head"/></marker>
 <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fl-head-loop"/></marker>

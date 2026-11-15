@@ -22,8 +22,10 @@ const sample = (page, prototype) => page.evaluate(prototype => {
   return { options, active: style(active), activeText: active.textContent, switch: style(tabs), tokens: { error: resolve('color', '--el-state-error'), errorTint: resolve('backgroundColor', '--el-state-error-tint'), hover: resolve('backgroundColor', '--el-hover'), label2: resolve('color', '--el-label-2'), bg2: resolve('backgroundColor', '--el-bg-l2'), brand: resolve('color', '--el-brand-link') }, layout: { viewport: innerWidth, toolbar: rect(toolbar), tabs: rect(tabs), filters: rect(group), rootOverflow: document.documentElement.scrollWidth > innerWidth } };
 }, prototype);
 const validate = (name, data) => {
-  for (const property of ['color', 'backgroundColor']) check(name + ' risk count ' + property, data.options.risk.count[property], property === 'color' ? data.tokens.error : data.tokens.errorTint);
-  check(name + ' risk label stays red', data.options.risk.label.color, data.tokens.error);
+  if (data.options.risk) {
+    for (const property of ['color', 'backgroundColor']) check(name + ' risk count ' + property, data.options.risk.count[property], property === 'color' ? data.tokens.error : data.tokens.errorTint);
+    check(name + ' risk label stays red', data.options.risk.label.color, data.tokens.error);
+  }
   check(name + ' all count gray pill', [data.options.all.count.backgroundColor, data.options.all.count.color], [data.tokens.hover, data.tokens.label2]);
   for (const [mode, value] of Object.entries(data.options)) {
     check(name + ' ' + mode + ' label typography', [value.label.fontSize, value.label.fontWeight], ['13px', '500']);
@@ -49,7 +51,7 @@ try {
     for (const zero of before ? [false] : [false, true]) {
       await page.evaluate(zero => { const r = structuredClone(__toolbarOriginal); if (zero) r.marks = r.run.findings.map(f => ({ findingId: f.findingId, suppressed: true })); __UI__.runtime.update({ page: 'review', record: r, view: 'diff' }); }, zero);
       const prefix = width + '-' + theme + '-' + (zero ? 'zero' : 'risk');
-      for (const mode of ['all', 'risk']) { await page.locator('.el-file-filter label').filter({ has: page.locator('input[value="' + mode + '"]') }).click(); const data = await sample(page, false); validate('plugin ' + prefix + ' ' + mode, data); measurements.push({ product: 'plugin', prefix, mode, data }); }
+      for (const mode of zero ? ['all'] : ['all', 'risk']) { await page.locator('.el-file-filter label').filter({ has: page.locator('input[value="' + mode + '"]') }).click(); const data = await sample(page, false); validate('plugin ' + prefix + ' ' + mode, data); if (zero) check('plugin ' + prefix + ' hides empty risk filter', data.options.risk === undefined, true); measurements.push({ product: 'plugin', prefix, mode, data }); }
       await page.locator('.el-file-filter label').filter({ has: page.locator('input[value=all]') }).click(); await page.mouse.move(0, 0);
       await page.locator('.el-review-toolbar').screenshot({ path: out + '/plugin-' + prefix + '-toolbar.png' });
       if (!before) {

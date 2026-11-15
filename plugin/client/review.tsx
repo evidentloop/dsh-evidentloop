@@ -103,6 +103,11 @@ export function Review({
   useEffect(() => {
     if (!files.some((f) => f.path === selected)) setSelected(files[0]?.path);
   }, [r.snapshot.snapshotId]);
+  useEffect(() => {
+    if ((filter === "risk" && !risk.size) || (filter === "changed" && !changed.size)) {
+      setFilter("all");
+    }
+  }, [filter, risk.size, changed.size]);
   const jump = (ref: Jump) => {
     if (!ref?.path) return;
     const file = files.find(
@@ -139,6 +144,11 @@ export function Review({
         (range.headSubject || "提交") +
         "」" +
         (range.dirty ? " + 未提交改动" : "");
+  const modelNote = run?.model?.adapter === "synthetic"
+    ? "测试记录 · 未调用真实 AI 模型"
+    : run?.model?.adapter === "dsh" && run.model.provider
+      ? "真实模型 · " + (run.model.name || run.model.model) + " · " + run.model.provider
+      : "";
   const startResize = (e: React.PointerEvent) => {
     e.preventDefault();
     const start = e.clientX,
@@ -192,7 +202,7 @@ export function Review({
                   (i === 0 ? " · 最新" : "") +
                   " · " +
                   h.statusText,
-                note: sourceLabel(h.range),
+                note: [sourceLabel(h.range), h.snapshotId === r.snapshot.snapshotId ? modelNote : ""].filter(Boolean).join(" · "),
                 selected: h.snapshotId === r.snapshot.snapshotId,
                 action: () =>
                   runtime.perform(() =>
@@ -225,17 +235,6 @@ export function Review({
             打开最新审查
           </Link>
         </div>
-      )}
-      {r.run?.model?.adapter === "synthetic" && (
-        <p className="el-review-notice">
-          测试记录：本记录由测试样例生成，未调用真实 AI 模型。
-        </p>
-      )}
-      {r.run?.model?.adapter === "dsh" && r.run.model.provider && (
-        <p className="el-review-notice">
-          真实模型 · {r.run.model.name || r.run.model.model} ·{" "}
-          {r.run.model.provider}
-        </p>
       )}
       {r.extensionChanged && (
         <p className="el-review-notice">
@@ -322,7 +321,7 @@ export function Review({
         >
           {[
             ["all", "全部文件", files.length],
-            ["risk", "风险文件", risk.size],
+            ...(risk.size > 0 ? [["risk", "风险文件", risk.size]] : []),
             ...(changed.size > 0 && changed.size < files.length
               ? [["changed", "新改动", changed.size]]
               : []),

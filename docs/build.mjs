@@ -14,6 +14,8 @@ const out = join(here, 'site');
 const require = createRequire(import.meta.url);
 const { marked } = require(join(here, '../prototype/vendor/marked@9.1.0.min.js'));
 const read = name => readFileSync(join(src, name), 'utf8').trim();
+// Standalone SVGs carry styles; the inline diagrams use style.css under the site's CSP.
+const flow = name => read(name).replace(/<style>[\s\S]*?<\/style>\s*/, '');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 const raw = readFileSync(join(here, 'guide.md'), 'utf8').replace(/\r\n/g, '\n');
@@ -90,7 +92,7 @@ const home = shell({
 <section class="band" id="flow" aria-labelledby="flow-h">
   <h2 id="flow-h">在会话和评审台之间循环</h2>
   <p>你在会话里改，在评审台里看；修改要求发回会话，改完再审，直到可以放心合并。</p>
-  <div class="flow">${read('flow-wide.svg')}${read('flow-narrow.svg')}</div>
+  <div class="flow">${flow('flow-wide.svg')}${flow('flow-narrow.svg')}</div>
 </section>
 <section class="band" aria-labelledby="caps-h">
   <h2 id="caps-h">你会得到什么</h2>
@@ -144,6 +146,8 @@ ${html}
   writeFileSync(join(out, chapter.file), page);
   if (i === 0) writeFileSync(join(out, 'guide.html'), page);
 });
+// Keep standalone diagrams available to the repository README as well as inline on the home page.
+for (const file of ['flow-wide.svg', 'flow-narrow.svg']) copyFileSync(join(src, file), join(out, file));
 copyFileSync(join(src, 'style.css'), join(out, 'style.css'));
 copyFileSync(join(here, 'icon.svg'), join(out, 'favicon.svg'));
 cpSync(join(src, 'assets'), join(out, 'assets'), { recursive: true });

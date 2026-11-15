@@ -97,7 +97,7 @@ export function Settings({
       <h2>工作区设置</h2>
       <p className="el-model-status">
         {runtime.state.data?.modelTestGate.approved ? "真实模型调用已获本轮授权。" : "未开启真实模型调用。需先获得本轮调用授权，再发起审查。"}
-        {" "}<a href="https://evidentloop.sanze.dev/guide-status.html" target="_blank" rel="noopener noreferrer">查看调用授权说明 ↗</a>
+        {" "}<a className="el-link" href="https://evidentloop.sanze.dev/guide-status.html" target="_blank" rel="noopener noreferrer">查看调用授权说明 ↗</a>
       </p>
       <p className="el-muted">
         {sharedRepo

@@ -56,6 +56,7 @@ export function Overview({
     [mode, setMode] = React.useState("severity"),
     [adding, setAdding] = React.useState(false);
   const features = u?.features || [],
+    alignedCount = (u?.alignment || []).filter((row) => row.status === "implemented").length,
     requirements = record.snapshot.requirements,
     requirementMap = new Map(
       requirements.flatMap((s) =>
@@ -107,7 +108,7 @@ export function Overview({
     rows: Understanding["alignment"],
     folded = false,
   ) =>
-    folded ? (
+    !rows.length ? null : folded ? (
       <details className="el-alignment-group">
         <summary>
           {title} · {rows.length}
@@ -137,7 +138,7 @@ export function Overview({
             reason?: string;
           }
       > = [],
-    ) => (
+    ) => rows.length > 0 ? (
       <div className="el-coverage-group">
         <h3>
           {name} · {rows.length}
@@ -156,7 +157,7 @@ export function Overview({
           })}
         </ul>
       </div>
-    );
+    ) : null;
   return (
     <div className="el-overview">
       <section id="overview-conclusion" className="el-hero">
@@ -172,35 +173,32 @@ export function Overview({
           text={u?.overview.purpose || "代码已冻结，尚无通过校验的变更说明。"}
         />
         <div className="el-stat-pills">
-          <button
+          {(active.length > 0 || !record.run?.complete) && <button
             className="el-btn"
             onClick={() => scroll("overview-problems")}
           >
             {active.length || record.run?.complete ? active.length : "待审"}{" "}
             问题
-          </button>
-          <button
+          </button>}
+          {features.length > 0 && <button
             className="el-btn"
             onClick={() => scroll("overview-features")}
           >
             {features.length} 功能
-          </button>
-          <button
+          </button>}
+          {alignedCount > 0 && <button
             className="el-btn"
             onClick={() => scroll("overview-alignment")}
           >
-            {
-              (u?.alignment || []).filter((x) => x.status === "implemented")
-                .length
-            }{" "}
+            {alignedCount}{" "}
             已对齐
-          </button>
-          <button
+          </button>}
+          {(coverage?.reviewed.length || 0) > 0 && <button
             className="el-btn"
             onClick={() => scroll("overview-coverage")}
           >
             {coverage?.reviewed.length || 0} 覆盖文件
-          </button>
+          </button>}
         </div>
         <div className="panel-status" role="status">
           {record.statusText}

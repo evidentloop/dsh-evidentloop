@@ -69,6 +69,8 @@ export function DeliveryList({ runtime, state }: RuntimeProps) {
     setCompact = (value: boolean) => preference("compact", value);
   const data = state.data,
     all = data?.deliveries || [],
+    activeCount = all.filter((d) => !d.archivedAt).length,
+    archivedCount = all.length - activeCount,
     query = (state.query || "").trim().toLowerCase();
   const sessions = new Map((data?.sessions || []).map((s) => [s.sessionId, s]));
   const sessionFor = (d: DeliveryRow) =>
@@ -196,24 +198,24 @@ export function DeliveryList({ runtime, state }: RuntimeProps) {
             aria-pressed={!archived}
             onClick={() => setArchived(false)}
           >
-            全部 <span>{all.filter((d) => !d.archivedAt).length}</span>
+            全部 {activeCount > 0 && <span>{activeCount}</span>}
           </button>
-          <button
+          {(archived || archivedCount > 0) && <button
             className="el-btn"
             aria-pressed={archived}
             onClick={() => setArchived(true)}
           >
-            归档 <span>{all.filter((d) => d.archivedAt).length}</span>
-          </button>
+            归档 {archivedCount > 0 && <span>{archivedCount}</span>}
+          </button>}
         </div>
-        <label>
+        {(onlyIssues || all.some((d) => d.activeFindingCount > 0)) && <label>
           <input
             type="checkbox"
             checked={onlyIssues}
             onChange={(e) => setOnlyIssues(e.target.checked)}
           />
           只看有问题
-        </label>
+        </label>}
         <span className="el-header-spacer" />
         <Menu
           label="排序"
