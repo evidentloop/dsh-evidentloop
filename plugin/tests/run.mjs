@@ -8,10 +8,10 @@ import { fileURLToPath } from 'node:url';
 import { fixture, bundle, until, syntheticModel } from '../../core/tests/helpers.mjs';
 import { freezeMethod } from '../../core/lib/method.mjs';
 import { loadBundle, projectFor, SyntheticAdapter } from '../../core/index.mjs';
-import { ClientBridge } from '../host/bridge.mjs';
-import { DshAdapter, reviewPrompt } from '../host/dsh-adapter.mjs';
-import { PluginService } from '../host/service.mjs';
-import { NativeClient } from '../client/native.js';
+import { ClientBridge } from '../host/bridge.ts';
+import { DshAdapter, reviewPrompt } from '../host/dsh-adapter.ts';
+import { PluginService } from '../host/service.ts';
+import { NativeClient } from '../client/native.ts';
 import { fakeHost, nativeFixture } from './fakes.mjs';
 import { installed } from '../scripts/toolchain.mjs';
 import { captureChecks } from './capture.mjs';
@@ -110,7 +110,7 @@ await test('built client ModuleLoader exports public entry using host React only
 await test('React component renders real props and escapes user controlled titles', async () => {
   const es = installed('esbuild').require('esbuild'), rt = installed('react', process.env.REACT_PACKAGE);
   const React = rt.require('react'), { renderToStaticMarkup } = rt.require('react-dom/server');
-  const compiled = await es.build({ absWorkingDir: root, entryPoints: ['plugin/client/app.jsx'], bundle: true, format: 'cjs', platform: 'node', external: ['react', 'react-dom'], write: false, logLevel: 'silent' });
+  const compiled = await es.build({ absWorkingDir: root, entryPoints: ['plugin/client/app.tsx'], jsx: 'transform', tsconfigRaw: { compilerOptions: { jsx: 'react' } }, bundle: true, format: 'cjs', platform: 'node', external: ['react', 'react-dom'], write: false, logLevel: 'silent' });
   const sandbox = { module: { exports: {} }, require: name => { assert.ok(['react', 'react-dom'].includes(name)); return rt.require(name); } }; sandbox.exports = sandbox.module.exports; vm.runInNewContext(compiled.outputFiles[0].text, sandbox);
   const data = await service.bootstrap('w1'); data.deliveries[0].title = '<script>alert(1)</script>'; const state = { loading: false, workspaceId: 'w1', data, page: 'list' }, runtime = { subscribe: () => () => {}, getSnapshot: () => state, native: { sessionId: () => 'dev' } };
   const markup = renderToStaticMarkup(React.createElement(sandbox.module.exports.Panel, { runtime })); assert.ok(markup.includes('&lt;script&gt;')); assert.ok(!markup.includes('<script>')); assert.ok(markup.includes('Fixture repository')); assert.ok(markup.includes('演示模式')); fs.writeFileSync(path.join(output, 'component-ssr.html'), markup);

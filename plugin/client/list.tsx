@@ -1,0 +1,411 @@
+import type { ClientRuntime } from "./runtime.ts";
+import type {
+  RuntimeState,
+  DeliveryRow,
+  ListPreferences,
+} from "../shared/contracts.ts";
+interface RuntimeProps {
+  runtime: ClientRuntime;
+  state: RuntimeState;
+}
+import React from "react";
+import {
+  Icon,
+  IconButton,
+  Clip,
+  Link,
+  Menu,
+  Confirm,
+  relativeTime,
+} from "./ui.tsx";
+export function WorkspacePicker({ runtime, state }: RuntimeProps) {
+  const [query, setQuery] = React.useState("");
+  const current = state.data?.workspaces.find(
+    (w) => w.workspaceId === state.workspaceId,
+  );
+  // Use the same keyboard/menu implementation as all other menus.
+  const items = (state.data?.workspaces || [])
+    .filter((w) =>
+      (w.title + " " + w.path).toLowerCase().includes(query.toLowerCase()),
+    )
+    .map((w) => ({
+      label: w.title,
+      note: w.notGit ? "不是Git仓库" : w.path,
+      selected: w.workspaceId === state.workspaceId,
+      action: () =>
+        runtime.perform(() => runtime.selectWorkspace(w.workspaceId)),
+    }));
+  return (
+    <div className="el-workspace-picker">
+      <Menu
+        label="切换工作区"
+        items={items}
+        search={{ label: "搜索工作区", value: query, onChange: setQuery }}
+      >
+        {current?.title || "选择工作区"}
+      </Menu>
+    </div>
+  );
+}
+export function DeliveryList({ runtime, state }: RuntimeProps) {
+  const {
+      archived = false,
+      onlyIssues = false,
+      sort = "updated",
+      compact = false,
+    } = state.listPreferences || {},
+    [deleting, setDeleting] = React.useState<DeliveryRow | null>(null);
+  const preference = <K extends keyof ListPreferences>(
+    key: K,
+    value: ListPreferences[K],
+  ) =>
+    runtime.update({
+      listPreferences: { ...runtime.state.listPreferences, [key]: value },
+    });
+  const setArchived = (value: boolean) => preference("archived", value),
+    setOnlyIssues = (value: boolean) => preference("onlyIssues", value),
+    setSort = (value: ListPreferences["sort"]) => preference("sort", value),
+    setCompact = (value: boolean) => preference("compact", value);
+  const data = state.data,
+    all = data?.deliveries || [],
+    query = (state.query || "").trim().toLowerCase();
+  const sessions = new Map((data?.sessions || []).map((s) => [s.sessionId, s]));
+  const sessionFor = (d: DeliveryRow) =>
+    sessions.get(d.sessionIds.at(-1) || "");
+  const updated = (d: DeliveryRow) =>
+    Math.max(
+      Date.parse(d.snapshot?.createdAt || d.createdAt) || 0,
+      Number(sessionFor(d)?.updatedAt) || 0,
+    );
+  const list = all
+    .filter((d) => Boolean(d.archivedAt) === archived)
+    .filter((d) => !onlyIssues || d.activeFindingCount > 0)
+    .filter((d) =>
+      [d.title, d.branch, d.externalRef].some((v) =>
+        (v || "").toLowerCase().includes(query),
+      ),
+    )
+    .sort(
+      (a, b) =>
+        Number(Boolean(b.pinnedAt)) - Number(Boolean(a.pinnedAt)) ||
+        (sort === "issues" ? b.activeFindingCount - a.activeFindingCount : 0) ||
+        updated(b) - updated(a),
+    );
+  const busy = (d: DeliveryRow) =>
+    ["running", "queued"].includes(d.run?.status || "");
+  const mutate = async (
+    d: DeliveryRow,
+    action: "pin" | "archive",
+    value: boolean,
+  ) => {
+    await runtime.api("delivery", {
+      workspaceId: runtime.workspaceId(),
+      deliveryId: d.deliveryId,
+      action,
+      value,
+    });
+    await runtime.refresh();
+  };
+  const menu = (d: DeliveryRow) => (
+    <Menu
+      label={"更多操作：" + d.title}
+      items={[
+        ...(!d.archivedAt
+          ? [
+              {
+                label: d.pinnedAt ? "取消置顶" : "置顶",
+                action: () =>
+                  runtime.perform(() => mutate(d, "pin", !d.pinnedAt)),
+              },
+            ]
+          : []),
+        {
+          label: d.archivedAt ? "取消归档" : "归档",
+          disabled: busy(d),
+          note: busy(d) ? "审查进行中，完成后可归档" : undefined,
+          action: () =>
+            runtime.perform(() => mutate(d, "archive", !d.archivedAt)),
+        },
+        { separator: true },
+        {
+          label: "删除",
+          danger: true,
+          disabled: busy(d),
+          note: busy(d) ? "先取消审查再删除" : undefined,
+          action: () => setDeleting(d),
+        },
+      ]}
+    />
+  );
+  const title = (d: DeliveryRow) => (
+    <button
+      className="el-title-link"
+      onClick={(e) => {
+        e.stopPropagation();
+        runtime.perform(() => runtime.open(d.deliveryId));
+      }}
+    >
+      {d.pinnedAt && !d.archivedAt && (
+        <span className="el-pin" title="已置顶" aria-label="已置顶">
+          <Icon name="pin" size={14} />
+        </span>
+      )}
+      <Clip>{d.title}</Clip>
+    </button>
+  );
+  const session = (d: DeliveryRow) => {
+    const s = sessionFor(d);
+    return s ? (
+      s.archived || s.unavailable ? (
+        <span
+          className="el-session-static"
+          onClick={(e) => e.stopPropagation()}
+          title={
+            s.unavailable
+              ? "该会话需要迁移或暂不可用，请先在会话列表处理"
+              : "该会话已归档，取消归档后可查看"
+          }
+        >
+          <Clip>
+            {s.title + (s.unavailable ? "（会话不可用）" : "（会话已归档）")}
+          </Clip>
+        </span>
+      ) : (
+        <Link
+          onClick={() =>
+            runtime.perform(() => runtime.native.openSession(s.sessionId))
+          }
+          aria-label={"打开会话：" + s.title}
+        >
+          <Icon name="comment" />
+          <Clip>{s.title}</Clip>
+          <span className="el-narrow-session">会话</span>
+        </Link>
+      )
+    ) : (
+      <span className="el-muted el-no-session">无关联会话</span>
+    );
+  };
+  return (
+    <section className="el-delivery-area">
+      <div className="el-list-controls">
+        <div role="group" aria-label="交付范围">
+          <button
+            className="el-btn"
+            aria-pressed={!archived}
+            onClick={() => setArchived(false)}
+          >
+            全部 <span>{all.filter((d) => !d.archivedAt).length}</span>
+          </button>
+          <button
+            className="el-btn"
+            aria-pressed={archived}
+            onClick={() => setArchived(true)}
+          >
+            归档 <span>{all.filter((d) => d.archivedAt).length}</span>
+          </button>
+        </div>
+        <label>
+          <input
+            type="checkbox"
+            checked={onlyIssues}
+            onChange={(e) => setOnlyIssues(e.target.checked)}
+          />
+          只看有问题
+        </label>
+        <span className="el-header-spacer" />
+        <Menu
+          label="排序"
+          items={[
+            {
+              label: "最近更新",
+              selected: sort === "updated",
+              action: () => setSort("updated"),
+            },
+            {
+              label: "问题最多",
+              selected: sort === "issues",
+              action: () => setSort("issues"),
+            },
+          ]}
+        >
+          {sort === "updated" ? "最近更新" : "问题最多"}
+        </Menu>
+        <div role="group" aria-label="交付视图">
+          <IconButton
+            label="网格视图"
+            icon="grid"
+            aria-pressed={!compact}
+            onClick={() => setCompact(false)}
+          />
+          <IconButton
+            label="紧凑视图"
+            icon="list"
+            aria-pressed={compact}
+            onClick={() => setCompact(true)}
+          />
+        </div>
+      </div>
+      {!state.workspaceId ? (
+        <section className="el-empty">选择一个真实工作区查看交付。</section>
+      ) : data?.project?.notGit ? (
+        <section className="el-empty">
+          当前工作区不是Git仓库。请选择一个Git工作区。
+        </section>
+      ) : !all.length ? (
+        <section className="el-empty">
+          <p>当前工作区还没有交付。</p>
+          <p>从开发会话轮次结束处的评审卡片进入，查看本次变更。</p>
+        </section>
+      ) : (
+        <>
+          <div
+            className={compact ? "el-compact-scroll" : "el-card-scroll"}
+            tabIndex={compact ? 0 : undefined}
+            aria-label={compact ? "交付列表，窄窗口可横向滚动" : undefined}
+          >
+            {compact ? (
+              <div
+                role="table"
+                className="el-compact-table"
+                aria-label="交付列表"
+              >
+                <div role="row" className="el-compact-head">
+                  <span role="columnheader">名称</span>
+                  <span role="columnheader" className="el-col-branch">
+                    分支
+                  </span>
+                  <span role="columnheader">审查结果</span>
+                  <span role="columnheader">最近会话</span>
+                  <span role="columnheader" className="el-col-updated">
+                    更新
+                  </span>
+                  <span role="columnheader">说明</span>
+                  <span role="columnheader" aria-label="菜单" />
+                </div>
+                {list.map((d) => (
+                  <article
+                    role="row"
+                    className="el-compact-row"
+                    key={d.deliveryId}
+                    onClick={(e) => {
+                      if (!(e.target as Element).closest("button,a"))
+                        runtime.perform(() => runtime.open(d.deliveryId));
+                    }}
+                  >
+                    <div role="cell" className="el-col-name">
+                      {title(d)}
+                      <span className="el-inline-branch">
+                        <Clip>{d.branch || "分支信息不可用"}</Clip>
+                      </span>
+                    </div>
+                    <span role="cell" className="el-col-branch el-path">
+                      <Clip>{d.branch || "分支信息不可用"}</Clip>
+                    </span>
+                    <span role="cell" className="el-result">
+                      <Clip>{d.statusText}</Clip>
+                    </span>
+                    <div role="cell" className="el-col-session">
+                      {session(d)}
+                    </div>
+                    <span role="cell" className="el-col-updated el-muted">
+                      {relativeTime(updated(d))}
+                    </span>
+                    <div role="cell">
+                      <Link
+                        onClick={() =>
+                          runtime.perform(() =>
+                            runtime.open(d.deliveryId, "overview"),
+                          )
+                        }
+                      >
+                        变更说明
+                      </Link>
+                    </div>
+                    <div role="cell">{menu(d)}</div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="el-delivery-grid">
+                {list.map((d) => (
+                  <article
+                    className="el-delivery-card"
+                    key={d.deliveryId}
+                    onClick={(e) => {
+                      if (!(e.target as Element).closest("button,a"))
+                        runtime.perform(() => runtime.open(d.deliveryId));
+                    }}
+                  >
+                    <h2>{title(d)}</h2>
+                    <p className="el-card-meta">
+                      <Clip className="el-path">
+                        {d.branch || "分支信息不可用"}
+                      </Clip>
+                      <span>{relativeTime(updated(d))}</span>
+                    </p>
+                    <p className="el-result">{d.statusText}</p>
+                    {d.run?.understanding?.overview.purpose && (
+                      <p className="el-clamp el-card-summary">
+                        {d.run.understanding.overview.purpose}
+                      </p>
+                    )}
+                    <footer>
+                      {session(d)}
+                      <Link
+                        onClick={() =>
+                          runtime.perform(() =>
+                            runtime.open(d.deliveryId, "overview"),
+                          )
+                        }
+                      >
+                        变更说明
+                      </Link>
+                    </footer>
+                    <div className="el-card-menu">{menu(d)}</div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
+          {!list.length && (
+            <section className="el-empty">
+              没有符合条件的交付。
+              <button
+                className="el-btn"
+                onClick={() => {
+                  runtime.update({ query: "" });
+                  setOnlyIssues(false);
+                }}
+              >
+                清空搜索与筛选
+              </button>
+            </section>
+          )}
+        </>
+      )}
+      {deleting && (
+        <Confirm
+          title="确认删除此交付记录？"
+          close={() => setDeleting(null)}
+          confirm="删除"
+          danger
+          action={() =>
+            runtime.perform(async () => {
+              await runtime.api("delivery", {
+                workspaceId: runtime.workspaceId(),
+                deliveryId: deleting.deliveryId,
+                action: "delete",
+                confirm: "delete",
+              });
+              setDeleting(null);
+              await runtime.refresh();
+            })
+          }
+        >
+          会一并删除它的审查记录、问题处置与批注，不能恢复。
+        </Confirm>
+      )}
+    </section>
+  );
+}

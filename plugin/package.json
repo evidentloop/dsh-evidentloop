@@ -39,8 +39,10 @@
     }
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "test": "node tests/run.mjs"
+    "build": "npm run typecheck && node scripts/build.mjs",
+    "test": "node --import tsx tests/run.mjs",
+    "typecheck": "node scripts/schema-types.mjs --check && tsc --noEmit -p ../tsconfig.json",
+    "test:ui": "node --import tsx tests/browser-headless.mjs"
   },
   "author": "sanze.li",
   "license": "MIT",

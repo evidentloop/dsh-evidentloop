@@ -1,9 +1,17 @@
-// plugin/host/index.mjs
+// plugin/host/index.ts
 import path11 from "node:path";
 import os from "node:os";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 
-// plugin/host/service.mjs
+// plugin/host/context.ts
+function eventIs(event, type) {
+  return event.type === type;
+}
+
+// plugin/shared/contracts.ts
+var errorMessage = (error) => error instanceof Error ? error.message : String(error);
+
+// plugin/host/service.ts
 import fs11 from "node:fs";
 import path10 from "node:path";
 import crypto8 from "node:crypto";
@@ -2262,34 +2270,46 @@ ${r.codeRefs.length ? r.codeRefs.map((x) => `${x.path}:${x.startLine}\u2013${x.e
   }
 };
 
-// plugin/host/bridge.mjs
+// plugin/host/bridge.ts
 import crypto6 from "node:crypto";
 import { AsyncLocalStorage } from "node:async_hooks";
 var ClientBridge = class {
+  timeout;
+  pending = /* @__PURE__ */ new Map();
+  clients = /* @__PURE__ */ new Map();
+  context = new AsyncLocalStorage();
+  closed = false;
   constructor({ timeoutMs = 12e3 } = {}) {
     this.timeout = timeoutMs;
-    this.pending = /* @__PURE__ */ new Map();
-    this.clients = /* @__PURE__ */ new Map();
-    this.context = new AsyncLocalStorage();
   }
   withClient(clientId, action) {
-    if (typeof clientId !== "string" || !/^[a-zA-Z0-9-]{20,100}$/.test(clientId)) throw Error("Invalid client identity");
+    if (typeof clientId !== "string" || !/^[a-zA-Z0-9-]{20,100}$/.test(clientId))
+      throw Error("Invalid client identity");
     return this.context.run(clientId, action);
   }
   next(clientId) {
-    if (this.closed || typeof clientId !== "string" || !/^[a-zA-Z0-9-]{20,100}$/.test(clientId)) throw Error("Invalid client identity");
-    for (const [id2, seen] of this.clients) if (Date.now() - seen > 15e3) this.clients.delete(id2);
+    if (this.closed || typeof clientId !== "string" || !/^[a-zA-Z0-9-]{20,100}$/.test(clientId))
+      throw Error("Invalid client identity");
+    for (const [id2, seen] of this.clients)
+      if (Date.now() - seen > 15e3) this.clients.delete(id2);
     this.clients.set(clientId, Date.now());
     return [...this.pending.values()].filter((p) => p.clientId === clientId && !p.delivered).map((p) => {
       p.delivered = true;
-      return { id: p.id, nonce: p.nonce, expiresAt: p.expiresAt, action: p.action, payload: p.payload };
+      return {
+        id: p.id,
+        nonce: p.nonce,
+        expiresAt: p.expiresAt,
+        action: p.action,
+        payload: p.payload
+      };
     });
   }
   call(action, payload) {
     if (this.closed) throw Error("Plugin unloaded");
     const clientId = this.context.getStore();
     if (!clientId) throw Error("No initiating client for composer operation");
-    if (Date.now() - (this.clients.get(clientId) || 0) > 15e3) throw Error("Initiating client disconnected");
+    if (Date.now() - (this.clients.get(clientId) || 0) > 15e3)
+      throw Error("Initiating client disconnected");
     const id2 = crypto6.randomUUID(), nonce = crypto6.randomBytes(24).toString("hex");
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -2314,49 +2334,65 @@ var ClientBridge = class {
   }
   answer(clientId, { id: id2, nonce, result, error }) {
     const pending = this.pending.get(id2);
-    if (!pending || pending.clientId !== clientId || pending.nonce !== nonce) throw Error("Unknown client operation");
+    if (!pending || pending.clientId !== clientId || pending.nonce !== nonce)
+      throw Error("Unknown client operation");
     pending.finish(result, error);
     return { accepted: true };
   }
   close() {
     this.closed = true;
-    for (const p of [...this.pending.values()]) p.finish(null, "Plugin unloaded");
+    for (const p of [...this.pending.values()])
+      p.finish(null, "Plugin unloaded");
     this.clients.clear();
   }
 };
 
-// plugin/host/dsh-adapter.mjs
+// plugin/host/dsh-adapter.ts
 import fs10 from "node:fs";
 import path9 from "node:path";
 import crypto7 from "node:crypto";
 var never = new AbortController().signal;
 var textOf = (event) => event.data.message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
 var DshAdapter = class {
-  constructor(ctx, { root, bridge, approvalFile = path9.join(root, "model-approval.json") }) {
+  ctx;
+  root;
+  bridge;
+  approvalFile;
+  kind = "dsh";
+  registryFile;
+  registry;
+  active = /* @__PURE__ */ new Map();
+  core;
+  closed = false;
+  constructor(ctx, {
+    root,
+    bridge,
+    approvalFile = path9.join(root, "model-approval.json")
+  }) {
     this.ctx = ctx;
     this.root = root;
     this.bridge = bridge;
     this.approvalFile = approvalFile;
-    this.kind = "dsh";
     fs10.mkdirSync(root, { recursive: true });
     this.registryFile = path9.join(root, "review-sessions.json");
-    this.registry = fs10.existsSync(this.registryFile) ? JSON.parse(fs10.readFileSync(this.registryFile)) : {};
-    this.active = /* @__PURE__ */ new Map();
-    this.core = null;
+    this.registry = fs10.existsSync(this.registryFile) ? JSON.parse(fs10.readFileSync(this.registryFile, "utf8")) : {};
   }
   saveRegistry() {
     const tmp = this.registryFile + ".tmp";
-    fs10.writeFileSync(tmp, JSON.stringify(this.registry, null, 2) + "\n", { mode: 384 });
+    fs10.writeFileSync(tmp, JSON.stringify(this.registry, null, 2) + "\n", {
+      mode: 384
+    });
     fs10.renameSync(tmp, this.registryFile);
   }
   async session(id2) {
     const list = await this.ctx.sessionController.list({}, never), row = list.items.find((r) => r.sessionId === id2);
     if (!row) return null;
     let projectKey;
-    if (row.cwd) try {
-      projectKey = projectFor(createGit(row.cwd).root).projectKey;
-    } catch {
-    }
+    if (row.cwd)
+      try {
+        projectKey = projectFor(createGit(row.cwd).root).projectKey;
+      } catch {
+      }
     const live = this.ctx.sessions.get(id2), title = (live ? this.ctx.get("sessionTitle")?.get(live)?.title : null) || row.projections?.values?.title || "\u672A\u547D\u540D\u4F1A\u8BDD";
     return {
       id: id2,
@@ -2366,7 +2402,9 @@ var DshAdapter = class {
       origin: row.origin,
       parentSession: row.parentSessionId,
       formatStatus: row.formatStatus,
-      unavailable: Boolean(row.formatStatus && row.formatStatus !== "current" || ["error", "migration-required"].includes(row.projections?.state)),
+      unavailable: Boolean(
+        row.formatStatus && row.formatStatus !== "current" || ["error", "migration-required"].includes(row.projections?.state || "")
+      ),
       kind: this.registry[id2] ? "review" : "development",
       archived: this.ctx.workspaceRegistry.archivedSessionIds.includes(id2),
       updatedAt: row.updatedAt,
@@ -2375,15 +2413,21 @@ var DshAdapter = class {
   }
   async getDraft(id2) {
     const session = await this.session(id2);
-    if (!session || session.unavailable) throw Error("\u5F00\u53D1\u4F1A\u8BDD\u9700\u8981\u8FC1\u79FB\u6216\u6682\u4E0D\u53EF\u7528");
+    if (!session || session.unavailable)
+      throw Error("\u5F00\u53D1\u4F1A\u8BDD\u9700\u8981\u8FC1\u79FB\u6216\u6682\u4E0D\u53EF\u7528");
     const value = await this.bridge.call("getDraft", { sessionId: id2 });
-    if (!value || typeof value.text !== "string" || !Number.isSafeInteger(value.revision)) throw Error("Invalid native draft response");
+    if (!value || typeof value.text !== "string" || !Number.isSafeInteger(value.revision))
+      throw Error("Invalid native draft response");
     return value;
   }
   async writeDraft(id2, text, options) {
     const session = await this.session(id2);
     if (!session || session.unavailable || session.archived) return false;
-    const result = await this.bridge.call("writeDraft", { sessionId: id2, text, expectedRevision: options.expectedRevision });
+    const result = await this.bridge.call("writeDraft", {
+      sessionId: id2,
+      text,
+      expectedRevision: options.expectedRevision
+    });
     return result?.written === true;
   }
   async copy(text) {
@@ -2392,82 +2436,140 @@ var DshAdapter = class {
     return true;
   }
   approval() {
-    if (!fs10.existsSync(this.approvalFile)) throw Error("\u9694\u79BB\u9A8C\u8BC1\u5C1A\u672A\u6279\u51C6\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u9884\u7B97");
-    const approval = JSON.parse(fs10.readFileSync(this.approvalFile));
+    if (!fs10.existsSync(this.approvalFile))
+      throw Error("\u9694\u79BB\u9A8C\u8BC1\u5C1A\u672A\u6279\u51C6\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u9884\u7B97");
+    const approval = JSON.parse(
+      fs10.readFileSync(this.approvalFile, "utf8")
+    );
     const used = approval.used ?? 0;
-    if (typeof approval.approvedBy !== "string" || !approval.approvedBy.trim() || typeof approval.taskId !== "string" || !approval.taskId.trim() || !Number.isFinite(Date.parse(approval.expiresAt)) || Date.parse(approval.expiresAt) < Date.now() || !Number.isSafeInteger(approval.maxCalls) || approval.maxCalls < 1 || !Number.isSafeInteger(used) || used < 0 || used >= approval.maxCalls || !["projectKey", "inputSha", "promptVersion"].every((k) => typeof approval[k] === "string" && /^[a-f0-9]{64}$/.test(approval[k])) || ["maxInputBytes", "maxOutputTokens", "contextWindow"].some((k) => approval[k] !== void 0 && (!Number.isSafeInteger(approval[k]) || approval[k] < 1))) throw Error("\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u9884\u7B97\u672A\u6279\u51C6\u3001\u683C\u5F0F\u65E0\u6548\u6216\u5DF2\u7528\u5B8C");
+    if (typeof approval.approvedBy !== "string" || !approval.approvedBy.trim() || typeof approval.taskId !== "string" || !approval.taskId.trim() || !Number.isFinite(Date.parse(approval.expiresAt)) || Date.parse(approval.expiresAt) < Date.now() || !Number.isSafeInteger(approval.maxCalls) || approval.maxCalls < 1 || !Number.isSafeInteger(used) || used < 0 || used >= approval.maxCalls || !["projectKey", "inputSha", "promptVersion"].every(
+      (k) => typeof approval[k] === "string" && /^[a-f0-9]{64}$/.test(approval[k])
+    ) || ["maxInputBytes", "maxOutputTokens", "contextWindow"].some(
+      (k) => approval[k] !== void 0 && (!Number.isSafeInteger(approval[k]) || approval[k] < 1)
+    ))
+      throw Error("\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u9884\u7B97\u672A\u6279\u51C6\u3001\u683C\u5F0F\u65E0\u6548\u6216\u5DF2\u7528\u5B8C");
     approval.used = used;
     return approval;
   }
   allowed(selection, bytes, snapshot) {
     const approval = this.approval();
-    if (!snapshot || ["projectKey", "inputSha", "promptVersion"].some((k) => approval[k] !== snapshot[k])) throw Error("\u51BB\u7ED3\u8F93\u5165\u4E0E\u5DF2\u6279\u51C6\u9884\u7B97\u4E0D\u4E00\u81F4\uFF0C\u672A\u8C03\u7528\u6A21\u578B");
-    if (approval.provider !== selection.provider || approval.model !== selection.model || approval.reasoningEffort !== selection.reasoningEffort) throw Error("\u5F53\u524D\u6A21\u578B\u4E0E\u5DF2\u6279\u51C6\u8F6E\u6B21\u4E0D\u4E00\u81F4");
-    if (bytes > (approval.maxInputBytes || 1024 * 1024)) throw Error("\u5BA1\u67E5\u5305\u8D85\u8FC7\u5DF2\u6279\u51C6\u8F93\u5165\u9884\u7B97\uFF0C\u672A\u5220\u51CF\u76EE\u6807");
+    if (!snapshot || ["projectKey", "inputSha", "promptVersion"].some(
+      (k) => approval[k] !== snapshot[k]
+    ))
+      throw Error("\u51BB\u7ED3\u8F93\u5165\u4E0E\u5DF2\u6279\u51C6\u9884\u7B97\u4E0D\u4E00\u81F4\uFF0C\u672A\u8C03\u7528\u6A21\u578B");
+    if (approval.provider !== selection.provider || approval.model !== selection.model || approval.reasoningEffort !== selection.reasoningEffort)
+      throw Error("\u5F53\u524D\u6A21\u578B\u4E0E\u5DF2\u6279\u51C6\u8F6E\u6B21\u4E0D\u4E00\u81F4");
+    if (bytes > (approval.maxInputBytes || 1024 * 1024))
+      throw Error("\u5BA1\u67E5\u5305\u8D85\u8FC7\u5DF2\u6279\u51C6\u8F93\u5165\u9884\u7B97\uFF0C\u672A\u5220\u51CF\u76EE\u6807");
     return approval;
   }
   claim(selection, bytes, snapshot) {
     const approval = this.allowed(selection, bytes, snapshot);
     approval.used += 1;
-    fs10.writeFileSync(this.approvalFile + ".tmp", JSON.stringify(approval, null, 2), { mode: 384 });
+    fs10.writeFileSync(
+      this.approvalFile + ".tmp",
+      JSON.stringify(approval, null, 2),
+      { mode: 384 }
+    );
     fs10.renameSync(this.approvalFile + ".tmp", this.approvalFile);
     return approval;
   }
-  async review(request, { signal }) {
+  async review(request, {
+    signal
+  }) {
     if (this.closed) throw Error("Plugin unloaded");
     this.approval();
     signal.throwIfAborted();
-    const delivery = this.core.store.delivery(request.snapshot.projectKey, request.snapshot.deliveryId);
+    const delivery = this.core.store.delivery(
+      request.snapshot.projectKey,
+      request.snapshot.deliveryId
+    );
+    if (!delivery) throw Error("\u4EA4\u4ED8\u4E0D\u5B58\u5728");
     const callerId = request.sourceSessionId || delivery.sessionIds.at(-1);
     let selection = this.ctx.get("agentDefaultModel").currentSelection();
     const caller = callerId ? await this.session(callerId) : null;
-    if (request.sourceSessionId && (!caller || caller.archived || caller.kind === "review" || caller.projectKey !== request.snapshot.projectKey)) throw Error("\u53D1\u8D77\u5BA1\u67E5\u7684\u5F00\u53D1\u4F1A\u8BDD\u5DF2\u4E0D\u53EF\u7528\uFF0C\u672A\u8C03\u7528\u6A21\u578B");
+    if (request.sourceSessionId && (!caller || caller.archived || caller.kind === "review" || caller.projectKey !== request.snapshot.projectKey))
+      throw Error("\u53D1\u8D77\u5BA1\u67E5\u7684\u5F00\u53D1\u4F1A\u8BDD\u5DF2\u4E0D\u53EF\u7528\uFF0C\u672A\u8C03\u7528\u6A21\u578B");
     if (caller && !caller.archived && caller.projectKey === request.snapshot.projectKey) {
-      const resolved = await this.ctx.sessionController.resolveAgent(callerId);
+      const resolved = await this.ctx.sessionController.resolveAgent(caller.id);
       if ("error" in resolved) throw resolved.error;
       selection = resolved.agent.model.current() || selection;
     }
     if (!selection?.provider || !selection.model) throw Error("\u672A\u914D\u7F6E\u53EF\u7528\u6A21\u578B");
-    const info = await this.ctx.llm.resolveModelInfo(selection.provider, selection.model);
-    selection = { ...selection, reasoningEffort: selection.reasoningEffort ?? info.reasoning?.defaultEffort };
+    const info = await this.ctx.llm.resolveModelInfo(
+      selection.provider,
+      selection.model
+    );
+    selection = {
+      ...selection,
+      reasoningEffort: selection.reasoningEffort ?? info.reasoning?.defaultEffort
+    };
     const prompt = reviewPrompt(request), promptBytes = Buffer.byteLength(prompt), approval = this.allowed(selection, promptBytes, request.snapshot), sessionId = "session-" + crypto7.randomUUID(), events = [];
     let steps = 0, failureCode;
-    if (approval.contextWindow !== void 0 && info.context?.contextWindow !== approval.contextWindow) throw Error("\u6A21\u578B\u4E0A\u4E0B\u6587\u4E0E\u6279\u51C6\u914D\u7F6E\u4E0D\u7B26\uFF0C\u8BF7\u5728\u9694\u79BB\u6A21\u578B\u914D\u7F6E\u4E2D\u8BBE\u7F6E contextWindow");
+    if (approval.contextWindow !== void 0 && info.context?.contextWindow !== approval.contextWindow)
+      throw Error(
+        "\u6A21\u578B\u4E0A\u4E0B\u6587\u4E0E\u6279\u51C6\u914D\u7F6E\u4E0D\u7B26\uFF0C\u8BF7\u5728\u9694\u79BB\u6A21\u578B\u914D\u7F6E\u4E2D\u8BBE\u7F6E contextWindow"
+      );
     const cwd = request.bundleRoot;
-    if (!cwd || !path9.isAbsolute(cwd) || !fs10.statSync(cwd).isDirectory()) throw Error("\u51BB\u7ED3\u5BA1\u67E5\u5305\u4E0D\u53EF\u7528");
+    if (!cwd || !path9.isAbsolute(cwd) || !fs10.statSync(cwd).isDirectory())
+      throw Error("\u51BB\u7ED3\u5BA1\u67E5\u5305\u4E0D\u53EF\u7528");
     const titles = this.ctx.get("sessionTitle");
     if (!titles) throw Error("\u5BBF\u4E3B\u6807\u9898\u670D\u52A1\u4E0D\u53EF\u7528\uFF0C\u672A\u53D1\u8D77\u6A21\u578B");
     let handle;
     const off = this.ctx.on("session/event", (session, event) => {
       if (session.id !== sessionId) return;
       events.push(event);
-      if (event.type === "request/header" && this.registry[sessionId]) {
+      if (eventIs(event, "request/header") && this.registry[sessionId]) {
         const config = event.data.header.config;
-        this.registry[sessionId].model = { provider: config.provider, model: config.model, name: info.name || config.model, reasoningEffort: config.reasoningEffort, contextWindow: config.contextWindow, maxTokens: config.maxTokens };
+        this.registry[sessionId].model = {
+          provider: config.provider,
+          model: config.model,
+          name: info.name || config.model,
+          reasoningEffort: config.reasoningEffort,
+          contextWindow: config.contextWindow,
+          maxTokens: config.maxTokens
+        };
         this.saveRegistry();
       }
-      if (event.type === "request/context" && this.registry[sessionId]?.model) {
+      if (eventIs(event, "request/context") && this.registry[sessionId]?.model) {
         this.registry[sessionId].model.contextWindow = event.data.contextWindow;
         this.saveRegistry();
       }
     });
     try {
       signal.throwIfAborted();
-      handle = await this.ctx.agents.create({ sessionId, meta: { cwd }, agentOptions: { ...selection, maxTokens: approval.maxOutputTokens || 16384 }, setup: (agentCtx, agent) => {
-        agentCtx.tools.restrict({ allow: [] });
-        agentCtx.on("agent/pre-step", async (_payload, next) => {
-          if (++steps > 1 || this.ctx.tools.schemas(agent).length) throw Error("Controlled review may not expose tools or start another step");
-          return next();
-        });
-        agentCtx.on("agent/assistant-stream", ({ frame }) => {
-          if (frame.type === "chunk" && frame.chunk.type === "finish" && frame.chunk.reason?.kind === "error") {
-            failureCode = frame.chunk.reason.failure?.code;
-            queueMicrotask(() => agent.cancel({ kind: "hook", reason: "No retry budget" }));
-          }
-        });
-      } });
+      handle = await this.ctx.agents.create({
+        sessionId,
+        meta: { cwd },
+        agentOptions: {
+          ...selection,
+          maxTokens: approval.maxOutputTokens || 16384
+        },
+        setup: (agentCtx, agent) => {
+          agentCtx.tools.restrict({ allow: [] });
+          agentCtx.on("agent/pre-step", async (_payload, next) => {
+            if (++steps > 1 || this.ctx.tools.schemas(agent).length)
+              throw Error(
+                "Controlled review may not expose tools or start another step"
+              );
+            return next();
+          });
+          agentCtx.on("agent/assistant-stream", ({ frame }) => {
+            if (frame.type === "chunk" && frame.chunk.type === "finish" && frame.chunk.reason?.kind === "error") {
+              failureCode = frame.chunk.reason.failure?.code;
+              queueMicrotask(
+                () => agent.cancel({ kind: "hook", reason: "No retry budget" })
+              );
+            }
+          });
+        }
+      });
       titles.rename(handle.agent.session, "AI \u53D8\u66F4\u8BC4\u5BA1 \xB7 " + delivery.title);
-      this.registry[sessionId] = { runId: request.runId, callerId, projectKey: request.snapshot.projectKey };
+      this.registry[sessionId] = {
+        runId: request.runId,
+        callerId,
+        projectKey: request.snapshot.projectKey
+      };
       this.saveRegistry();
       this.active.set(request.runId, handle.agent);
       const cancel = () => handle.agent.cancel({ kind: "user" });
@@ -2475,18 +2577,34 @@ var DshAdapter = class {
       try {
         if (signal.aborted) cancel();
         signal.throwIfAborted();
-        if (this.ctx.tools.schemas(handle.agent).length) throw Error("Write tools were not removed");
+        if (this.ctx.tools.schemas(handle.agent).length)
+          throw Error("Write tools were not removed");
         this.claim(selection, promptBytes, request.snapshot);
-        await this.ctx.sessionController.prompt({ sessionId, requestId: request.runId, mode: "queue", content: [{ type: "text", text: prompt }] }, never);
+        await this.ctx.sessionController.prompt(
+          {
+            sessionId,
+            requestId: request.runId,
+            mode: "queue",
+            content: [{ type: "text", text: prompt }]
+          },
+          never
+        );
         await handle.agent.whenIdle();
         await this.ctx.sessions.flush(handle.agent.session);
-        const raw = events.filter((e) => e.type === "assistant/message").map(textOf).join("\n");
+        const raw = events.filter((e) => eventIs(e, "assistant/message")).map(textOf).join("\n");
         const rawFolder = path9.join(this.root, "model-output");
         fs10.mkdirSync(rawFolder, { recursive: true });
-        fs10.writeFileSync(path9.join(rawFolder, request.runId + ".raw.txt"), raw, { mode: 384 });
+        fs10.writeFileSync(
+          path9.join(rawFolder, request.runId + ".raw.txt"),
+          raw,
+          { mode: 384 }
+        );
         signal.throwIfAborted();
-        const end = events.findLast((e) => e.type === "turn/end");
-        if (end?.data.reason.kind !== "completed") throw Error("\u53D7\u63A7\u5BA1\u67E5\u672A\u5B8C\u6210\uFF1A" + (failureCode || end?.data.reason.kind || "missing terminal"));
+        const end = events.findLast((e) => eventIs(e, "turn/end"));
+        if (end?.data.reason.kind !== "completed")
+          throw Error(
+            "\u53D7\u63A7\u5BA1\u67E5\u672A\u5B8C\u6210\uFF1A" + (failureCode || end?.data.reason.kind || "missing terminal")
+          );
         try {
           return JSON.parse(raw.trim());
         } catch {
@@ -2512,9 +2630,15 @@ function reviewPrompt(request) {
   const parts = [
     "\u6309\u4E0B\u5217\u51BB\u7ED3\u65B9\u6CD5\u5BA1\u67E5\uFF0C\u53EA\u8BFB\u6B64\u5BA1\u67E5\u5305\uFF0C\u4E0D\u8BFB\u5B9E\u65F6\u5DE5\u4F5C\u533A\u3001\u4E0D\u8FD0\u884C\u547D\u4EE4\u3001\u4E0D\u4FEE\u6539\u4EFB\u4F55\u6587\u4EF6\u3002\u8F93\u51FA\u4E2D\u6587\u5355\u4E2AJSON\uFF0C\u4E25\u683C\u7B26\u5408schema\uFF1B\u4E0D\u52A0basis/findingId/\u8BC1\u636Esha\u7B49host\u5B57\u6BB5\u3002",
     "\u5FC5\u987B\u8FD4\u56DE\u5168\u90E8targets\u7684\u9010\u6587\u4EF6\u8BF4\u660E\u548C\u5168\u5C40features/impacts/alignment\uFF1B\u95EE\u9898\u53EA\u5BA1\u67E5reviewPaths\uFF0CcarriedPaths\u7531host\u590D\u5236\uFF0C\u4E0D\u80FD\u66FF\u4EE3\u5168\u5C40\u8BF4\u660E\u3002",
-    JSON.stringify({ inputSha: request.snapshot.inputSha, promptVersion: request.snapshot.promptVersion, reviewPaths: request.reviewPaths, carriedPaths: request.carriedPaths })
+    JSON.stringify({
+      inputSha: request.snapshot.inputSha,
+      promptVersion: request.snapshot.promptVersion,
+      reviewPaths: request.reviewPaths,
+      carriedPaths: request.carriedPaths
+    })
   ];
-  for (const m of request.modules.filter((m2) => !m2.path.startsWith("bundle/"))) parts.push(`
+  for (const m of request.modules.filter((m2) => !m2.path.startsWith("bundle/")))
+    parts.push(`
 --- METHOD ${m.path} sha256=${m.sha256} ---
 ${m.text}`);
   const visit = (folder, prefix = "") => {
@@ -2523,30 +2647,47 @@ ${m.text}`);
       if (stat.isSymbolicLink()) throw Error("Review bundle symlink refused");
       const relative = prefix + name2;
       if (stat.isDirectory()) visit(file, relative + "/");
-      else parts.push(`
+      else
+        parts.push(
+          `
 --- BUNDLE ${relative} ---
-${fs10.readFileSync(file, "utf8")}`);
+${fs10.readFileSync(file, "utf8")}`
+        );
     }
   };
   visit(request.bundleRoot);
   return parts.join("\n");
 }
 
-// plugin/host/service.mjs
+// plugin/host/service.ts
 var never2 = new AbortController().signal;
 var json = (value) => Response.json(value);
 var PluginService = class {
+  ctx;
+  config;
+  workspaceCache = /* @__PURE__ */ new Map();
+  operations = /* @__PURE__ */ new Map();
+  captureTails = /* @__PURE__ */ new Map();
+  bridge;
+  adapter;
+  core;
+  drafts;
+  routePaths;
   constructor(ctx, config) {
     this.ctx = ctx;
     this.config = config;
-    this.projects = /* @__PURE__ */ new Map();
-    this.workspaceCache = /* @__PURE__ */ new Map();
-    this.operations = /* @__PURE__ */ new Map();
-    this.captureTails = /* @__PURE__ */ new Map();
     this.bridge = new ClientBridge();
     const store = new FileStore(path10.join(config.storageRoot, "projects"));
-    this.adapter = new DshAdapter(ctx, { root: config.storageRoot, bridge: this.bridge, approvalFile: config.approvalFile });
-    this.core = new ReviewCore({ store, adapter: this.adapter, methodRoot: config.methodRoot });
+    this.adapter = new DshAdapter(ctx, {
+      root: config.storageRoot,
+      bridge: this.bridge,
+      approvalFile: config.approvalFile
+    });
+    this.core = new ReviewCore({
+      store,
+      adapter: this.adapter,
+      methodRoot: config.methodRoot
+    });
     this.adapter.core = this.core;
     this.drafts = new Drafts(this.adapter);
     this.routePaths = [];
@@ -2565,12 +2706,20 @@ var PluginService = class {
     const workspace = this.workspace(workspaceId), cached = this.workspaceCache.get(String(workspaceId));
     if (cached?.path === workspace.path) return cached;
     try {
-      const git = createGit(workspace.path), project = { ...projectFor(git.root), displayName: path10.basename(git.root), workspaceId: String(workspace.id), path: workspace.path };
-      this.projects.set(project.projectKey, project);
+      const git = createGit(workspace.path), project = {
+        ...projectFor(git.root),
+        displayName: path10.basename(git.root),
+        workspaceId: String(workspace.id),
+        path: workspace.path
+      };
       this.workspaceCache.set(String(workspaceId), project);
       return project;
     } catch {
-      return { workspaceId: String(workspace.id), path: workspace.path, notGit: true };
+      return {
+        workspaceId: String(workspace.id),
+        path: workspace.path,
+        notGit: true
+      };
     }
   }
   requireProject(workspaceId) {
@@ -2587,22 +2736,61 @@ var PluginService = class {
     const d = this.requireDelivery(project, deliveryId), id2 = snapshotId || d.current?.snapshotId || d.latestSnapshotId;
     if (!id2 || !d.snapshotIds.includes(id2)) throw Error("\u5BA1\u67E5\u8BB0\u5F55\u4E0D\u5B58\u5728");
     const previousId = d.snapshotIds[d.snapshotIds.indexOf(id2) - 1];
-    const view = this.core.selected(project.projectKey, id2), native = Object.values(this.adapter.registry).find((row) => row.runId === view.run?.runId)?.model;
-    return { ...view, ...native && view.run?.model?.adapter === "dsh" ? { run: { ...view.run, model: { ...view.run.model, ...native } } } : {}, previousSnapshot: previousId ? this.core.store.snapshot(project.projectKey, previousId) : null };
+    const view = this.core.selected(project.projectKey, id2), native = Object.values(this.adapter.registry).find(
+      (row) => row.runId === view.run?.runId
+    )?.model;
+    return {
+      ...view,
+      ...native && view.run?.model?.adapter === "dsh" ? { run: { ...view.run, model: { ...view.run.model, ...native } } } : {},
+      previousSnapshot: previousId ? this.core.store.snapshot(project.projectKey, previousId) : null
+    };
   }
   async bootstrap(workspaceId) {
-    const workspaces = this.ctx.workspaceRegistry.list().map((w) => ({ workspaceId: String(w.id), path: w.path, title: w.title, sessionIds: [...w.sessionIds], projectKey: this.project(w.id).projectKey, notGit: this.project(w.id).notGit || false }));
+    const workspaces = this.ctx.workspaceRegistry.list().map((w) => ({
+      workspaceId: String(w.id),
+      path: w.path,
+      title: w.title,
+      sessionIds: [...w.sessionIds],
+      projectKey: this.project(w.id).projectKey,
+      notGit: this.project(w.id).notGit || false
+    }));
     const project = workspaceId ? this.project(workspaceId) : null;
     const deliveries = project?.projectKey ? this.core.store.deliveries(project.projectKey).map((d) => {
       const snapshot = d.current && this.core.store.snapshot(project.projectKey, d.current.snapshotId);
       const view = snapshot ? this.core.selected(project.projectKey, snapshot.snapshotId) : null;
-      const marks = view?.marks || [], findings = view?.run?.findings || [], activeFindingCount = findings.filter((f) => !marks.some((m) => m.findingId === f.findingId && m.suppressed)).length;
-      return { ...d, snapshot, run: view?.run || null, marks, activeFindingCount, statusText: snapshot ? reviewStatus(snapshot, view?.run, marks) : "\u5C1A\u672A\u5BA1\u67E5" };
+      const marks = view?.marks || [], findings = view?.run?.findings || [], activeFindingCount = findings.filter(
+        (f) => !marks.some((m) => m.findingId === f.findingId && m.suppressed)
+      ).length;
+      return {
+        ...d,
+        snapshot: snapshot || null,
+        run: view?.run || null,
+        marks,
+        activeFindingCount,
+        statusText: snapshot ? reviewStatus(snapshot, view?.run, marks) : "\u5C1A\u672A\u5BA1\u67E5"
+      };
     }) : [];
-    const sessions = (await this.ctx.sessionController.list({}, never2)).items.map((row) => ({ sessionId: row.sessionId, formatStatus: row.formatStatus, unavailable: Boolean(row.formatStatus && row.formatStatus !== "current" || ["error", "migration-required"].includes(row.projections?.state)), cwd: row.cwd, updatedAt: row.updatedAt, title: row.projections?.values?.title || "\u672A\u547D\u540D\u4F1A\u8BDD", archived: this.ctx.workspaceRegistry.archivedSessionIds.includes(row.sessionId), review: Boolean(this.adapter.registry[row.sessionId]) }));
+    const sessions = (await this.ctx.sessionController.list({}, never2)).items.map((row) => ({
+      sessionId: row.sessionId,
+      formatStatus: row.formatStatus,
+      unavailable: Boolean(
+        row.formatStatus && row.formatStatus !== "current" || ["error", "migration-required"].includes(row.projections?.state || "")
+      ),
+      cwd: row.cwd,
+      updatedAt: row.updatedAt,
+      title: row.projections?.values?.title || "\u672A\u547D\u540D\u4F1A\u8BDD",
+      archived: this.ctx.workspaceRegistry.archivedSessionIds.includes(
+        row.sessionId
+      ),
+      review: Boolean(this.adapter.registry[row.sessionId])
+    }));
     return {
       workspaces,
-      project: project && { projectKey: project.projectKey, displayName: project.displayName, notGit: Boolean(project.notGit) },
+      project: project && {
+        projectKey: project.projectKey,
+        displayName: project.displayName,
+        notGit: Boolean(project.notGit)
+      },
       deliveries,
       sessions,
       settings: project?.projectKey ? this.core.store.settings(project.projectKey) : null,
@@ -2619,16 +2807,26 @@ var PluginService = class {
     }
   }
   operation(type, action) {
-    for (const [key, row2] of this.operations) if (this.operations.size > 100 && row2.status !== "running") this.operations.delete(key);
-    const id2 = crypto8.randomUUID(), row = { id: id2, type, status: "running", startedAt: (/* @__PURE__ */ new Date()).toISOString() };
+    for (const [key, row2] of this.operations)
+      if (this.operations.size > 100 && row2.status !== "running")
+        this.operations.delete(key);
+    const id2 = crypto8.randomUUID(), row = {
+      id: id2,
+      type,
+      status: "running",
+      startedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
     this.operations.set(id2, row);
-    row.promise = Promise.resolve().then(action).then((result) => {
-      row.status = ["failed", "incomplete"].includes(result?.status) ? "failed" : "completed";
-      row.result = result;
-    }, (error) => {
-      row.status = "failed";
-      row.error = String(error.message || error);
-    }).finally(() => {
+    row.promise = Promise.resolve().then(action).then(
+      (result) => {
+        row.status = ["failed", "incomplete"].includes(result?.status) ? "failed" : "completed";
+        row.result = result;
+      },
+      (error) => {
+        row.status = "failed";
+        row.error = String(error.message || error);
+      }
+    ).finally(() => {
       row.endedAt = (/* @__PURE__ */ new Date()).toISOString();
     });
     return { operationId: id2, status: "accepted" };
@@ -2638,17 +2836,33 @@ var PluginService = class {
     let cut, beforeSeq;
     const events = /* @__PURE__ */ new Map();
     for (; ; ) {
-      const page = await this.ctx.sessionController.events({ address: { kind: "session", sessionId }, maxMessages: 500, ...cut === void 0 ? {} : { throughSeq: cut }, ...beforeSeq === void 0 ? {} : { beforeSeq } }, never2);
+      const page = await this.ctx.sessionController.events(
+        {
+          address: { kind: "session", sessionId },
+          maxMessages: 500,
+          ...cut === void 0 ? {} : { throughSeq: cut },
+          ...beforeSeq === void 0 ? {} : { beforeSeq }
+        },
+        never2
+      );
       cut ??= page.cursor;
       const entries = page.records.filter((r) => r.type === "event").map((r) => r.event);
       for (const event of entries) events.set(event.seq, event);
-      if (events.size > 1e5) throw Error("\u4F1A\u8BDD\u9700\u6C42\u6765\u6E90\u8FC7\u957F\uFF0C\u672A\u88C1\u51CF\u5185\u5BB9\uFF0C\u8BF7\u9009\u62E9\u8F83\u77ED\u7684\u5F00\u53D1\u4F1A\u8BDD");
+      if (events.size > 1e5)
+        throw Error("\u4F1A\u8BDD\u9700\u6C42\u6765\u6E90\u8FC7\u957F\uFF0C\u672A\u88C1\u51CF\u5185\u5BB9\uFF0C\u8BF7\u9009\u62E9\u8F83\u77ED\u7684\u5F00\u53D1\u4F1A\u8BDD");
       if (!page.hasMore) break;
       const next = Math.min(...entries.map((e) => e.seq));
-      if (!Number.isSafeInteger(next) || next < 0 || next === beforeSeq) throw Error("\u65E0\u6CD5\u786E\u8BA4\u9700\u6C42\u6D88\u606F\u987A\u5E8F");
+      if (!Number.isSafeInteger(next) || next < 0 || next === beforeSeq)
+        throw Error("\u65E0\u6CD5\u786E\u8BA4\u9700\u6C42\u6D88\u606F\u987A\u5E8F");
       beforeSeq = next;
     }
-    return [...events.values()].sort((a, b) => a.seq - b.seq).filter((e) => e.type === "user/message" && e.data.source.kind === "user").map((e) => ({ id: e.data.id, sequence: e.seq, text: e.data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n") })).filter((m) => m.text.trim());
+    return [...events.values()].sort((a, b) => a.seq - b.seq).filter(
+      (e) => eventIs(e, "user/message") && e.data.source.kind === "user"
+    ).map((e) => ({
+      id: e.data.id,
+      sequence: e.seq,
+      text: e.data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n")
+    })).filter((m) => m.text.trim());
   }
   async acquirePreparation(key) {
     const previous = this.captureTails.get(key) || Promise.resolve();
@@ -2680,17 +2894,37 @@ var PluginService = class {
         this.core.writable(project.projectKey, body.snapshotId, false);
       }
       const git = createGit(project.repoRoot), branch = git.run(["rev-parse", "--abbrev-ref", "HEAD"]).toString().trim();
-      const range = rangeOf(git, this.core.store.settings(project.projectKey).targetBranch || void 0);
-      delivery ||= this.core.deliveries.findOpen(project.projectKey, { branch, targetBranch: branchLabelOf(git, range.targetRef), session: source });
+      const range = rangeOf(
+        git,
+        this.core.store.settings(project.projectKey).targetBranch || void 0
+      );
+      delivery ||= this.core.deliveries.findOpen(project.projectKey, {
+        branch,
+        targetBranch: branchLabelOf(git, range.targetRef),
+        session: source
+      });
       if (delivery) {
-        if (branch !== delivery.branch) throw Error("\u5F53\u524D\u5DE5\u4F5C\u533A\u5206\u652F\u5DF2\u5207\u6362\uFF0C\u8BF7\u5207\u56DE\u4EA4\u4ED8\u5206\u652F\u540E\u5BA1\u67E5");
-        source ||= await developmentSession(this.adapter, delivery.sessionIds.at(-1));
+        if (branch !== delivery.branch)
+          throw Error("\u5F53\u524D\u5DE5\u4F5C\u533A\u5206\u652F\u5DF2\u5207\u6362\uFF0C\u8BF7\u5207\u56DE\u4EA4\u4ED8\u5206\u652F\u540E\u5BA1\u67E5");
+        source ||= await developmentSession(
+          this.adapter,
+          delivery.sessionIds.at(-1)
+        );
       }
       const ledger = new RequirementLedger(delivery?.requirementLedger || []);
-      if (source && source.projectKey === project.projectKey) ledger.captureMessages(source.id, await this.messages(source.id));
+      if (source && source.projectKey === project.projectKey)
+        ledger.captureMessages(source.id, await this.messages(source.id));
       if (body.requirement) {
-        if (!["paste", "file"].includes(body.requirement.kind) || typeof body.requirement.text !== "string" || !body.requirement.text.trim()) throw Error("\u9700\u6C42\u4F9D\u636E\u4E0D\u80FD\u4E3A\u7A7A");
-        ledger.captureManual({ id: body.requirement.id, source: { kind: body.requirement.kind, text: body.requirement.text, origin: body.requirement.origin || body.requirement.kind } });
+        if (!["paste", "file"].includes(body.requirement.kind) || typeof body.requirement.text !== "string" || !body.requirement.text.trim())
+          throw Error("\u9700\u6C42\u4F9D\u636E\u4E0D\u80FD\u4E3A\u7A7A");
+        ledger.captureManual({
+          id: body.requirement.id,
+          source: {
+            kind: body.requirement.kind,
+            text: body.requirement.text,
+            origin: body.requirement.origin || body.requirement.kind
+          }
+        });
       }
       return await this.core.trigger({
         repo: project.repoRoot,
@@ -2701,10 +2935,15 @@ var PluginService = class {
         captureOnly,
         expectedDeliveryId: delivery?.deliveryId,
         onPrepared: async (prepared) => {
-          await this.core.store.updateDelivery(project.projectKey, prepared.deliveryId, (d) => {
-            d.requirementLedger = ledger.state();
-            if (typeof body.externalRef === "string") d.externalRef = body.externalRef.trim();
-          });
+          await this.core.store.updateDelivery(
+            project.projectKey,
+            prepared.deliveryId,
+            (d) => {
+              d.requirementLedger = ledger.state();
+              if (typeof body.externalRef === "string")
+                d.externalRef = body.externalRef.trim();
+            }
+          );
           release();
         }
       });
@@ -2715,20 +2954,49 @@ var PluginService = class {
   route(suffix, methods, handler) {
     const route = "/api/dsh-evidentloop/" + suffix;
     this.routePaths.push(route);
-    this.ctx.connection.fetch.register({ path: route, methods, requestBody: "buffered", fetch: async (request) => {
-      try {
-        const params = Object.fromEntries(new URL(request.url).searchParams), body = request.method === "POST" ? await request.json() : {};
-        return await handler({ ...params, ...body }, request);
-      } catch (error) {
-        return Response.json({ error: error.message || String(error) }, { status: 400 });
+    this.ctx.connection.fetch.register({
+      path: route,
+      methods,
+      requestBody: "buffered",
+      fetch: async (request) => {
+        try {
+          const params = Object.fromEntries(new URL(request.url).searchParams), body = request.method === "POST" ? await request.json() : {};
+          return await handler(
+            { ...params, ...body },
+            request
+          );
+        } catch (error) {
+          return Response.json({ error: errorMessage(error) }, { status: 400 });
+        }
       }
-    } });
+    });
   }
   register() {
-    this.route("bootstrap", ["GET"], (b) => this.bootstrap(b.workspaceId).then(json));
-    this.route("diagnostics", ["GET"], () => json({ routes: this.routePaths, modelGate: this.modelGate(), ownedReviewSessions: Object.keys(this.adapter.registry), activeReviews: [...this.adapter.active.keys()] }));
-    this.route("bridge/next", ["GET"], (b) => json({ jobs: this.bridge.next(b.clientId) }));
-    this.route("bridge/answer", ["POST"], (b) => json(this.bridge.answer(b.clientId, b)));
+    this.route(
+      "bootstrap",
+      ["GET"],
+      (b) => this.bootstrap(b.workspaceId).then(json)
+    );
+    this.route(
+      "diagnostics",
+      ["GET"],
+      () => json({
+        routes: this.routePaths,
+        modelGate: this.modelGate(),
+        ownedReviewSessions: Object.keys(this.adapter.registry),
+        activeReviews: [...this.adapter.active.keys()]
+      })
+    );
+    this.route(
+      "bridge/next",
+      ["GET"],
+      (b) => json({ jobs: this.bridge.next(b.clientId) })
+    );
+    this.route(
+      "bridge/answer",
+      ["POST"],
+      (b) => json(this.bridge.answer(b.clientId, b))
+    );
     this.route("record", ["GET"], (b) => {
       const p = this.requireProject(b.workspaceId), view = this.selected(p, b.deliveryId, b.snapshotId);
       return json({
@@ -2740,7 +3008,12 @@ var PluginService = class {
         statusText: reviewStatus(view.snapshot, view.run, view.marks),
         history: [...view.delivery.snapshotIds].reverse().map((id2) => {
           const s = this.core.selected(p.projectKey, id2);
-          return { snapshotId: id2, createdAt: s.snapshot.createdAt, range: s.snapshot.range, statusText: reviewStatus(s.snapshot, s.run, s.marks) };
+          return {
+            snapshotId: id2,
+            createdAt: s.snapshot.createdAt,
+            range: s.snapshot.range,
+            statusText: reviewStatus(s.snapshot, s.run, s.marks)
+          };
         }),
         readOnly: view.delivery.current?.snapshotId !== view.snapshot.snapshotId,
         extensionChanged: (this.core.store.settings(p.projectKey).extensionPrompt.trim() ? crypto8.createHash("sha256").update(this.core.store.settings(p.projectKey).extensionPrompt).digest("hex") : null) !== (view.snapshot.extensionPrompt?.sha256 || null)
@@ -2750,31 +3023,82 @@ var PluginService = class {
       const p = this.requireProject(b.workspaceId), view = this.selected(p, b.deliveryId, b.snapshotId), file = view.snapshot.files.find((f) => f.path === b.path);
       if (!file) throw Error("\u51BB\u7ED3\u6587\u4EF6\u4E0D\u5B58\u5728");
       const bundle = loadBundle(view.bundleRoot), base = bundle.texts.get("base:" + (file.oldPath || file.path)), head = bundle.texts.get("head:" + file.path);
-      const note = { excluded: "\u6309\u654F\u611F\u89C4\u5219\u6216\u4F9D\u8D56\u76EE\u5F55\u8DF3\u8FC7\uFF0C\u672A\u8BFB\u53D6\u6E90\u7801\u3002", binary: "\u4E8C\u8FDB\u5236\u6587\u4EF6\uFF0C\u4E0D\u663E\u793A\u6587\u672CDiff\u3002", oversize: "\u6587\u4EF6\u8D85\u8FC7\u5927\u5C0F\u4E0A\u9650\uFF0C\u672A\u8BFB\u53D6\u5168\u6587\u3002", submodule: "\u5B50\u6A21\u5757\u4EC5\u4FDD\u7559\u6307\u5411\u4FE1\u606F\uFF0C\u4E0D\u8BFB\u53D6\u5185\u90E8\u6587\u4EF6\u3002", conflicted: "\u6587\u4EF6\u5B58\u5728\u5408\u5E76\u51B2\u7A81\uFF0C\u8BF7\u5148\u5904\u7406\u51B2\u7A81\u3002" }[file.kind] || file.note || "";
-      return json({ file, reviewable: isTarget(file), base: base?.text ?? null, head: head?.text ?? null, patch: bundle.targets.includes(file.path) ? fs11.readFileSync(path10.join(view.bundleRoot, "diff", file.path + ".patch"), "utf8") : "", note });
+      const notes = {
+        excluded: "\u6309\u654F\u611F\u89C4\u5219\u6216\u4F9D\u8D56\u76EE\u5F55\u8DF3\u8FC7\uFF0C\u672A\u8BFB\u53D6\u6E90\u7801\u3002",
+        binary: "\u4E8C\u8FDB\u5236\u6587\u4EF6\uFF0C\u4E0D\u663E\u793A\u6587\u672CDiff\u3002",
+        oversize: "\u6587\u4EF6\u8D85\u8FC7\u5927\u5C0F\u4E0A\u9650\uFF0C\u672A\u8BFB\u53D6\u5168\u6587\u3002",
+        submodule: "\u5B50\u6A21\u5757\u4EC5\u4FDD\u7559\u6307\u5411\u4FE1\u606F\uFF0C\u4E0D\u8BFB\u53D6\u5185\u90E8\u6587\u4EF6\u3002",
+        conflicted: "\u6587\u4EF6\u5B58\u5728\u5408\u5E76\u51B2\u7A81\uFF0C\u8BF7\u5148\u5904\u7406\u51B2\u7A81\u3002"
+      };
+      const note = notes[file.kind] || file.note || "";
+      return json({
+        file,
+        reviewable: isTarget(file),
+        base: base?.text ?? null,
+        head: head?.text ?? null,
+        patch: bundle.targets.includes(file.path) ? fs11.readFileSync(
+          path10.join(view.bundleRoot, "diff", file.path + ".patch"),
+          "utf8"
+        ) : "",
+        note
+      });
     });
-    this.route("review", ["POST"], (b) => json(this.operation("review", () => this.review(b))));
-    this.route("capture", ["POST"], (b) => json(this.operation("capture", () => this.review(b, { captureOnly: true }))));
+    this.route(
+      "review",
+      ["POST"],
+      (b) => json(this.operation("review", () => this.review(b)))
+    );
+    this.route(
+      "capture",
+      ["POST"],
+      (b) => json(
+        this.operation("capture", () => this.review(b, { captureOnly: true }))
+      )
+    );
     this.route("session-context", ["GET"], async (b) => {
       const source = await developmentSession(this.adapter, b.sessionId);
       if (!source?.projectKey) return json({ available: false });
       const workspace = this.ctx.workspaceRegistry.list().find((w) => w.sessionIds.includes(source.id));
       if (!workspace) return json({ available: false });
-      const project = this.requireProject(workspace.id), delivery = this.core.store.deliveries(project.projectKey).filter((d) => d.sessionIds.includes(source.id)).sort((a, b2) => (b2.createdAt || "").localeCompare(a.createdAt || ""))[0];
+      const project = this.requireProject(workspace.id), delivery = this.core.store.deliveries(project.projectKey).filter((d) => d.sessionIds.includes(source.id)).sort(
+        (a, b2) => (b2.createdAt || "").localeCompare(a.createdAt || "")
+      )[0];
       const view = delivery?.current ? this.core.selected(project.projectKey, delivery.current.snapshotId) : null;
-      return json({ available: true, workspaceId: String(workspace.id), sessionId: source.id, deliveryId: delivery?.deliveryId, statusText: view ? reviewStatus(view.snapshot, view.run, view.marks) : "\u5F85\u5BA1", activeFindingCount: view?.run?.findings.filter((f) => !view.marks.some((m) => m.findingId === f.findingId && m.suppressed)).length || 0 });
+      return json({
+        available: true,
+        workspaceId: String(workspace.id),
+        sessionId: source.id,
+        deliveryId: delivery?.deliveryId,
+        statusText: view ? reviewStatus(view.snapshot, view.run, view.marks) : "\u5F85\u5BA1",
+        activeFindingCount: view?.run?.findings?.filter(
+          (f) => !view.marks.some(
+            (m) => m.findingId === f.findingId && m.suppressed
+          )
+        ).length || 0
+      });
     });
     this.route("cancel", ["POST"], (b) => {
       const p = this.requireProject(b.workspaceId);
       this.requireDelivery(p, b.deliveryId);
-      return json(this.operation("cancel", () => this.core.scheduler.cancelDelivery(p.projectKey, b.deliveryId).then(() => ({ status: "cancelled" }))));
+      return json(
+        this.operation(
+          "cancel",
+          () => this.core.scheduler.cancelDelivery(p.projectKey, b.deliveryId).then(() => ({ status: "cancelled" }))
+        )
+      );
     });
     this.route("settings", ["POST"], async (b) => {
       const p = this.requireProject(b.workspaceId), s = b.settings;
-      if (!s || typeof s.autoMode !== "boolean" || typeof s.targetBranch !== "string" || typeof s.extensionPrompt !== "string" || typeof s.exportEmbedDiff !== "boolean") throw Error("\u8BBE\u7F6E\u683C\u5F0F\u65E0\u6548");
+      if (!s || typeof s.autoMode !== "boolean" || typeof s.targetBranch !== "string" || typeof s.extensionPrompt !== "string" || typeof s.exportEmbedDiff !== "boolean")
+        throw Error("\u8BBE\u7F6E\u683C\u5F0F\u65E0\u6548");
       const text = s.extensionPrompt.replace(/\r\n?/g, "\n");
       if (Array.from(text).length > 2e4) throw Error("\u6269\u5C55\u63D0\u793A\u8BCD\u8D85\u8FC720000\u5B57");
-      const value = { autoMode: s.autoMode, targetBranch: s.targetBranch.trim(), extensionPrompt: text, exportEmbedDiff: s.exportEmbedDiff };
+      const value = {
+        autoMode: s.autoMode,
+        targetBranch: s.targetBranch.trim(),
+        extensionPrompt: text,
+        exportEmbedDiff: s.exportEmbedDiff
+      };
       await this.core.store.setSettings(p.projectKey, value);
       return json({ saved: true, settings: value });
     });
@@ -2786,87 +3110,215 @@ var PluginService = class {
     this.route("annotation", ["POST"], async (b) => {
       const p = this.requireProject(b.workspaceId);
       this.selected(p, b.deliveryId, b.snapshotId);
-      return json(b.remove ? await this.core.deleteAnnotation(p.projectKey, b.snapshotId, b.annotationId) : await this.core.annotate(p.projectKey, b));
+      return json(
+        b.remove ? await this.core.deleteAnnotation(
+          p.projectKey,
+          b.snapshotId,
+          b.annotationId
+        ) : await this.core.annotate(p.projectKey, { ...b, text: b.text })
+      );
     });
     this.route("delivery", ["POST"], async (b) => {
       const p = this.requireProject(b.workspaceId);
       this.requireDelivery(p, b.deliveryId);
       const state = this.core.scheduler.state(p.projectKey);
       if (b.action === "delete") {
-        if (b.confirm !== "delete" || state.active?.deliveryId === b.deliveryId || state.pending.has(b.deliveryId)) throw Error("\u8FD0\u884C\u4E2D\u4E0D\u80FD\u5220\u9664\uFF1B\u5220\u9664\u64CD\u4F5C\u9700\u8981\u786E\u8BA4");
+        if (b.confirm !== "delete" || state.active?.deliveryId === b.deliveryId || state.pending.has(b.deliveryId))
+          throw Error("\u8FD0\u884C\u4E2D\u4E0D\u80FD\u5220\u9664\uFF1B\u5220\u9664\u64CD\u4F5C\u9700\u8981\u786E\u8BA4");
         await this.core.deleteDelivery(p.projectKey, b.deliveryId);
       } else if (b.action === "archive") {
-        if (state.active?.deliveryId === b.deliveryId || state.pending.has(b.deliveryId)) throw Error("\u5BA1\u67E5\u8FDB\u884C\u4E2D\uFF0C\u5B8C\u6210\u540E\u53EF\u5F52\u6863");
-        await this.core.store.archive(p.projectKey, b.deliveryId, Boolean(b.value));
-      } else if (b.action === "pin") await this.core.store.pin(p.projectKey, b.deliveryId, Boolean(b.value));
+        if (state.active?.deliveryId === b.deliveryId || state.pending.has(b.deliveryId))
+          throw Error("\u5BA1\u67E5\u8FDB\u884C\u4E2D\uFF0C\u5B8C\u6210\u540E\u53EF\u5F52\u6863");
+        await this.core.store.archive(
+          p.projectKey,
+          b.deliveryId,
+          Boolean(b.value)
+        );
+      } else if (b.action === "pin")
+        await this.core.store.pin(p.projectKey, b.deliveryId, Boolean(b.value));
       else throw Error("\u672A\u77E5\u4EA4\u4ED8\u64CD\u4F5C");
       return json({ saved: true });
     });
     this.route("draft/lock", ["POST"], async (b) => {
       const p = this.requireProject(b.workspaceId);
-      return json(await this.drafts.lock(this.selected(p, b.deliveryId, b.snapshotId), b.template));
+      return json(
+        await this.drafts.lock(
+          this.selected(p, b.deliveryId, b.snapshotId),
+          b.template
+        )
+      );
     });
-    this.route("draft/commit", ["POST"], (b) => this.bridge.withClient(b.clientId, () => this.drafts.commit(b.token, { displayedSnapshotId: b.displayedSnapshotId, choice: b.choice })).then(json));
-    this.route("open-file", ["POST"], (b) => this.bridge.withClient(b.clientId, async () => {
-      const p = this.requireProject(b.workspaceId), view = this.selected(p, b.deliveryId, b.snapshotId), file = view.snapshot.files.find((f) => f.path === b.path);
-      if (!file) throw Error("\u51BB\u7ED3\u6587\u4EF6\u4E0D\u5B58\u5728");
-      const actual = path10.join(p.repoRoot, file.path);
-      if (!fs11.existsSync(actual) || fs11.lstatSync(actual).isSymbolicLink() || !inside(p.repoRoot, fs11.realpathSync(actual))) throw Error("\u5F53\u524D\u5DE5\u4F5C\u533A\u6CA1\u6709\u53EF\u5B89\u5168\u6253\u5F00\u7684\u6587\u4EF6\uFF1B\u51BB\u7ED3\u5185\u5BB9\u4ECD\u53EF\u5728Diff\u4E2D\u9605\u8BFB");
-      const result = await this.bridge.call("openFile", { path: actual });
-      if (!result?.opened) throw Error("\u5BBF\u4E3B\u672A\u786E\u8BA4\u6253\u5F00\u6587\u4EF6");
-      return json(result);
-    }));
-    this.route("quote", ["POST"], (b) => this.bridge.withClient(b.clientId, async () => {
-      const p = this.requireProject(b.workspaceId), view = this.selected(p, b.deliveryId, b.snapshotId);
-      this.core.writable(p.projectKey, view.snapshot.snapshotId, false);
-      const finding = b.findingId ? view.run?.findings?.find((f) => f.findingId === b.findingId) : null;
-      if (b.findingId && !finding) throw Error("\u95EE\u9898\u4E0D\u5C5E\u4E8E\u5F53\u524D\u8BB0\u5F55");
-      const anchor = finding?.anchor || { path: b.path, side: b.side, line: b.line }, file = view.snapshot.files.find((f) => f.path === anchor.path || f.oldPath === anchor.path), bundle = loadBundle(view.bundleRoot);
-      if (!file || !["base", "head"].includes(anchor.side)) throw Error("\u4EE3\u7801\u5B9A\u4F4D\u65E0\u6548");
-      const side = bundle.texts.get(anchor.side + ":" + (anchor.side === "base" ? file.oldPath || file.path : file.path));
-      const start = anchor.line ?? 1;
-      if (!side || !Number.isInteger(start) || start < 1 || start > side.lines.length) throw Error("\u51BB\u7ED3\u4EE3\u7801\u4E2D\u6CA1\u6709\u8BE5\u884C");
-      const code = redactText(side.lines.slice(start - 1, start + 11).join("\n"));
-      if (!code || Buffer.byteLength(code) > 8192) throw Error("\u6B64\u5904\u65E0\u53EF\u7528\u77ED\u4EE3\u7801\u6BB5\uFF0C\u8BF7\u5728Diff\u4E2D\u9009\u62E9\u5408\u9002\u8303\u56F4");
-      const summary = file.path + (anchor.line === null ? "\uFF08\u6587\u4EF6\u7EA7\uFF09" : ":" + start) + (anchor.side === "base" ? "\uFF08\u65E7\u4EE3\u7801\uFF09" : "\uFF08\u65B0\u4EE3\u7801\uFF09"), target = await this.drafts.target(view.delivery), current = target && await this.adapter.session(target.id);
-      if (!current || current.archived || current.unavailable || current.projectKey !== p.projectKey || current.kind === "review") {
-        await this.adapter.copy(summary + "\n" + code);
-        return json({ status: "copied", reason: "\u5F00\u53D1\u4F1A\u8BDD\u4E0D\u53EF\u7528\uFF0C\u5DF2\u590D\u5236\u51BB\u7ED3\u4EE3\u7801\u6BB5" });
-      }
-      const content = summary + "\n```\n" + code + "\n```\n\u8BF7\u7ED3\u5408\u4E0A\u4E0B\u6587\u5206\u6790\u8FD9\u6BB5\u4EE3\u7801\uFF0C\u662F\u5426\u5B58\u5728\u5B89\u5168\u6216\u903B\u8F91\u9690\u60A3\uFF0C\u4EE5\u53CA\u5982\u4F55\u6539\u8FDB\uFF1F";
-      try {
-        const draft = await this.adapter.getDraft(target.id);
-        if (draft.text.includes(content)) return json({ status: "written", duplicate: true, targetId: target.id });
-        const text = draft.text + (draft.text ? "\n\n" : "") + content;
-        if (await this.adapter.writeDraft(target.id, text, { expectedRevision: draft.revision, preserveQuotesAndAttachments: true })) return json({ status: "written", duplicate: false, targetId: target.id });
-      } catch {
-      }
-      await this.adapter.copy(content);
-      return json({ status: "copied", reason: "\u8349\u7A3F\u5DF2\u6539\u53D8\u6216\u65E0\u6CD5\u5199\u5165\uFF0C\u5DF2\u590D\u5236\u4EE3\u7801\u6BB5\uFF1B\u672A\u8986\u76D6\u539F\u8349\u7A3F\u3002" });
-    }));
+    this.route(
+      "draft/commit",
+      ["POST"],
+      (b) => this.bridge.withClient(
+        b.clientId,
+        () => this.drafts.commit(b.token, {
+          displayedSnapshotId: b.displayedSnapshotId,
+          choice: b.choice
+        })
+      ).then(json)
+    );
+    this.route(
+      "open-file",
+      ["POST"],
+      (b) => this.bridge.withClient(b.clientId, async () => {
+        const p = this.requireProject(b.workspaceId), view = this.selected(p, b.deliveryId, b.snapshotId), file = view.snapshot.files.find((f) => f.path === b.path);
+        if (!file) throw Error("\u51BB\u7ED3\u6587\u4EF6\u4E0D\u5B58\u5728");
+        const actual = path10.join(p.repoRoot, file.path);
+        if (!fs11.existsSync(actual) || fs11.lstatSync(actual).isSymbolicLink() || !inside(p.repoRoot, fs11.realpathSync(actual)))
+          throw Error(
+            "\u5F53\u524D\u5DE5\u4F5C\u533A\u6CA1\u6709\u53EF\u5B89\u5168\u6253\u5F00\u7684\u6587\u4EF6\uFF1B\u51BB\u7ED3\u5185\u5BB9\u4ECD\u53EF\u5728Diff\u4E2D\u9605\u8BFB"
+          );
+        const result = await this.bridge.call("openFile", { path: actual });
+        if (!result?.opened) throw Error("\u5BBF\u4E3B\u672A\u786E\u8BA4\u6253\u5F00\u6587\u4EF6");
+        return json(result);
+      })
+    );
+    this.route(
+      "quote",
+      ["POST"],
+      (b) => this.bridge.withClient(b.clientId, async () => {
+        const p = this.requireProject(b.workspaceId), view = this.selected(p, b.deliveryId, b.snapshotId);
+        this.core.writable(p.projectKey, view.snapshot.snapshotId, false);
+        const finding = b.findingId ? view.run?.findings?.find((f) => f.findingId === b.findingId) : null;
+        if (b.findingId && !finding) throw Error("\u95EE\u9898\u4E0D\u5C5E\u4E8E\u5F53\u524D\u8BB0\u5F55");
+        const anchor = finding?.anchor || {
+          path: b.path,
+          side: b.side,
+          line: b.line
+        }, file = view.snapshot.files.find(
+          (f) => f.path === anchor.path || f.oldPath === anchor.path
+        ), bundle = loadBundle(view.bundleRoot);
+        if (!file || !["base", "head"].includes(anchor.side || ""))
+          throw Error("\u4EE3\u7801\u5B9A\u4F4D\u65E0\u6548");
+        const side = bundle.texts.get(
+          anchor.side + ":" + (anchor.side === "base" ? file.oldPath || file.path : file.path)
+        );
+        const start = anchor.line ?? 1;
+        if (!side || !Number.isInteger(start) || start < 1 || start > side.lines.length)
+          throw Error("\u51BB\u7ED3\u4EE3\u7801\u4E2D\u6CA1\u6709\u8BE5\u884C");
+        const code = redactText(
+          side.lines.slice(start - 1, start + 11).join("\n")
+        );
+        if (!code || Buffer.byteLength(code) > 8192)
+          throw Error("\u6B64\u5904\u65E0\u53EF\u7528\u77ED\u4EE3\u7801\u6BB5\uFF0C\u8BF7\u5728Diff\u4E2D\u9009\u62E9\u5408\u9002\u8303\u56F4");
+        const summary = file.path + (anchor.line === null ? "\uFF08\u6587\u4EF6\u7EA7\uFF09" : ":" + start) + (anchor.side === "base" ? "\uFF08\u65E7\u4EE3\u7801\uFF09" : "\uFF08\u65B0\u4EE3\u7801\uFF09"), target = await this.drafts.target(view.delivery), current = target && await this.adapter.session(target.id);
+        if (!current || current.archived || current.unavailable || current.projectKey !== p.projectKey || current.kind === "review") {
+          await this.adapter.copy(summary + "\n" + code);
+          return json({
+            status: "copied",
+            reason: "\u5F00\u53D1\u4F1A\u8BDD\u4E0D\u53EF\u7528\uFF0C\u5DF2\u590D\u5236\u51BB\u7ED3\u4EE3\u7801\u6BB5"
+          });
+        }
+        const content = summary + "\n```\n" + code + "\n```\n\u8BF7\u7ED3\u5408\u4E0A\u4E0B\u6587\u5206\u6790\u8FD9\u6BB5\u4EE3\u7801\uFF0C\u662F\u5426\u5B58\u5728\u5B89\u5168\u6216\u903B\u8F91\u9690\u60A3\uFF0C\u4EE5\u53CA\u5982\u4F55\u6539\u8FDB\uFF1F";
+        try {
+          const draft = await this.adapter.getDraft(target.id);
+          if (draft.text.includes(content))
+            return json({
+              status: "written",
+              duplicate: true,
+              targetId: target.id
+            });
+          const text = draft.text + (draft.text ? "\n\n" : "") + content;
+          if (await this.adapter.writeDraft(target.id, text, {
+            expectedRevision: draft.revision,
+            preserveQuotesAndAttachments: true
+          }))
+            return json({
+              status: "written",
+              duplicate: false,
+              targetId: target.id
+            });
+        } catch {
+        }
+        await this.adapter.copy(content);
+        return json({
+          status: "copied",
+          reason: "\u8349\u7A3F\u5DF2\u6539\u53D8\u6216\u65E0\u6CD5\u5199\u5165\uFF0C\u5DF2\u590D\u5236\u4EE3\u7801\u6BB5\uFF1B\u672A\u8986\u76D6\u539F\u8349\u7A3F\u3002"
+        });
+      })
+    );
     this.route("download", ["GET"], (b) => {
       const p = this.requireProject(b.workspaceId), view = this.selected(p, b.deliveryId, b.snapshotId), kind = b.format === "html" ? "html" : "md";
-      const body = kind === "html" ? html(view, { embedDiff: this.core.store.settings(p.projectKey).exportEmbedDiff }) : markdown(view);
-      const filename = Buffer.from(view.delivery.title.replace(/[\x00-\x1f<>:"/\\|?*]/g, "_").slice(0, 80)).toString("utf8") + "." + kind;
-      return new Response(body, { headers: { "content-type": kind === "html" ? "text/html; charset=utf-8" : "text/markdown; charset=utf-8", "content-disposition": "attachment; filename*=UTF-8''" + encodeURIComponent(filename) } });
+      const body = kind === "html" ? html(view, {
+        embedDiff: this.core.store.settings(p.projectKey).exportEmbedDiff
+      }) : markdown(view);
+      const filename = Buffer.from(
+        view.delivery.title.replace(/[\x00-\x1f<>:"/\\|?*]/g, "_").slice(0, 80)
+      ).toString("utf8") + "." + kind;
+      return new Response(body, {
+        headers: {
+          "content-type": kind === "html" ? "text/html; charset=utf-8" : "text/markdown; charset=utf-8",
+          "content-disposition": "attachment; filename*=UTF-8''" + encodeURIComponent(filename)
+        }
+      });
     });
-    const staticFiles = { "client.css": ["client.css", "text/css"], "diff.js": ["../vendor/diff2html-ui@3.4.45.min.js", "application/javascript"], "diff.css": ["../vendor/diff2html@3.4.45.min.css", "text/css"] };
-    for (const [key, [file, type]] of Object.entries(staticFiles)) this.route("assets/" + key, ["GET"], () => new Response(fs11.readFileSync(path10.resolve(this.config.assetRoot, file)), { headers: { "content-type": type } }));
-    const icons = JSON.parse(fs11.readFileSync(path10.resolve(this.config.assetRoot, "../vendor/material/source.json")));
-    for (const file of icons.files) this.route("assets/material/" + file.name, ["GET"], () => new Response(fs11.readFileSync(path10.resolve(this.config.assetRoot, "../vendor/material", file.name)), { headers: { "content-type": "image/svg+xml" } }));
+    const staticFiles = {
+      "client.css": ["client.css", "text/css"],
+      "diff.js": [
+        "../vendor/diff2html-ui@3.4.45.min.js",
+        "application/javascript"
+      ],
+      "diff.css": ["../vendor/diff2html@3.4.45.min.css", "text/css"]
+    };
+    for (const [key, [file, type]] of Object.entries(staticFiles))
+      this.route(
+        `assets/${key}`,
+        ["GET"],
+        () => new Response(
+          fs11.readFileSync(path10.resolve(this.config.assetRoot, file)),
+          { headers: { "content-type": type } }
+        )
+      );
+    const icons = JSON.parse(
+      fs11.readFileSync(
+        path10.resolve(this.config.assetRoot, "../vendor/material/source.json"),
+        "utf8"
+      )
+    );
+    for (const file of icons.files)
+      this.route(
+        `assets/material/${file.name}`,
+        ["GET"],
+        () => new Response(
+          fs11.readFileSync(
+            path10.resolve(
+              this.config.assetRoot,
+              "../vendor/material",
+              file.name
+            )
+          ),
+          { headers: { "content-type": "image/svg+xml" } }
+        )
+      );
   }
   async close() {
     this.bridge.close();
     await this.adapter.close();
-    for (const key of this.core.scheduler.projects.keys()) await this.core.scheduler.idle(key);
+    for (const key of this.core.scheduler.projects.keys())
+      await this.core.scheduler.idle(key);
   }
 };
 
-// plugin/host/index.mjs
+// plugin/host/index.ts
 var name = "dsh-evidentloop";
-var inject = ["connection", "sessionController", "workspaceRegistry", "sessions", "agents", "tools", "llm", "agentDefaultModel", "sessionTitle"];
+var inject = [
+  "connection",
+  "sessionController",
+  "workspaceRegistry",
+  "sessions",
+  "agents",
+  "tools",
+  "llm",
+  "agentDefaultModel",
+  "sessionTitle"
+];
 async function apply(ctx, config = {}) {
-  const packageRoot = path11.resolve(path11.dirname(fileURLToPath2(import.meta.url)), "..");
+  const packageRoot = path11.resolve(
+    path11.dirname(fileURLToPath2(import.meta.url)),
+    ".."
+  );
   const home = process.env.DSH_HOME?.trim() || path11.join(os.homedir(), ".dsh");
   const service = await new PluginService(ctx, {
     storageRoot: config.storageRoot || path11.join(home, "storages", "dsh-evidentloop"),

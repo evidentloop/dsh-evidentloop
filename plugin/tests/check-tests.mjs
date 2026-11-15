@@ -8,19 +8,20 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'), output = path.resolve(process.argv[2]);
 if (fs.existsSync(output)) throw Error('Refusing to overwrite mutation evidence'); fs.mkdirSync(output, { recursive: true });
 const mutations = [
-  { name: 'budget-bypass', file: 'plugin/host/dsh-adapter.mjs', old: '    this.approval(); signal.throwIfAborted();', replacement: '    this.allowed = () => ({maxCalls:100,maxOutputTokens:4096}); this.claim = () => ({}); signal.throwIfAborted();', expected: 'no model approval means zero native agents or prompts' },
-  { name: 'tools-exposed', file: 'plugin/host/dsh-adapter.mjs', old: 'agentCtx.tools.restrict({ allow: [] })', replacement: "agentCtx.tools.restrict({ allow: ['write'] })", expected: 'native review uses frozen cwd, inherited model, zero tools and canonical prompt' },
-  { name: 'stale-composer-overwrite', file: 'plugin/client/native.js', old: "state.draftRev !== payload.expectedRevision || state.phase !== 'plain'", replacement: "state.phase !== 'plain'", expected: 'stale composer revision never overwrites existing user draft' },
-  { name: 'live-file-substitution', file: 'plugin/host/service.mjs', old: 'head: head?.text ?? null', replacement: "head: fs.readFileSync(path.join(p.repoRoot, file.path), 'utf8')", expected: 'frozen file route stays frozen when live worktree changes' },
-  { name: 'unsafe-title-html', file: 'plugin/client/list.jsx', old: '<Clip>{d.title}</Clip>', replacement: '<span dangerouslySetInnerHTML={{__html:d.title}}/>', expected: 'React component renders real props and escapes user controlled titles' }
+  { name: 'budget-bypass', file: 'plugin/host/dsh-adapter.ts', old: '    this.approval();\n    signal.throwIfAborted();', replacement: '    this.allowed = () => ({maxCalls:100,maxOutputTokens:4096}); this.claim = () => ({}); signal.throwIfAborted();', expected: 'no model approval means zero native agents or prompts' },
+  { name: 'tools-exposed', file: 'plugin/host/dsh-adapter.ts', old: 'agentCtx.tools.restrict({ allow: [] })', replacement: "agentCtx.tools.restrict({ allow: ['write'] })", expected: 'native review uses frozen cwd, inherited model, zero tools and canonical prompt' },
+  { name: 'stale-composer-overwrite', file: 'plugin/client/native.ts', old: 'state.draftRev !== payload.expectedRevision || state.phase !== "plain"', replacement: 'state.phase !== "plain"', expected: 'stale composer revision never overwrites existing user draft' },
+  { name: 'live-file-substitution', file: 'plugin/host/service.ts', old: 'head: head?.text ?? null', replacement: "head: fs.readFileSync(path.join(p.repoRoot, file.path), 'utf8')", expected: 'frozen file route stays frozen when live worktree changes' },
+  { name: 'unsafe-title-html', file: 'plugin/client/list.tsx', old: '<Clip>{d.title}</Clip>', replacement: '<span dangerouslySetInnerHTML={{__html:d.title}}/>', expected: 'React component renders real props and escapes user controlled titles' }
 ];
 const results = [];
 for (const m of mutations) {
   const copy = fs.mkdtempSync(path.join(os.tmpdir(), 'evidentloop-plugin-fault-'));
   try {
     for (const name of ['core', 'plugin', 'skills']) fs.cpSync(path.join(root, name), path.join(copy, name), { recursive: true, filter: file => path.basename(file) !== 'evidence' });
+    fs.symlinkSync(path.join(root, 'node_modules'), path.join(copy, 'node_modules'), 'dir'); fs.copyFileSync(path.join(root, 'tsconfig.json'), path.join(copy, 'tsconfig.json'));
     const file = path.join(copy, m.file), source = fs.readFileSync(file, 'utf8'); assert.ok(source.includes(m.old), 'Fault injection no longer matches: ' + m.name); fs.writeFileSync(file, source.replace(m.old, m.replacement));
-    const destination = path.join(output, m.name), process = spawnSync(globalThis.process.execPath, [path.join(copy, 'plugin/tests/run.mjs'), destination], { encoding: 'utf8', timeout: 45000 });
+    const destination = path.join(output, m.name), process = spawnSync(globalThis.process.execPath, [...globalThis.process.execArgv, path.join(copy, 'plugin/tests/run.mjs'), destination], { encoding: 'utf8', timeout: 45000 });
     fs.writeFileSync(path.join(output, m.name + '.log'), process.stdout + process.stderr);
     const report = JSON.parse(fs.readFileSync(path.join(destination, 'results.json'))), target = report.failures.find(f => f.name === m.expected);
     assert.equal(process.status, 1, 'Fault did not make tests fail'); assert.ok(target, 'Expected target check did not detect fault: ' + m.name);

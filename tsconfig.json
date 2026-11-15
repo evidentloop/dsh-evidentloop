@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "types": [
+      "node",
+      "react",
+      "react-dom"
+    ],
+    "skipLibCheck": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": [
+    "plugin/client",
+    "plugin/host",
+    "plugin/shared",
+    "core/**/*.d.mts",
+    "core/**/*.d.ts"
+  ]
+}

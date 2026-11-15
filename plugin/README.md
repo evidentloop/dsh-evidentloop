@@ -7,23 +7,27 @@ React 客户端由宿主提供 React/ReactDOM；插件独立实现，界面基�
 ## 本地构建与验证
 
 ```sh
+npm ci
+npm run typecheck
 node plugin/scripts/build.mjs
-node plugin/tests/run.mjs /tmp/evidentloop-plugin-tests
-node plugin/tests/browser-headless.mjs /tmp/evidentloop-browser-tests
+node --import tsx plugin/tests/run.mjs /tmp/evidentloop-plugin-tests
+node --import tsx plugin/tests/browser-headless.mjs /tmp/evidentloop-browser-tests
 node core/tests/all.mjs /tmp/evidentloop-core-tests
 ```
 
-使用已有的 esbuild、React、ReactDOM、Playwright 与系统 Chrome，不自动安装依赖。优先解析本地依赖，也兼容已有工具缓存；可用 `ESBUILD_PACKAGE`、`REACT_PACKAGE`、`PLAYWRIGHT_PACKAGE` 指定相应 package.json。测试使用合成输入，真实模型调用为 0；不操作用户浏览器或主应用实例。
+在仓库根目录用 `npm ci` 安装锁定的开发依赖；UI 测试使用已有 Playwright 与系统 Chrome。构建脚本不自动安装依赖。优先解析本地依赖，也兼容已有工具缓存；可用 `ESBUILD_PACKAGE`、`REACT_PACKAGE`、`PLAYWRIGHT_PACKAGE` 指定相应 package.json。测试使用合成输入，真实模型调用为 0；不操作用户浏览器或主应用实例。
 
 `tests/toolbar-browser.mjs --before` 的可选旧版对比需要设置 `EVIDENTLOOP_BASELINE_STYLES` 与 `EVIDENTLOOP_BASELINE_CLIENT`，分别指向自己的基线 CSS 和浏览器夹具脚本。
 
 `node plugin/scripts/package.mjs <外部目录/file.tgz>` 只生成本地离线安装包和清单，不上传或发布。安装与真实模型验证须另行授权。
 
+客户端与宿主源码使用严格 TypeScript；`tsconfig.json` 采用 `react-jsx` 与 Bundler 解析。esbuild 在打包时转换为宿主提供的 `React.createElement`，保持 ModuleLoader 只依赖 React/ReactDOM，输出仍为 `dist/host.mjs` 与 `dist/client.js`。`core/` 保持可直接运行的 Node MJS；声明定义 adapter 消费的数据边界，模型输出类型由现有 schema 生成，`typecheck` 会检查是否过期。运行时证据校验仍由 core 执行。
+
 ## 数据和适配接口
 
-- `host/service.mjs`：真实工作区/仓库寻址、准备锁、需求order、设置、所选记录/冻结文件、Mark/批注、MD/HTML、锁定发回、代码段追问。各类写入由core再次校验当前记录；工作区归属不靠UI数组推断。
-- `host/dsh-adapter.mjs`：本次发起开发会话配置、原生受控Agent、tools=[]、单步/失败不重试、真实取消与等待、原始文本落盘、自身会话登记。原始返回不修补为合格JSON。
-- `host/bridge.mjs` / `client/native.js`：按发起client和目标Session寻址，nonce/期限/实际回执；草稿CAS且保留引用附件，不发送消息。文件打开、代码引用与剪贴板只在原生回执成功后报告成功。
+- `host/service.ts`：真实工作区/仓库寻址、准备锁、需求order、设置、所选记录/冻结文件、Mark/批注、MD/HTML、锁定发回、代码段追问。各类写入由core再次校验当前记录；工作区归属不靠UI数组推断。
+- `host/dsh-adapter.ts`：本次发起开发会话配置、原生受控Agent、tools=[]、单步/失败不重试、真实取消与等待、原始文本落盘、自身会话登记。原始返回不修补为合格JSON。
+- `host/bridge.ts` / `client/native.ts`：按发起client和目标Session寻址，nonce/期限/实际回执；草稿CAS且保留引用附件，不发送消息。文件打开、代码引用与剪贴板只在原生回执成功后报告成功。
 - `client/`：两层页面、文件树、双视图、六段概览、Diff2Html位置承载、统一建议区域、问题处置与批注、历史只读、真实设置与扩展编辑保护。主题跟随DSH，不增加产品主题开关。
 
 当前自动触发接线仍属P5，自动模式偏好可保存；本轮由人工发起。`conversation.chat.turnTail` 使用renderer给出的session作用域sessionId，不能用当前主会话代替历史或侧栏会话。

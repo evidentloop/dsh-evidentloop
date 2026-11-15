@@ -10,7 +10,7 @@ import { repository } from '../../core/tests/repo-fixture.mjs';
 import { SyntheticAdapter, projectFor, loadBundle } from '../../core/index.mjs';
 import { modelFor } from '../../core/fixtures/model.mjs';
 import { fakeHost } from './fakes.mjs';
-import { PluginService } from '../host/service.mjs';
+import { PluginService } from '../host/service.ts';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'), out = path.resolve(process.argv[2]); fs.mkdirSync(out, { recursive: true });
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'evidentloop-browser-fixture-')), repo = repository(path.join(scratch, 'repo'));
 process.once('exit',()=>{try{fs.rmSync(scratch,{recursive:true,force:true})}catch{}});

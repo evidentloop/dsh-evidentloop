@@ -1,5 +1,5 @@
 import path from 'node:path';
 export function browserEntry(repoRoot) {
- return `import React from 'react';import {createRoot} from 'react-dom/client';import {Panel} from '${path.join(repoRoot, 'plugin/client/app.jsx')}';import {ClientRuntime} from '${path.join(repoRoot, 'plugin/client/runtime.js')}';
+ return `import React from 'react';import {createRoot} from 'react-dom/client';import {Panel} from '${path.join(repoRoot, 'plugin/client/app.tsx')}';import {ClientRuntime} from '${path.join(repoRoot, 'plugin/client/runtime.ts')}';
 const native={_workspaceId:'w1',workspaceId(){return this._workspaceId},sessionId:()=> 'dev',subscribe:()=>()=>{},selectWorkspace:async function(id){this._workspaceId=id},openSession:async id=>{window.__openedSession=id},showPanel(){},execute:async()=>{throw Error('Native DSH is deliberately absent from this synthetic browser fixture')}};const runtime=new ClientRuntime(native);window.__UI__={runtime,native,copied:[],synthetic:true};Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.__UI__.copied.push(text)}}});const link=document.createElement('link');link.rel='stylesheet';link.href='/api/dsh-evidentloop/assets/diff.css';document.head.append(link);createRoot(document.getElementById('app')).render(React.createElement(Panel,{runtime}));await runtime.refresh();window.__READY__=true;`;
 }

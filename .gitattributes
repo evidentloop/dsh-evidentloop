@@ -6,3 +6,4 @@ prototype/vendor/** linguist-vendored
 plugin/dist/** linguist-generated
 docs/site/** linguist-generated
 prototype/data/snapshot.js linguist-generated
+core/model-output.d.ts linguist-generated

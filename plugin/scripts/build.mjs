@@ -7,8 +7,8 @@ import { methodVersion } from '../../core/lib/common.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), repo = path.dirname(root);
 const tool = installed('esbuild', process.env.ESBUILD_PACKAGE), esbuild = tool.require('esbuild');
 const outdir = path.join(root, 'dist'); fs.mkdirSync(outdir, { recursive: true });
-const host = await esbuild.build({ absWorkingDir: repo, entryPoints: ['plugin/host/index.mjs'], bundle: true, platform: 'node', format: 'esm', target: ['node20'], outfile: path.join(outdir, 'host.mjs'), metafile: true, logLevel: 'silent' });
-const client = await esbuild.build({ absWorkingDir: repo, entryPoints: ['plugin/client/index.jsx'], bundle: true, platform: 'browser', format: 'cjs', target: ['chrome120'], external: ['react', 'react-dom'], loader: { '.css': 'text' }, jsx: 'transform', outfile: path.join(outdir, 'client.js'), write: false, metafile: true, logLevel: 'silent' });
+const host = await esbuild.build({ absWorkingDir: repo, entryPoints: ['plugin/host/index.ts'], bundle: true, platform: 'node', format: 'esm', target: ['node20'], outfile: path.join(outdir, 'host.mjs'), metafile: true, logLevel: 'silent' });
+const client = await esbuild.build({ absWorkingDir: repo, entryPoints: ['plugin/client/index.tsx'], bundle: true, platform: 'browser', format: 'cjs', target: ['chrome120'], external: ['react', 'react-dom'], loader: { '.css': 'text' }, jsx: 'transform', tsconfigRaw: { compilerOptions: { jsx: 'react' } }, outfile: path.join(outdir, 'client.js'), write: false, metafile: true, logLevel: 'silent' });
 for (const output of client.outputFiles) {
   if (output.path.endsWith('.js')) fs.writeFileSync(output.path, `window.__ModuleLoader__.load({id:'dsh-evidentloop',factory:require=>{var module={exports:{}};var exports=module.exports;\n${output.text}\nreturn module.exports;}});\n`);
   else fs.writeFileSync(output.path, output.contents);

@@ -1,7 +1,7 @@
 import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';
 import {fixture,deferred,until,syntheticModel} from '../../core/tests/helpers.mjs';
 import {SyntheticAdapter,projectFor,loadBundle} from '../../core/index.mjs';import {freezeMethod} from '../../core/lib/method.mjs';
-import {PluginService} from '../host/service.mjs';import {fakeHost} from './fakes.mjs';
+import {PluginService} from '../host/service.ts';import {fakeHost} from './fakes.mjs';
 export async function hostRaceChecks(test,root,methodRoot,assetRoot){
  async function setup(name){const repo=fixture(root,name),host=fakeHost({repo}),key=projectFor(repo.root).projectKey,service=await new PluginService(host.ctx,{storageRoot:path.join(root,name+'-state'),methodRoot,assetRoot}).initialize();const adapter=new SyntheticAdapter({model:syntheticModel,sessions:[{id:'dev',kind:'development',projectKey:key}]});service.core.adapter=adapter;await service.core.store.setSettings(key,{...service.core.store.settings(key),targetBranch:'main'});return{repo,host,key,service,adapter}}
  await test('host serializes capture preparation so concurrent manual requirements do not overwrite each other',async()=>{const s=await setup('host-manual-race'),gate=deferred(),entered=deferred();let calls=0;const trigger=s.service.core.trigger.bind(s.service.core);s.service.core.trigger=async options=>{calls++;if(calls===1){entered.resolve();await gate.promise}return trigger(options)};let a,b;

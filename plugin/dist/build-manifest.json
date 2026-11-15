@@ -140,64 +140,72 @@
       "sha256": "86e4b57df57e1f653d263e2b235d0afa86a29460997662feefe2e3590ee6581b"
     },
     {
-      "path": "plugin/client/app.jsx",
-      "sha256": "ca79583a2eb09f2cca6862f1b55be22b8abfe1ebb124ab25437a3377882f9ffc"
+      "path": "plugin/client/app.tsx",
+      "sha256": "c8ee7f23e270dc876cb337fb41e6b9f81f213ceedc2a80e6f1b55122eb85c37f"
     },
     {
-      "path": "plugin/client/diff.jsx",
-      "sha256": "09dc8a6f3cd4d04c0046f8c7e7541016ce2c6bb9cd2e4f52a8c360e764e564d3"
+      "path": "plugin/client/diff.tsx",
+      "sha256": "13507238807eacda1357d68058eaf645574b61c612aff4aa617718e4950ac23f"
     },
     {
-      "path": "plugin/client/index.jsx",
-      "sha256": "9f72469e184f415477a8fe6270fc2febfba188fdc2abf809c02b93c5e650b47c"
+      "path": "plugin/client/index.tsx",
+      "sha256": "c9ebac9a42ed4336049738d8953a7d710f3fc61663627395270af31a579a4805"
     },
     {
-      "path": "plugin/client/list.jsx",
-      "sha256": "5fabadc4acfbf5803798bc0d9513d32a9121708f6e98f53201801c2be30ffb9d"
+      "path": "plugin/client/list.tsx",
+      "sha256": "a8eb3d0e746cd7167ec1e4ad7bcb7ad7f3e2ff2f4e116069d59b864f3e4394a0"
     },
     {
-      "path": "plugin/client/native.js",
-      "sha256": "0ba344727405a7a83771583215e2e0a5200dd1626ebbdf7f675413dacb55469f"
+      "path": "plugin/client/native.ts",
+      "sha256": "202d6c09c14dc5cde3a75eee0433a2e93e33123e034ec58608614823a805b55b"
     },
     {
-      "path": "plugin/client/overview.jsx",
-      "sha256": "2bfccff1e79cddd122fc387779c724834098e0bd1330c685e26a7f256e1a6449"
+      "path": "plugin/client/overview.tsx",
+      "sha256": "214d3d4d75baea3f761fa46ca2104697280568ddcd604ba5a0048d6f8c6df443"
     },
     {
-      "path": "plugin/client/review.jsx",
-      "sha256": "7364135db80c1f30d85dc2597ef87d9ee6f2701b377b3622c6f6e8c8a5741f73"
+      "path": "plugin/client/review.tsx",
+      "sha256": "ef1a1918e25e37f0a68ddd16a3633384160fe13ae43a03e2cf4aa3d58f6e7393"
     },
     {
-      "path": "plugin/client/runtime.js",
-      "sha256": "0805ffa1a61b9c70c06dd47b20a30b94180453ce66fac70425dba5916dea1b23"
+      "path": "plugin/client/runtime.ts",
+      "sha256": "1ff018d67f8ad9817fad3737386fe273040fa123c7931dab059cbcf1b9880efd"
     },
     {
-      "path": "plugin/client/settings.jsx",
-      "sha256": "57e9ed2a906f5a6a6e1a57dbf5a59157c97ec49de5afe8b8f8ed41d52ff79119"
+      "path": "plugin/client/settings.tsx",
+      "sha256": "157012dfdf4b357932c898850c82d918a14dda90f500879b302757c500c798d7"
     },
     {
       "path": "plugin/client/styles.css",
       "sha256": "2c8ccfd19560d905570fed18a44dc7a48c29f24946d8d7f6520c8f83ef0fc291"
     },
     {
-      "path": "plugin/client/ui.jsx",
-      "sha256": "efaa71a017f99293109e582f12ac1d17685510781599ab3b6caf9943967f80a5"
+      "path": "plugin/client/ui.tsx",
+      "sha256": "a62530533d48938dc079ee4791a88e589949a56045940b04dadf25a73ff260ed"
     },
     {
-      "path": "plugin/host/bridge.mjs",
-      "sha256": "c9eeff7e9a947dbba090d1cca1098e94a595e9a20835c9e7335a6d3d61bdc91b"
+      "path": "plugin/host/bridge.ts",
+      "sha256": "0d26d17b004303179a35321fc0439e089e2e9de2661703d0441df87f8d69653e"
     },
     {
-      "path": "plugin/host/dsh-adapter.mjs",
-      "sha256": "e8579a6a4b46fd0ae24b34e8065fda343c2ca9a2fb47c5e74de4a3c66afe4320"
+      "path": "plugin/host/context.ts",
+      "sha256": "5ba70a76f2618daabae6de3bccbadf24d11dc44bba7444a6d00a4ce93488ec5c"
     },
     {
-      "path": "plugin/host/index.mjs",
-      "sha256": "275dd4cfcc0350a2c8bdce1a73c3644b26fc68b5ef94b5bb138d6c2d031d7986"
+      "path": "plugin/host/dsh-adapter.ts",
+      "sha256": "9a8e5c95c935f3bbbc80a290c937a6cc81fad4878be599cbb5afd203f9c5ccac"
     },
     {
-      "path": "plugin/host/service.mjs",
-      "sha256": "1354cfb28132b951cb17fbc37146b5373ce65b9d25af057e635d48a857cc6218"
+      "path": "plugin/host/index.ts",
+      "sha256": "db18875900521a5ee557b3e57a45dd62ecdc530e5904a60384302391e0034296"
+    },
+    {
+      "path": "plugin/host/service.ts",
+      "sha256": "b5d665f5642a815c531cad1280532d863c85ebfa9150bebd1b0f5477574f5e03"
+    },
+    {
+      "path": "plugin/shared/contracts.ts",
+      "sha256": "c2aedfe4ecb599570faf4d7f437f272639c3a43bff7d8f7faabe63ae946d85f2"
     }
   ],
   "methodFiles": [

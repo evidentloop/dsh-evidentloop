@@ -1,7 +1,7 @@
 import fs from 'node:fs';import path from 'node:path';import {installed} from '../scripts/toolchain.mjs';import {spawn} from 'node:child_process';import crypto from 'node:crypto';
 const out=path.resolve(process.argv[2]);if(fs.existsSync(out))throw Error('Refusing to overwrite evidence');fs.mkdirSync(out,{recursive:true});
 const playwright=installed('playwright',process.env.PLAYWRIGHT_PACKAGE).require('playwright');
-const child=spawn(process.execPath,['plugin/tests/browser-server.mjs',path.join(out,'fixture')],{stdio:['ignore','pipe','pipe']});let browser,page,ready='',errorLog='';const log=fs.createWriteStream(path.join(out,'fixture-server.log'));child.stdout.on('data',chunk=>{ready+=chunk;log.write(chunk)});child.stderr.on('data',chunk=>{errorLog+=chunk;log.write(chunk)});
+const child=spawn(process.execPath,[...process.execArgv,'plugin/tests/browser-server.mjs',path.join(out,'fixture')],{stdio:['ignore','pipe','pipe']});let browser,page,ready='',errorLog='';const log=fs.createWriteStream(path.join(out,'fixture-server.log'));child.stdout.on('data',chunk=>{ready+=chunk;log.write(chunk)});child.stderr.on('data',chunk=>{errorLog+=chunk;log.write(chunk)});
 const results=[],errors=[],consoleErrors=[];let infrastructureError,received=[],layoutMeasurements=[];
 try{
  const end=Date.now()+30000;while(!ready.includes('"url":')){if(child.exitCode!==null||Date.now()>end)throw Error('Fixture start failed '+errorLog);await new Promise(r=>setTimeout(r,40));}
@@ -29,7 +29,7 @@ try{
  }
  await page.screenshot({path:path.join(out,'last-state.png')});
  fs.writeFileSync(path.join(out,'last-state.txt'),await page.locator('body').innerText());
- const sourceFiles=['client/app.jsx','client/list.jsx','client/review.jsx','client/diff.jsx','client/overview.jsx','client/settings.jsx','client/runtime.js','client/native.js','client/ui.jsx','client/styles.css','host/service.mjs','host/dsh-adapter.mjs'].map(name=>({path:name,sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join('plugin',name))).digest('hex')}));
+ const sourceFiles=['client/app.tsx','client/list.tsx','client/review.tsx','client/diff.tsx','client/overview.tsx','client/settings.tsx','client/runtime.ts','client/native.ts','client/ui.tsx','client/styles.css','host/service.ts','host/dsh-adapter.ts'].map(name=>({path:name,sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join('plugin',name))).digest('hex')}));
  const exitCode=results.length!==expectedCases||results.some(r=>r.status!=='passed')||errors.length||consoleErrors.length||infrastructureError?1:0;
  const summary={expectedCases,namedCases:results.length,passed:results.filter(r=>r.status==='passed').length,results,layoutMeasurements,runtimeErrors:errors,consoleErrors,infrastructureError:infrastructureError||null,sourceFiles,realModelCalls:0,synthetic:true,browser:'System Chrome headless via existing Playwright',exitCode};
  fs.writeFileSync(path.join(out,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({out,namedCases:summary.namedCases,passed:summary.passed,failures:results.filter(r=>r.status==='failed'),runtimeErrors:errors,consoleErrors,infrastructureError:summary.infrastructureError,exitCode}));process.exitCode=exitCode;

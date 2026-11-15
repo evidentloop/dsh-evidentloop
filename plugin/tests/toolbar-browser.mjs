@@ -8,7 +8,7 @@ import { installed } from '../scripts/toolchain.mjs';
 
 const out = path.resolve(process.argv[2]), before = process.argv.includes('--before'); fs.mkdirSync(out);
 if (before && (!process.env.EVIDENTLOOP_BASELINE_STYLES || !process.env.EVIDENTLOOP_BASELINE_CLIENT)) throw Error('--before requires EVIDENTLOOP_BASELINE_STYLES and EVIDENTLOOP_BASELINE_CLIENT');
-const child = spawn(process.execPath, ['plugin/tests/browser-server.mjs', out + '/fixture'], { stdio: ['ignore', 'pipe', 'pipe'] });
+const child = spawn(process.execPath, [...process.execArgv, 'plugin/tests/browser-server.mjs', out + '/fixture'], { stdio: ['ignore', 'pipe', 'pipe'] });
 let ready = '', browser, page; const results = [], measurements = [], errors = [];
 child.stdout.on('data', chunk => ready += chunk); child.stderr.on('data', chunk => fs.appendFileSync(out + '/fixture.log', chunk));
 const check = (name, actual, expected) => { try { assert.deepEqual(actual, expected); results.push({ name, passed: true }); } catch { results.push({ name, passed: false, actual, expected }); } };

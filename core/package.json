@@ -16,7 +16,10 @@
     "validate.mjs",
     "lib",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "index.d.mts",
+    "types.d.ts",
+    "model-output.d.ts"
   ],
   "author": "sanze.li",
   "license": "MIT",

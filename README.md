@@ -169,17 +169,21 @@ https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/i
 
 ### 本地构建、验证与打包
 
-运行环境需 Node.js ≥ 20。构建依赖环境中预装的 esbuild；插件测试还需已安装的 React、ReactDOM、Playwright 及系统 Chrome。构建脚本不会自动下载安装依赖，可通过环境变量 `ESBUILD_PACKAGE`、`REACT_PACKAGE`、`PLAYWRIGHT_PACKAGE` 分别指定对应的 `package.json` 路径。
+运行环境需 Node.js ≥ 20。`npm ci` 按锁文件安装 TypeScript、esbuild、React/ReactDOM 和 tsx 等开发工具；UI 测试还需已有 Playwright 及系统 Chrome。构建脚本不会自动下载安装依赖，可通过环境变量 `ESBUILD_PACKAGE`、`REACT_PACKAGE`、`PLAYWRIGHT_PACKAGE` 分别指定对应的 `package.json` 路径。
 
 ```sh
+# 安装固定版本的开发工具并检查类型
+npm ci
+npm run typecheck
+
 # 构建插件与说明书
 node plugin/scripts/build.mjs
 node docs/build.mjs
 
 # 核心与插件测试
 node core/tests/all.mjs /tmp/evidentloop-core-tests
-node plugin/tests/run.mjs /tmp/evidentloop-plugin-tests
-node plugin/tests/browser-headless.mjs /tmp/evidentloop-ui-tests
+node --import tsx plugin/tests/run.mjs /tmp/evidentloop-plugin-tests
+node --import tsx plugin/tests/browser-headless.mjs /tmp/evidentloop-ui-tests
 
 # 生成本地离线安装包（.tgz）；输出路径需在仓库外且文件尚不存在
 node plugin/scripts/package.mjs /tmp/dsh-evidentloop-0.1.0-rc.1.tgz

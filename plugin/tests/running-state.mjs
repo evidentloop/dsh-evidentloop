@@ -6,7 +6,7 @@ import { spawn } from 'node:child_process';
 import { installed } from '../scripts/toolchain.mjs';
 
 const out = path.resolve(process.argv[2]); fs.mkdirSync(out);
-const child = spawn(process.execPath, ['plugin/tests/browser-server.mjs', out + '/fixture'], { stdio: ['ignore', 'pipe', 'pipe'] });
+const child = spawn(process.execPath, [...process.execArgv, 'plugin/tests/browser-server.mjs', out + '/fixture'], { stdio: ['ignore', 'pipe', 'pipe'] });
 let ready = '', browser, page; const results = [], errors = [];
 child.stdout.on('data', b => ready += b); child.stderr.on('data', b => fs.appendFileSync(out + '/fixture.log', b));
 try {
@@ -15,12 +15,12 @@ try {
   const server = JSON.parse(ready.trim().split('\n').find(s => s.includes('"url"')));
   browser = await installed('playwright').require('playwright').chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
   page = await browser.newPage(); page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-  await page.goto(server.url); await page.waitForFunction(() => window.__READY__);
+  await page.goto(server.url); await page.waitForFunction(() => window.__READY__ && window.__UI__?.runtime.state.data);
   const record = await page.evaluate(async () => {
     const r = __UI__.runtime, d = r.state.data.deliveries[0];
     return r.api('record?' + new URLSearchParams({ workspaceId: r.state.workspaceId, deliveryId: d.deliveryId }));
   });
-  const rt = installed('react'), entry = `import React from 'react';import {renderToString} from 'react-dom/server';import {Review} from '${path.resolve('plugin/client/review.jsx')}';export const render=record=>renderToString(React.createElement(Review,{runtime:{},state:{record,view:'overview',data:{modelTestGate:{approved:false},settings:{exportEmbedDiff:false}}},openSettings(){}}));`;
+  const rt = installed('react'), entry = `import React from 'react';import {renderToString} from 'react-dom/server';import {Review} from '${path.resolve('plugin/client/review.tsx')}';export const render=record=>renderToString(React.createElement(Review,{runtime:{},state:{record,view:'overview',data:{modelTestGate:{approved:false},settings:{exportEmbedDiff:false}}},openSettings(){}}));`;
   await installed('esbuild').require('esbuild').build({ stdin: { contents: entry, resolveDir: process.cwd(), loader: 'jsx' }, bundle: true, platform: 'node', format: 'cjs', alias: { react: rt.root, 'react-dom': path.dirname(rt.require.resolve('react-dom/package.json')) }, outfile: out + '/ssr.cjs', logLevel: 'silent' });
   const { render } = await import(out + '/ssr.cjs');
   for (const status of ['running', 'queued', 'failed', 'cancelled']) {

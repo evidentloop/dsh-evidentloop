@@ -1,6 +1,6 @@
 /** Parity regressions. All models and composer state here are explicit fixtures. */
 import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import assert from 'node:assert/strict';import crypto from 'node:crypto';
-import {fixture,syntheticModel} from '../../core/tests/helpers.mjs';import {SyntheticAdapter,projectFor} from '../../core/index.mjs';import {PluginService} from '../host/service.mjs';import {NativeClient} from '../client/native.js';import {fakeHost,nativeFixture} from './fakes.mjs';
+import {fixture,syntheticModel} from '../../core/tests/helpers.mjs';import {SyntheticAdapter,projectFor} from '../../core/index.mjs';import {PluginService} from '../host/service.ts';import {NativeClient} from '../client/native.ts';import {fakeHost,nativeFixture} from './fakes.mjs';
 const out=path.resolve(process.argv[2]);fs.mkdirSync(out,{recursive:false});const results=[];let service;
 const test=async(name,action)=>{try{await action();results.push({name,passed:true});}catch(e){results.push({name,passed:false,error:e.stack});}};
 const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'evidentloop-parity-'));

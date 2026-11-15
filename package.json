@@ -15,8 +15,10 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "node plugin/scripts/build.mjs && node docs/build.mjs",
-    "test": "node plugin/tests/run.mjs && node core/tests/all.mjs"
+    "build": "npm run typecheck && node plugin/scripts/build.mjs && node docs/build.mjs",
+    "test": "node --import tsx plugin/tests/run.mjs && node core/tests/all.mjs",
+    "typecheck": "node plugin/scripts/schema-types.mjs --check && tsc --noEmit",
+    "test:ui": "node --import tsx plugin/tests/browser-headless.mjs"
   },
   "files": [
     "plugin/dist",
@@ -51,6 +53,19 @@
     "THIRD_PARTY_NOTICES.md",
     "README.md",
     "plugin/locale",
-    "plugin/icon.svg"
-  ]
+    "plugin/icon.svg",
+    "core/index.d.mts",
+    "core/types.d.ts",
+    "core/model-output.d.ts"
+  ],
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "esbuild": "0.28.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3"
+  }
 }
