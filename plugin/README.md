@@ -1,6 +1,6 @@
 # AI 变更评审 / EvidentLoop · 0.1.0-rc.1（Beta）
 
-面向人工验收的 AI 变更评审插件，当前为未公开发布的候选版本。由人工点击 Review All 或单文件审查；自动触发尚未接入。
+面向人工验收的 AI 变更评审插件，当前为 Beta，Release 安装包尚待发布。需手动点击「审查全部」或对单个文件发起审查；自动触发尚未接入。
 
 React 客户端由宿主提供 React/ReactDOM；插件独立实现，界面基于作者个人原型。Cordis 宿主通过 connection 路由使用纯 Node 核心库，不启动独立业务服务。浏览器测试服务仅为合成夹具。
 
@@ -17,7 +17,7 @@ node core/tests/all.mjs /tmp/evidentloop-core-tests
 
 `tests/toolbar-browser.mjs --before` 的可选旧版对比需要设置 `EVIDENTLOOP_BASELINE_STYLES` 与 `EVIDENTLOOP_BASELINE_CLIENT`，分别指向自己的基线 CSS 和浏览器夹具脚本。
 
-`node plugin/scripts/package.mjs <外部目录/file.tgz>` 只生成本地安装候选包和清单，不上传或发布。安装与真实模型验证须另行授权。
+`node plugin/scripts/package.mjs <外部目录/file.tgz>` 只生成本地离线安装包和清单，不上传或发布。安装与真实模型验证须另行授权。
 
 ## 数据和适配接口
 

@@ -13,7 +13,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/site/assets/diff-finding-dark.png">
-    <img src="docs/site/assets/diff-finding-light.png" alt="EvidentLoop 评审台：左侧文件树、单栏 Diff，以及锚定代码行的问题卡片" width="100%">
+    <img src="docs/site/assets/diff-finding-light.png" alt="EvidentLoop 评审台：左侧文件树、单栏 Diff，以及定位到具体代码行的问题卡片" width="100%">
   </picture>
 </p>
 
@@ -22,7 +22,7 @@
 **[查看演示](https://evidentloop.sanze.ai/demo.html)** · **[安装指南](#安装指南)** · **[快速开始](#快速开始)** · **[功能图解](#核心功能图解)** · **[完整说明书](https://evidentloop.sanze.ai/guide.html)**
 
 > [!NOTE]
-> 当前版本为 **0.1.0-rc.1（Beta）**。审查需手动点击「审查全部」或对单个文件发起审查，自动审查将在后续版本支持。截图与录屏来自公开项目 Sopify 的真实历史审查记录快照：当前仅实际审查了其中 1 个变更文件，其余 24 个仍处于待审状态；图中的批注与「标记非问题」为功能演示操作，不代表整批代码已全部审查完成。
+> 当前版本为 **0.1.0-rc.1（Beta）**。审查需手动点击「审查全部」或对单个文件发起审查，自动审查将在后续版本支持。截图与录屏来自公开项目 Sopify 的真实历史审查记录快照，共 34 个变更文件：已实际审查 1 个，24 个待审，9 个按规则跳过。图中的批注与「标记非问题」为功能演示操作，不代表整批代码已全部审查完成。
 
 ## 为什么需要 EvidentLoop？
 
@@ -42,7 +42,7 @@ AI 一次改了十几个文件，只有 Diff 还不够：这批改动做了什�
 
 ![AI 变更评审工作流：改代码、打开交付、审查、人工复核、发回草稿或导出](docs/site-src/flow-wide.svg)
 
-**44 秒看完整操作：交付列表 → 变更说明 → Diff → 标记非问题 → 导出 → 发回会话。** 点击下方缩略图打开视频播放页。GitHub README 使用缩略图与链接；播放页支持内嵌播放。
+**44 秒看完整操作：交付列表 → 变更说明 → 单栏 Diff → 标记非问题 → 导出 → 发回会话。** 点击下方缩略图打开视频播放页。GitHub README 使用缩略图与链接；播放页支持内嵌播放。
 
 <a href="https://evidentloop.sanze.ai/demo.html">
   <picture>
