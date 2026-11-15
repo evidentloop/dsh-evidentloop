@@ -1,0 +1,8 @@
+# Third-party libraries are shipped for offline use.
+plugin/vendor/** linguist-vendored
+prototype/vendor/** linguist-vendored
+
+# Build outputs and the generated demonstration snapshot are not authored source.
+plugin/dist/** linguist-generated
+docs/site/** linguist-generated
+prototype/data/snapshot.js linguist-generated
