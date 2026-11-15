@@ -248,6 +248,7 @@ export class ClientRuntime {
       `session-context?sessionId=${encodeURIComponent(sessionId)}`,
     );
     if (!context.available) throw Error("该会话没有可用的Git工作区");
+    const previousPage = this.state.page;
     const navigation = ++this.navigation;
     this.recordGeneration++;
     this.update({
@@ -255,7 +256,6 @@ export class ClientRuntime {
       workspaceId: context.workspaceId,
       returnSessionId: sessionId,
     });
-    this.native.showPanel();
     try {
       const result = await this.run(
         "capture",
@@ -264,11 +264,13 @@ export class ClientRuntime {
       );
       if (!result.snapshotId)
         throw Error(result.reason || "没有可生成审查记录的改动");
-      if (navigation === this.navigation)
+      if (navigation === this.navigation) {
         await this.open(result.deliveryId!, "overview", result.snapshotId);
+        this.native.showPanel();
+      }
     } catch (error) {
       if (navigation === this.navigation)
-        this.update({ page: "list", error: errorMessage(error) });
+        this.update({ page: previousPage, error: "" });
       throw error;
     }
   }

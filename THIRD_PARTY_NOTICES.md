@@ -10,7 +10,7 @@ EvidentLoop 原创代码采用 MIT 许可，Copyright (c) 2026 sanze.li。界面
 | diff 5.1.0 | diff2html UI bundle 内 | BSD-3-Clause；上游 bundle 内未修改 |
 | hogan.js 3.0.2 | diff2html UI bundle 内 | Apache-2.0；上游 bundle 内未修改 |
 | highlight.js 11.8.0 | diff2html UI bundle 内 | BSD-3-Clause；上游 bundle 内未修改 |
-| [Material Icon Theme 5.38.1](https://github.com/material-extensions/vscode-material-icon-theme/tree/v5.38.1) | 插件与原型的文件树图标 | MIT，Copyright (c) 2025 Material Extensions；插件 SVG 未改动，原型按清单调整部分文件夹配色与嵌入属性 |
+| [Material Icon Theme 5.38.1](https://github.com/material-extensions/vscode-material-icon-theme/tree/v5.38.1) | 插件与原型的文件树图标 | MIT，Copyright (c) 2025 Material Extensions；插件与原型按清单调整部分文件夹配色，图形路径保持上游版本；原型另调整嵌入属性 |
 | [Lucide search-code](https://lucide.dev/icons/search-code) | 产品线条图标、网站标识与应用图标的图形来源 | ISC；按产品比例、描边和配色重绘 |
 | Vue 3.5.20、Splitpanes 4.0.4、marked 9.1.0 | 离线原型；marked 同时用于构建说明书 | MIT；原始本地构建 |
 | highlight.js 11.11.1 | 原型代码高亮与主题样式 | BSD-3-Clause；原始本地构建与官方主题 |

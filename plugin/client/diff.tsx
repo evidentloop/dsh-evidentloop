@@ -125,8 +125,9 @@ export function IssueCard({
           aria-expanded={!collapsed}
           onClick={() => setCollapsed(!collapsed)}
         >
-          <Icon name={collapsed ? "down" : "up"} />
+          <Icon name={collapsed ? "collapsed" : "down"} />
           <span className="el-category">
+            {issue.category === "security" && <Icon name="shield" size={12} />}
             {category[issue.category] || issue.category}
           </span>
           <span className="el-severity">
@@ -238,11 +239,12 @@ export function IssueCard({
                         setSuggestionCollapsed(!suggestionCollapsed);
                       }}
                     >
-                      <Icon name={suggestionCollapsed ? "down" : "up"} />
+                      <Icon name={suggestionCollapsed ? "collapsed" : "down"} size={12} />
                       修改建议
                     </button>
                     <div className="el-code-actions">
                       <button className="el-btn" onClick={copy}>
+                        <Icon name="copy" size={12} />
                         {copied ? "已复制" : "复制建议"}
                       </button>
                     </div>
@@ -398,7 +400,7 @@ function AnnotationCard({
       data-annotation-id={annotation.annotationId}
     >
       <header>
-        <strong>批注</strong>
+        <strong className="el-annotation-chip"><Icon name="commentPlus" size={11} />批注</strong>
         <small>{localTime(annotation.updatedAt)}</small>
         <span className="el-header-spacer" />
         <button
@@ -1146,6 +1148,7 @@ export function Diff({
             aria-pressed={showExplanation}
             onClick={onToggleExplanation}
           >
+            <Icon name={showExplanation ? "closeReport" : "report"} size={14} />
             {showExplanation ? "收起说明" : "查看说明"}
           </button>
         ) : (

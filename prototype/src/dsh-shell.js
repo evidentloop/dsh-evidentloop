@@ -213,7 +213,7 @@
           <span class="osw-setting-links"><button class="osw-text-link" type="button" @click="$emit('edit-extension')">编辑</button></span>
         </div>
         <label class="wb-setting-row"><span><b>HTML报告导出</b><small>HTML 报告默认嵌入完整 Diff</small></span><input type="checkbox" :checked="exportEmbedDiff" @change="$emit('update:exportEmbedDiff', $event.target.checked)"></label>
-        <div class="wb-menu-foot"><span>仅在演示内存保存，刷新后恢复初始设置。</span><a class="wb-menu-foot-link" href="https://evidentloop.sanze.ai/guide.html" target="_blank" rel="noopener noreferrer">使用说明 ↗</a></div>
+        <div class="wb-menu-foot"><span>仅在演示内存保存，刷新后恢复初始设置。</span><a class="wb-menu-foot-link" href="https://evidentloop.sanze.dev/guide.html" target="_blank" rel="noopener noreferrer">使用说明 ↗</a></div>
       </div>
     `,
   };

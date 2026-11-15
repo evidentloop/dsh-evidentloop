@@ -7,6 +7,7 @@ interface MenuItem {
   danger?: boolean;
   keepOpen?: boolean;
   note?: string;
+  icon?: string;
   action?: () => unknown;
 }
 interface DialogProps extends React.PropsWithChildren {
@@ -20,83 +21,199 @@ import { createPortal } from "react-dom";
 export function Icon({
   name,
   size = 16,
-  strokeWidth = 1.65,
+  strokeWidth = 1.8,
 }: {
   name: string;
   size?: number;
   strokeWidth?: number;
 }) {
+  // Geometry follows prototype P.icons, including its filled 16-unit glyphs.
   const shapes: Record<string, React.ReactNode> = {
     search: (
       <>
-        <circle cx="10" cy="10" r="6" />
-        <path d="m15 15 5 5" />
+        <circle cx="11" cy="11" r="6.5" />
+        <path d="m16 16 4.5 4.5" />
       </>
     ),
     brand: (
       <>
         <circle cx="11" cy="11" r="8" />
-        <path d="m21 21-4.3-4.3M9 8.5l-2 2.5 2 2.5m4-5 2 2.5-2 2.5" />
+        <path d="m21 21-4.3-4.3" />
+        <path d="m9 8.5-2 2.5 2 2.5M13 8.5l2 2.5-2 2.5" />
       </>
     ),
     settings: (
       <>
-        <path d="m9 3-1 3-3 1-2 4 2 2-1 4 4 2 3-1 3 3 4-2v-4l3-2-1-4-3-1-1-4z" />
-        <circle cx="12" cy="12" r="3" />
+        <circle cx="12" cy="12" r="2.8" />
+        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.08a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.08a1.7 1.7 0 0 0 1.56-1.1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.08a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.08a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.08a1.7 1.7 0 0 0-1.52 1z" />
       </>
     ),
     more: (
       <>
-        <circle cx="5" cy="12" r=".8" />
-        <circle cx="12" cy="12" r=".8" />
-        <circle cx="19" cy="12" r=".8" />
+        <circle cx="5.5" cy="12" r="1.2" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
+        <circle cx="18.5" cy="12" r="1.2" fill="currentColor" stroke="none" />
       </>
     ),
-    chevronLeft: <path d="m15 6-6 6 6 6" />,
-    chevronRight: <path d="m9 6 6 6-6 6" />,
-    down: <path d="m6 9 6 6 6-6" />,
-    up: <path d="m6 15 6-6 6 6" />,
-    pin: <path d="M4 4h16M12 21V8m-6 6 6-6 6 6" />,
-    next: <path d="M12 3v18m-7-7 7 7 7-7" />,
-    grid: <path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z" />,
-    list: <path d="M4 6h16M4 12h16M4 18h16" />,
-    tree: <path d="M5 3v13h14M5 8h14M12 5v6m0 2v6" />,
+    chevronLeft: (
+      <>
+        <path fillRule="evenodd" clipRule="evenodd" d="M10.78 2.22a.75.75 0 00-1.06 0L4.468 7.472a.75.75 0 000 1.06l5.252 5.252a.75.75 0 101.06-1.06L6.06 8.001l4.72-4.721a.75.75 0 000-1.06z" />
+      </>
+    ),
+    chevronRight: (
+      <>
+        <path fillRule="evenodd" clipRule="evenodd" d="M5.22 2.22a.75.75 0 011.06 0l5.252 5.252a.75.75 0 010 1.06L6.28 13.784a.75.75 0 11-1.06-1.06l4.72-4.723L5.22 3.28a.75.75 0 010-1.06z" />
+      </>
+    ),
+    down: (
+      <>
+        <polyline points="6 9 12 15 18 9" />
+      </>
+    ),
+    up: (
+      <>
+        <g transform="rotate(180 12 12)"><polyline points="6 9 12 15 18 9" />
+        </g>
+      </>
+    ),
+    collapsed: (
+      <>
+        <g transform="rotate(-90 12 12)"><polyline points="6 9 12 15 18 9" />
+        </g>
+      </>
+    ),
+    pin: (
+      <>
+        <path d="M5 4h14M12 20V8M7 13l5-5 5 5" />
+      </>
+    ),
+    next: (
+      <>
+        <path d="M12 4v16M6 14l6 6 6-6" />
+      </>
+    ),
+    grid: (
+      <>
+        <rect x="4" y="4" width="6" height="6" rx="1" />
+        <rect x="14" y="4" width="6" height="6" rx="1" />
+        <rect x="4" y="14" width="6" height="6" rx="1" />
+        <rect x="14" y="14" width="6" height="6" rx="1" />
+      </>
+    ),
+    list: (
+      <>
+        <path d="M8 5h12M8 12h12M8 19h12M4 5h.01M4 12h.01M4 19h.01" />
+      </>
+    ),
+    tree: (
+      <>
+        <path fillRule="evenodd" clipRule="evenodd" d="M2.5 1.75a.75.75 0 00-1.5 0v8.5a3 3 0 003 3h3V14a1 1 0 001 1h6a1 1 0 001-1v-3a1 1 0 00-1-1H8a1 1 0 00-1 1v.75H4a1.5 1.5 0 01-1.5-1.5V6.849c.441.255.954.401 1.5.401h3V8a1 1 0 001 1h6a1 1 0 001-1V5a1 1 0 00-1-1H8a1 1 0 00-1 1v.75H4a1.5 1.5 0 01-1.5-1.5v-2.5zm11 11.75h-5v-2h5v2zm-5-6v-2h5v2h-5z" />
+      </>
+    ),
     split: (
       <>
-        <rect x="3" y="4" width="18" height="16" rx="2" />
-        <path d="M12 4v16" />
+        <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+        <path d="M12 4.5v15" />
       </>
     ),
-    comment: <path d="M4 4h16v12H9l-5 4z" />,
+    single: (
+      <>
+        <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+      </>
+    ),
+    comment: (
+      <>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </>
+    ),
+    commentPlus: (
+      <>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        <path d="M12 8v6" />
+        <path d="M9 11h6" />
+      </>
+    ),
+    chat: (
+      <>
+        <path d="M4 5h16v11H9l-5 4z" />
+      </>
+    ),
     ask: (
       <>
-        <path d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" />
+        <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z" />
+        <path d="M19 4v4" />
+        <path d="M22 5h-4" />
       </>
     ),
     minus: (
       <>
         <circle cx="12" cy="12" r="9" />
-        <path d="M7 12h10" />
+        <line x1="8" y1="12" x2="16" y2="12" />
       </>
     ),
     copy: (
       <>
-        <path d="M8 8h13v13H8zM16 8V3H3v13h5" />
+        <path fill="currentColor" d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3V2a1 1 0 0 1 1-1h8ZM10 6H2v8h8V6ZM9 11v1H3v-1h6Zm5-9H6v3h4a1 1 0 0 1 1 1v4h3V2ZM9 8v1H3V8h6Z" />
       </>
     ),
-    download: <path d="M12 3v12m-5-5 5 5 5-5M4 18v3h16v-3" />,
-    back: <path d="m14 4-8 8 8 8" />,
-    close: <path d="m5 5 14 14M19 5 5 19" />,
-    folder: <path d="M3 6h7l2 3h9v12H3z" />,
-    check: <path d="m4 12 5 5L20 6" />,
+    download: (
+      <>
+        <path d="M12 4v11" />
+        <path d="m8 11 4 4 4-4" />
+        <path d="M5 20h14" />
+      </>
+    ),
+    back: (
+      <>
+        <path d="M15 5l-7 7 7 7" />
+      </>
+    ),
+    close: (
+      <>
+        <path d="M6 6l12 12M18 6 6 18" />
+      </>
+    ),
+    folder: (
+      <>
+        <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      </>
+    ),
+    check: (
+      <>
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="m8 12 2.7 2.7L16 9.5" />
+      </>
+    ),
+    arrowRight: <path d="M4 12h16M14 6l6 6-6 6" />,
+    closeReport: <path d="M20 12H4M14 18l6-6-6-6" />,
+    report: (
+      <>
+        <path d="M4 19h16M4 5h16" />
+        <rect x="8" y="9" width="8" height="6" rx="1" />
+      </>
+    ),
+    shield: (
+      <>
+        <path d="M12 3.5 19 6v5.2c0 4.1-2.7 7.8-7 9.3-4.3-1.5-7-5.2-7-9.3V6z" />
+        <path d="m9.2 12 2 2 3.6-3.8" />
+      </>
+    ),
+    treeCheck: (
+      <>
+        <circle cx="8" cy="8" r="6.5"  />
+        <path d="m4.5 8 2.3 2.3 4.7-4.6" />
+      </>
+    ),
   };
+  const filled = ["tree", "chevronLeft", "chevronRight", "copy"].includes(name);
+  const compactViewBox = filled || name === "treeCheck";
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
+      viewBox={compactViewBox ? "0 0 16 16" : "0 0 24 24"}
+      fill={filled ? "currentColor" : "none"}
+      stroke={filled ? "none" : "currentColor"}
       strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -138,7 +255,6 @@ export function IconButton({
           size={
             size === "sm" || size === "tree" ? 14 : size === "toolbar" ? 18 : 16
           }
-          strokeWidth={size === "toolbar" ? 1.8 : 1.65}
         />
       )}
       {children}
@@ -323,11 +439,7 @@ export function Menu({
         }}
       >
         {children || (
-          <Icon
-            name={icon}
-            size={size === "toolbar" ? 18 : 16}
-            strokeWidth={size === "toolbar" ? 1.8 : 1.65}
-          />
+          <Icon name={icon} size={size === "toolbar" ? 18 : 16} />
         )}
         {children && <Icon name={open ? "up" : "down"} />}
       </button>
@@ -342,16 +454,19 @@ export function Menu({
               onKeyDown={keyboard}
             >
               {search && (
-                <input
-                  aria-label={search.label}
-                  placeholder={search.label}
-                  value={search.value}
-                  onChange={(e) => search.onChange(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (!["ArrowDown", "ArrowUp", "Escape"].includes(e.key))
-                      e.stopPropagation();
-                  }}
-                />
+                <label className="el-search el-menu-search">
+                  <Icon name="search" size={14} />
+                  <input
+                    aria-label={search.label}
+                    placeholder={search.label}
+                    value={search.value}
+                    onChange={(e) => search.onChange(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (!["ArrowDown", "ArrowUp", "Escape"].includes(e.key))
+                        e.stopPropagation();
+                    }}
+                  />
+                </label>
               )}
               {items.map((item, i) =>
                 item.separator ? (
@@ -375,7 +490,10 @@ export function Menu({
                       item.action?.();
                     }}
                   >
-                    <span>{item.label}</span>
+                    <span className="el-menu-item-label">
+                      {item.icon && <Icon name={item.icon} />}
+                      {item.label}
+                    </span>
                     {item.selected && <Icon name="check" />}
                     {item.note && <small>{item.note}</small>}
                   </button>
@@ -385,7 +503,7 @@ export function Menu({
           </div>,
           document.body,
         )}
-    </>
+   </>
   );
 }
 export function Dialog({

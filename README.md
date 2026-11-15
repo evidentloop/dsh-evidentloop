@@ -7,7 +7,7 @@
   <a href="https://github.com/deepseek-ai/deepseek-harness"><img src="https://img.shields.io/badge/platform-DSH%20%E2%89%A50.2.2-purple.svg?style=flat-square" alt="DeepSeek Harness 0.2.2 及以上；具体兼容范围见安装指南"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="MIT 许可证"></a>
   <a href="package.json"><img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg?style=flat-square" alt="Node.js 20 及以上"></a>
-  <a href="https://evidentloop.sanze.ai/demo.html"><img src="https://img.shields.io/badge/live-demo-orange.svg?style=flat-square" alt="查看在线演示"></a>
+  <a href="https://evidentloop.sanze.dev/demo.html"><img src="https://img.shields.io/badge/live-demo-orange.svg?style=flat-square" alt="查看在线演示"></a>
 </p>
 
 <p align="center">
@@ -19,7 +19,7 @@
 
 <p align="center">单栏看代码，点问题看证据；AI 的判断由你复核。</p>
 
-**[查看演示](https://evidentloop.sanze.ai/demo.html)** · **[安装指南](#安装指南)** · **[快速开始](#快速开始)** · **[功能图解](#核心功能图解)** · **[完整说明书](https://evidentloop.sanze.ai/guide.html)**
+**[查看演示](https://evidentloop.sanze.dev/demo.html)** · **[安装指南](#安装指南)** · **[快速开始](#快速开始)** · **[功能图解](#核心功能图解)** · **[完整说明书](https://evidentloop.sanze.dev/guide.html)**
 
 > [!NOTE]
 > 当前版本为 **0.1.0-rc.1（Beta）**。审查需手动点击「审查全部」或对单个文件发起审查，自动审查将在后续版本支持。截图与录屏来自公开项目 Sopify 的真实历史审查记录快照，共 34 个变更文件：已实际审查 1 个，24 个待审，9 个按规则跳过。图中的批注与「标记非问题」为功能演示操作，不代表整批代码已全部审查完成。
@@ -44,14 +44,14 @@ AI 一次改了十几个文件，只有 Diff 还不够：这批改动做了什�
 
 **44 秒看完整操作：交付列表 → 变更说明 → 单栏 Diff → 标记非问题 → 导出 → 发回会话。** 点击下方缩略图打开视频播放页。GitHub README 使用缩略图与链接；播放页支持内嵌播放。
 
-<a href="https://evidentloop.sanze.ai/demo.html">
+<a href="https://evidentloop.sanze.dev/demo.html">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/site/assets/deliveries-dark.png">
     <img src="docs/site/assets/deliveries-light.png" alt="点击观看 44 秒工作流录屏，从交付列表进入评审台" width="100%">
   </picture>
 </a>
 
-[打开视频播放页](https://evidentloop.sanze.ai/demo.html) · [MP4 原文件](docs/site/assets/workflow.mp4) · [WebM 备用](docs/site/assets/workflow.webm)
+[打开视频播放页](https://evidentloop.sanze.dev/demo.html) · [MP4 原文件](docs/site/assets/workflow.mp4) · [WebM 备用](docs/site/assets/workflow.webm)
 
 ## 安装指南
 
@@ -59,7 +59,7 @@ AI 一次改了十几个文件，只有 Diff 还不够：这批改动做了什�
 
 ### 1. 从 GitHub Release 下载
 
-前往 [GitHub Releases](https://github.com/evidentloop/dsh-evidentloop/releases)，在 **0.1.0-rc.1** 的 Assets 中下载 `dsh-evidentloop-0.1.0-rc.1.tgz`。当前为 Beta，Release 及附件尚待发布；附件出现前可按文末的 [开发与贡献](#开发与贡献) 步骤生成同名离线包，或先打开 [在线演示](https://evidentloop.sanze.ai/demo.html)。
+前往 [GitHub Releases](https://github.com/evidentloop/dsh-evidentloop/releases)，在 **0.1.0-rc.1** 的 Assets 中下载 `dsh-evidentloop-0.1.0-rc.1.tgz`。当前为 Beta，Release 及附件尚待发布；附件出现前可按文末的 [开发与贡献](#开发与贡献) 步骤生成同名离线包，或先打开 [在线演示](https://evidentloop.sanze.dev/demo.html)。
 
 ### 2. 在 DSH 安装离线包
 
@@ -156,7 +156,7 @@ https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/i
 - **复用宿主模型**：直接调用你在 DSH 中已配置的模型执行审查，相关代码与需求均按 DSH 既有模型通道处理。插件不接入额外遥测、外部收集或上报服务；模型服务的数据处理方式取决于你的 DSH 配置。
 - **导出前遮盖疑似密钥**：报告仍可能含代码片段和需求原文，分享前请检查内容。
 
-当前按工作树与目标分支的差异审查，不按单个提交（commit）审查；暂不支持 Git 的 `split index` 特性，浅克隆（shallow clone）仓库需先补全历史。更多操作与限制见 [在线说明书](https://evidentloop.sanze.ai/guide.html) 或仓内 [docs/guide.md](docs/guide.md)。
+当前按工作树与目标分支的差异审查，不按单个提交（commit）审查；暂不支持 Git 的 `split index` 特性，浅克隆（shallow clone）仓库需先补全历史。更多操作与限制见 [在线说明书](https://evidentloop.sanze.dev/guide.html) 或仓内 [docs/guide.md](docs/guide.md)。
 
 ## 开发与贡献
 

@@ -1,6 +1,6 @@
 import { deferred } from '../../core/tests/helpers.mjs';
 /** Synthetic public-host shape. Never imported by production entries. */
-export function fakeHost({ repo, mode = 'complete', response = { ok: true } } = {}) {
+export function fakeHost({ repo, mode = 'complete', response = { ok: true }, responseText } = {}) {
   const listeners = new Set(), handles = new Map(), calls = { create: [], prompts: [], cancel: [], titles: [], flushed: [], disposed: [], steps: [] }, routes = new Map();
   const workspaces = [{ id: 'w1', title: 'Fixture repository', path: repo.root, sessionIds: ['dev'] }, { id: 'w2', title: 'Same repo', path: repo.root, sessionIds: ['dev'] }];
   const selection = { provider: 'fixture-offline', model: 'synthetic', reasoningEffort: 'high' };
@@ -24,7 +24,7 @@ export function fakeHost({ repo, mode = 'complete', response = { ok: true } } = 
         emit(h.agent.session, { type: 'request/context', data: { ...selection, contextWindow: 1000000 } });
         if (mode === 'wait') return;
         if (mode === 'transport') { h.stream({ frame: { type: 'chunk', chunk: { type: 'finish', reason: { kind: 'error', failure: { code: 'TRANSPORT' } } } } }); return; }
-        emit(h.agent.session, { type: 'assistant/message', data: { message: { content: [{ type: 'text', text: mode === 'invalid-json' ? 'not JSON' : JSON.stringify(response) }] } } });
+        emit(h.agent.session, { type: 'assistant/message', data: { message: { content: [{ type: 'text', text: mode === 'invalid-json' ? 'not JSON' : responseText ?? JSON.stringify(response) }] } } });
         emit(h.agent.session, { type: 'turn/end', data: { reason: { kind: 'completed' } } }); h.done.resolve();
       }
     },

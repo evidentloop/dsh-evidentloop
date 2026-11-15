@@ -1,3 +1,4 @@
+import { UNBORN_HEAD_MESSAGE } from "../shared/contracts.ts";
 import type { ClientRuntime } from "./runtime.ts";
 import type { Settings as WorkspaceSettings } from "../shared/contracts.ts";
 interface SettingsDialog {
@@ -35,6 +36,12 @@ export function Panel({ runtime }: { runtime: ClientRuntime }) {
           ).length > 1,
       });
   };
+  const gateBadge = data?.modelTestGate && !data.modelTestGate.approved && !state.modelNoticeDismissed ? (
+    <span className="el-model-badge" title="未开启真实模型调用。当前可查看代码与已有审查记录；详情见工作区设置。">
+      演示模式
+      <IconButton label="关闭演示模式提示" icon="close" size="sm" onClick={() => runtime.update({modelNoticeDismissed:true})} />
+    </span>
+  ) : null;
   return (
     <main
       className="el-plugin"
@@ -44,6 +51,7 @@ export function Panel({ runtime }: { runtime: ClientRuntime }) {
       {state.page === "list" && (
         <header className="el-page-header">
           <h1 title="AI 变更评审 · EvidentLoop">变更评审</h1>
+          {gateBadge}
           {data && <WorkspacePicker runtime={runtime} state={state} />}
           <span className="el-header-spacer" />
           <label className="el-search">
@@ -66,7 +74,7 @@ export function Panel({ runtime }: { runtime: ClientRuntime }) {
         </header>
       )}
       {state.error && (
-        <div role="alert" className="el-error">
+        <div role={state.error === UNBORN_HEAD_MESSAGE ? "status" : "alert"} className={state.error === UNBORN_HEAD_MESSAGE ? "el-notice" : "el-error"}>
           {state.error}
           <button className="el-btn" onClick={() => runtime.refresh()}>
             重新加载
@@ -90,11 +98,6 @@ export function Panel({ runtime }: { runtime: ClientRuntime }) {
           </button>
         </div>
       )}
-      {data?.modelTestGate && !data.modelTestGate.approved && (
-        <p className="el-test-gate">
-          演示模式：未开启真实模型调用。当前可查看代码与已有审查记录。
-        </p>
-      )}
       {state.loading ? (
         <p role="status">正在读取工作区…</p>
       ) : !data ? (
@@ -104,7 +107,7 @@ export function Panel({ runtime }: { runtime: ClientRuntime }) {
           正在冻结审查输入，不调用模型…
         </section>
       ) : state.page === "review" && state.record ? (
-        <Review runtime={runtime} state={state} openSettings={openSettings} />
+        <Review runtime={runtime} state={state} openSettings={openSettings} gateBadge={gateBadge} />
       ) : (
         <DeliveryList runtime={runtime} state={state} />
       )}

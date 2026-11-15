@@ -1,6 +1,6 @@
 import type { ClientContext } from "./context.ts";
 import type { SessionContext } from "../shared/contracts.ts";
-import { errorMessage } from "../shared/contracts.ts";
+import { errorMessage, UNBORN_HEAD_MESSAGE } from "../shared/contracts.ts";
 import React from "react";
 import { Panel } from "./app.tsx";
 import { NativeClient } from "./native.ts";
@@ -55,7 +55,7 @@ export function apply(ctx: ClientContext) {
     diffCss.remove();
   });
 }
-function DeliveryTail({
+export function DeliveryTail({
   runtime,
   sessionId,
 }: {
@@ -81,30 +81,35 @@ function DeliveryTail({
     };
   }, [sessionId]);
   if (!context?.available) return null;
+  const open = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await runtime.openFromSession(sessionId);
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
-    <section className="el-plugin el-tail-card">
-      <Icon name="brand" size={24} />
-      <div>
-        <p>{context.statusText}</p>
-        <small>审查当前工作区的累计改动</small>
-        {error && <p role="alert">{error}</p>}
-      </div>
+    <section className="el-plugin el-tail-card" aria-label="交付区卡片">
+      <button className="el-tail-main" aria-label="打开评审台" disabled={busy} onClick={open}>
+        <span className="el-tail-icon"><Icon name="brand" size={18} /></span>
+        <span className="el-tail-info">
+          <span className="el-tail-status"><i aria-hidden="true" />{context.statusText}</span>
+          <span className="el-tail-sub">审查当前工作区的累计改动</span>
+        </span>
+      </button>
       <button
         className="el-primary"
         disabled={busy}
-        onClick={async () => {
-          setBusy(true);
-          try {
-            await runtime.openFromSession(sessionId);
-          } catch (e) {
-            setError(errorMessage(e));
-          } finally {
-            setBusy(false);
-          }
-        }}
+        onClick={open}
       >
         {busy ? "正在冻结" : "审查本次变更"}
+        <Icon name="arrowRight" size={14} />
       </button>
+      {error && <p className={error === UNBORN_HEAD_MESSAGE ? "el-tail-notice" : "el-tail-error"} role={error === UNBORN_HEAD_MESSAGE ? "status" : "alert"}>{error}</p>}
     </section>
   );
 }

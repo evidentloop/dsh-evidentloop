@@ -2785,7 +2785,7 @@
             </div>
             <div v-else class="delivery-list">
               <div v-if="listEmptyMode" class="delivery-empty">
-                <template v-if="listEmptyMode==='workspace'">当前工作区还没有交付。<a class="delivery-empty-link" href="https://evidentloop.sanze.ai/guide.html" target="_blank" rel="noopener noreferrer">了解怎么用 ↗</a></template><template v-else-if="listEmptyMode==='search'">没有匹配的交付</template><template v-else-if="listEmptyMode==='filter'">当前范围没有有问题的交付</template><template v-else>当前范围没有交付</template>
+                <template v-if="listEmptyMode==='workspace'">当前工作区还没有交付。<a class="delivery-empty-link" href="https://evidentloop.sanze.dev/guide.html" target="_blank" rel="noopener noreferrer">了解怎么用 ↗</a></template><template v-else-if="listEmptyMode==='search'">没有匹配的交付</template><template v-else-if="listEmptyMode==='filter'">当前范围没有有问题的交付</template><template v-else>当前范围没有交付</template>
                 <button v-if="deliverySearch.trim() || listProblemOnly" class="wb-link list-clear" type="button" @click="clearListConstraints">清空搜索与筛选</button>
               </div>
               <div v-if="visibleDeliveryRows.length" :class="{'delivery-archive':archiveExpanded}">

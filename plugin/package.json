@@ -56,5 +56,6 @@
     "node": ">=20",
     "dsh": "^0.2.2-rc.2"
   },
-  "icon": "./icon.svg"
+  "icon": "./icon.svg",
+  "homepage": "https://evidentloop.sanze.dev"
 }

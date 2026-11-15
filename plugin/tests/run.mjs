@@ -6,11 +6,16 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { fixture, bundle, until, syntheticModel } from '../../core/tests/helpers.mjs';
+import { validate } from '../../core/validate.mjs';
+import { modelFor } from '../../core/fixtures/model.mjs';
+import { badCases } from '../../core/fixtures/cases.mjs';
+import { errorMessage, UNBORN_HEAD_MESSAGE } from '../shared/contracts.ts';
 import { freezeMethod } from '../../core/lib/method.mjs';
 import { loadBundle, projectFor, SyntheticAdapter } from '../../core/index.mjs';
 import { ClientBridge } from '../host/bridge.ts';
-import { DshAdapter, reviewPrompt } from '../host/dsh-adapter.ts';
+import { DshAdapter, reviewPrompt, parseReviewResponse } from '../host/dsh-adapter.ts';
 import { PluginService } from '../host/service.ts';
+import { ClientRuntime } from '../client/runtime.ts';
 import { NativeClient } from '../client/native.ts';
 import { fakeHost, nativeFixture } from './fakes.mjs';
 import { installed } from '../scripts/toolchain.mjs';
@@ -50,6 +55,40 @@ await test('invalid context budget is rejected before agent creation', async () 
 await test('context mismatch fails before model creation or budget claim', async () => { const h = adapterFor('mismatched-context'); h.approve({ contextWindow: 1000000 }); h.ctx.llm.resolveModelInfo = async () => ({ context: { contextWindow: 1048576 } }); await assert.rejects(h.adapter.review(request, { signal: new AbortController().signal }), /上下文/); assert.equal(h.calls.create.length, 0); assert.equal(h.calls.prompts.length, 0); assert.equal(JSON.parse(fs.readFileSync(h.adapter.approvalFile)).used || 0, 0); });
 await test('review session registry excludes its own turn from development', async () => { const h = adapterFor('registry'); h.approve(); await h.adapter.review(request, { signal: new AbortController().signal }); const id = h.calls.create[0].sessionId; h.rows.push({ sessionId: id, cwd: bundleRoot }); assert.equal((await h.adapter.session(id)).kind, 'review'); assert.equal((await h.adapter.session(id)).projectKey, key); });
 await test('invalid JSON remains byte-for-byte raw instead of repaired fixture', async () => { const h = adapterFor('bad-json', { mode: 'invalid-json' }); h.approve(); await assert.rejects(h.adapter.review(request, { signal: new AbortController().signal }), /合法JSON/); assert.equal(fs.readFileSync(path.join(h.adapter.root, 'model-output/run-fixture.raw.txt'), 'utf8'), 'not JSON'); assert.equal(h.calls.disposed.length, 1); });
+await test('review response accepts old JSON and exactly one presentation envelope', () => {
+  const value = { note: 'Literal ``` inside JSON stays intact', items: [1, 2] }, raw = JSON.stringify(value);
+  for (const text of [raw, '\uFEFF  ' + raw, '```json\n' + raw + '\n```', '审查了 2 个文件，发现 1 个问题。\n\n```json\n' + raw + '\n```', '摘要。\r\n\r\n```json\r\n' + raw + '\r\n```']) assert.deepEqual(parseReviewResponse(text), value);
+});
+await test('review envelope rejects ambiguous, malformed and unfinished output without repair', () => {
+  for (const raw of ['说明 {"ok":true}', '```json\n{"ok":true}', '```json\n{"ok":true}\n```\ntrailing', '```json\n{}\n```\n```json\n{}\n```', '```js\n{}\n```', 'x'.repeat(501) + '\n```json\n{}\n```', 'a\nb\nc\nd\n```json\n{}\n```', '```json\n{invalid}\n```']) assert.throws(() => parseReviewResponse(raw), /合法JSON/);
+});
+await test('fenced native review preserves the original response and spends only one synthetic call', async () => {
+  const raw = '检查了冻结改动，结果见结构化数据。\n\n```json\n{"ok":true}\n```', h = adapterFor('fenced-json', { responseText: raw }); h.approve();
+  assert.deepEqual(await h.adapter.review(request, { signal: new AbortController().signal }), { ok: true });
+  assert.equal(fs.readFileSync(path.join(h.adapter.root, 'model-output/run-fixture.raw.txt'), 'utf8'), raw); assert.equal(h.calls.prompts.length, 1); assert.equal(h.calls.disposed.length, 1);
+});
+await test('presentation envelopes preserve every existing four-layer rejection and withholding result', () => {
+  const models = [modelFor(bundleRoot), ...badCases.map(([, mutate]) => { const m = modelFor(bundleRoot); mutate(m); return m; })];
+  for (const model of models) {
+    const raw = JSON.stringify(model), direct = validate(bundleRoot, JSON.parse(raw), {runId:'same'}), fenced = validate(bundleRoot, parseReviewResponse('摘要只供阅读。\n\n```json\n'+raw+'\n```'), {runId:'same'});
+    assert.deepEqual(fenced, direct);
+  }
+});
+await test('unborn preparation errors are friendly in the shared host and UI formatter', () => {
+  const e = Object.assign(new Error('raw diagnostics'), {code:'unborn-head'}); assert.equal(errorMessage(e), UNBORN_HEAD_MESSAGE);
+  assert.equal(errorMessage(new Error("Read-only git rev-parse failed: fatal: ambiguous argument 'HEAD': unknown revision")), UNBORN_HEAD_MESSAGE);
+  assert.equal(errorMessage(new Error('An unrelated filesystem failure')), 'An unrelated filesystem failure');
+});
+await test('conversation capture failure stays in the conversation; success reveals only the ready review panel', async () => {
+  let shown = 0, opened = null; const runtime = new ClientRuntime({showPanel:()=>shown++});
+  runtime.api = async()=>({available:true,workspaceId:'w1',sessionId:'dev'});
+  runtime.run = async()=>({status:'incomplete',code:'unborn-head',reason:UNBORN_HEAD_MESSAGE});
+  await assert.rejects(runtime.openFromSession('dev'), e=>e.message===UNBORN_HEAD_MESSAGE);
+  assert.equal(shown,0); assert.equal(runtime.state.page,'list'); assert.equal(runtime.state.error,'');
+  runtime.run = async()=>({status:'pending',deliveryId:'delivery',snapshotId:'snapshot'});
+  runtime.open = async (...args)=>{assert.equal(shown,0);opened=args;};
+  await runtime.openFromSession('dev'); assert.equal(shown,1); assert.deepEqual(opened,['delivery','overview','snapshot']);
+});
 await test('transport failure cancels without automatic extra requests', async () => { const h = adapterFor('transport', { mode: 'transport' }); h.approve(); await assert.rejects(h.adapter.review(request, { signal: new AbortController().signal }), /TRANSPORT/); assert.equal(h.calls.prompts.length, 1); assert.equal(h.calls.cancel.length, 1); assert.equal(h.calls.disposed.length, 1); });
 await test('abort waits for native cancellation then disposes its session lease', async () => { const h = adapterFor('cancel', { mode: 'wait' }); h.approve(); const c = new AbortController(), p = h.adapter.review(request, { signal: c.signal }); p.catch(() => {}); await until(() => h.calls.prompts.length); c.abort(); await assert.rejects(p, /abort/i); assert.equal(h.calls.cancel.length, 1); assert.equal(h.calls.disposed.length, 1); assert.equal(h.adapter.active.size, 0); });
 await test('frozen review prompt injects all nine exact method modules and actual target files', () => { const prompt = reviewPrompt(request); for (const m of request.modules.filter(m => !m.path.startsWith('bundle/'))) { assert.ok(prompt.includes(m.text)); assert.ok(prompt.includes(m.sha256)); } for (const target of input.targets) assert.ok(prompt.includes('--- BUNDLE head/' + target + ' ---')); assert.ok(!prompt.includes('Existing handwritten draft')); });

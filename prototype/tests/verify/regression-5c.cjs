@@ -1035,7 +1035,7 @@ module.exports = {
       });
       check('settings offer the usage guide without adding a toolbar button',
         guideSettings.count === 1 && guideSettings.text === '使用说明 ↗' &&
-        guideSettings.href === 'https://evidentloop.sanze.ai/guide.html' && !guideSettings.href.includes('?') &&
+        guideSettings.href === 'https://evidentloop.sanze.dev/guide.html' && !guideSettings.href.includes('?') &&
         guideSettings.target === '_blank' && guideSettings.toolbarLinks === 0);
       await page.keyboard.press('Escape');
       await open({ scenario: 'list-empty' });
@@ -1046,7 +1046,7 @@ module.exports = {
       });
       check('an empty workspace explains how to start and links the guide',
         emptyGuide.text.includes('当前工作区还没有交付。') && emptyGuide.text.includes('了解怎么用 ↗') &&
-        emptyGuide.href === 'https://evidentloop.sanze.ai/guide.html' && !emptyGuide.href.includes('?') && emptyGuide.target === '_blank');
+        emptyGuide.href === 'https://evidentloop.sanze.dev/guide.html' && !emptyGuide.href.includes('?') && emptyGuide.target === '_blank');
 
       await open({ scenario: 'list' });
       await page.locator('input[aria-label="搜索交付"]').fill('zzzz-no-such-delivery');

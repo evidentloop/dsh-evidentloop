@@ -32,10 +32,12 @@ export function Review({
   runtime,
   state,
   openSettings,
+  gateBadge,
 }: {
   runtime: ClientRuntime;
   state: RuntimeState;
   openSettings: React.MouseEventHandler<HTMLButtonElement>;
+  gateBadge?: React.ReactNode;
 }) {
   const r = state.record!,
     files = r.snapshot.files,
@@ -207,6 +209,7 @@ export function Review({
             </Menu>
           </p>
         </div>
+        {gateBadge}
         <span className="el-header-spacer" />
       </div>
       {r.readOnly && (
@@ -355,7 +358,7 @@ export function Review({
         >
           <IconButton
             label={split ? "切换为单栏" : "切换为双栏"}
-            icon="split"
+            icon={split ? "single" : "split"}
             size="toolbar"
             tabIndex={state.view === "diff" ? 0 : -1}
             onClick={() => setSplit(!split)}
@@ -713,7 +716,6 @@ function FileTree({
                   })
                 }
               >
-                <Icon name={closed ? "down" : "up"} size={12} />
                 {icon(folder + (closed ? "" : "-open"))}
                 <Clip>{name}</Clip>
               </button>
@@ -742,7 +744,7 @@ function FileTree({
           {risk.has(file.path) ? (
             <span className="el-risk-dot" aria-label="有有效问题" />
           ) : reviewed.includes(file.path) ? (
-            <Icon name="check" size={14} />
+            <Icon name="treeCheck" size={14} strokeWidth={1.5} />
           ) : null}
         </button>
       ))}

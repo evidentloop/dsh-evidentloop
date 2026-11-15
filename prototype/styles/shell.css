@@ -1699,3 +1699,15 @@ body {
 .annotation-editor__count.is-over { color: var(--el-state-error); }
 .annotation-editor__save:disabled { opacity: .5; cursor: not-allowed; }
 .annotation-anchor-cell:focus-within .annotation-add-btn { opacity: 1; }
+
+/* Native DSH page rhythm; retain the review product's 1280px width. */
+.dsh-list-view { --page-gutter: clamp(24px, 4vw, 48px); }
+.dsh-list-view .list-header { max-width: 1280px; margin-inline: auto; padding: 76px var(--page-gutter) 24px; border-bottom: 0; background: transparent; box-sizing: border-box; }
+.dsh-list-view .list-rail { padding: 0 var(--page-gutter) 24px; box-sizing: border-box; }
+.dsh-list-view .delivery-list { padding: 0 var(--page-gutter) 48px; box-sizing: border-box; }
+.dsh-workbench { width: 100%; max-width: 1280px; margin-inline: auto; padding: 24px clamp(16px, 4vw, 48px) 48px; box-sizing: border-box; }
+@media (max-width: 720px) { .dsh-list-view { --page-gutter: 16px; } .dsh-list-view .list-header { padding-top: 40px; } .dsh-workbench { padding: 16px 12px 24px; } }
+
+/* Native title typography and primary action color. */
+.list-heading h1 { font-weight: 500; line-height: 28px; font-family: -apple-system, system-ui, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.dsh-delivery-icon, .dsh-primary-btn, .dsh-primary-btn:hover, .dsh-primary-btn:active { color: var(--el-brand); }

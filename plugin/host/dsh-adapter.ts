@@ -27,6 +27,30 @@ const textOf = (event: KnownEvent<"assistant/message">) =>
     .filter((b) => b.type === "text")
     .map((b) => b.text)
     .join("");
+// Presentation is removed only at this transport boundary; core validates the same JSON value.
+export function parseReviewResponse(raw: string): unknown {
+  const text = raw.trim();
+  try {
+    return JSON.parse(text);
+  } catch {
+    const envelope = text.replace(/\r\n/g, "\n").match(
+      /^([\s\S]*?)```json[ \t]*\n([\s\S]*)\n```[ \t]*$/i,
+    );
+    const summary = envelope?.[1].trim() || "";
+    if (
+      !envelope ||
+      (envelope[1] && !envelope[1].endsWith("\n")) ||
+      summary.includes("`") ||
+      Array.from(summary).length > 500 ||
+      summary.split("\n").length > 3
+    ) throw Error("模型未返回单个合法JSON，原始文本已保留");
+    try {
+      return JSON.parse(envelope[2]);
+    } catch {
+      throw Error("模型未返回单个合法JSON，原始文本已保留");
+    }
+  }
+}
 export class DshAdapter implements Adapter {
   ctx: HostContext;
   root: string;
@@ -364,7 +388,7 @@ export class DshAdapter implements Adapter {
               (failureCode || end?.data.reason.kind || "missing terminal"),
           );
         try {
-          return JSON.parse(raw.trim());
+          return parseReviewResponse(raw);
         } catch {
           throw Error("模型未返回单个合法JSON，原始文本已保留");
         }
@@ -386,7 +410,7 @@ export class DshAdapter implements Adapter {
 }
 export function reviewPrompt(request: ReviewRequest) {
   const parts = [
-    "按下列冻结方法审查，只读此审查包，不读实时工作区、不运行命令、不修改任何文件。输出中文单个JSON，严格符合schema；不加basis/findingId/证据sha等host字段。",
+    "按下列冻结方法审查，只读此审查包，不读实时工作区、不运行命令、不修改任何文件。先用中文1–2句话概述审查范围、问题数与未完成项，再给出唯一一个json fenced代码块，块内是严格符合schema的单个JSON对象；结尾不附加文字，不加basis/findingId/证据sha等host字段。",
     "必须返回全部targets的逐文件说明和全局features/impacts/alignment；问题只审查reviewPaths，carriedPaths由host复制，不能替代全局说明。",
     JSON.stringify({
       inputSha: request.snapshot.inputSha,

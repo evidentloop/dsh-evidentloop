@@ -9,7 +9,13 @@ function eventIs(event, type) {
 }
 
 // plugin/shared/contracts.ts
-var errorMessage = (error) => error instanceof Error ? error.message : String(error);
+var UNBORN_HEAD_MESSAGE = "\u5F53\u524D\u4ED3\u5E93\u8FD8\u6CA1\u6709\u63D0\u4EA4\u3002\u4EA7\u751F\u9996\u4E2A\u63D0\u4EA4\u540E\uFF0C\u5373\u53EF\u5BA1\u67E5\u53D8\u66F4\u3002";
+var errorMessage = (error) => {
+  const message = error instanceof Error ? error.message : String(error);
+  const code = error && typeof error === "object" && "code" in error ? error.code : "";
+  if (code === "unborn-head" || /Read-only git rev-parse failed:[\s\S]*(?:ambiguous argument ['"]HEAD['"]|bad revision ['"]HEAD['"]|Needed a single revision)/i.test(message)) return UNBORN_HEAD_MESSAGE;
+  return message;
+};
 
 // plugin/host/service.ts
 import fs11 from "node:fs";
@@ -220,7 +226,13 @@ function inspectIndex(buffer, oidBytes = 20) {
   }
   return { version, count, split };
 }
+var UNBORN_HEAD_MESSAGE2 = "\u5F53\u524D\u4ED3\u5E93\u8FD8\u6CA1\u6709\u63D0\u4EA4\u3002\u4EA7\u751F\u9996\u4E2A\u63D0\u4EA4\u540E\uFF0C\u5373\u53EF\u5BA1\u67E5\u53D8\u66F4\u3002";
+function currentBranchOf(git) {
+  if (!git.resolve("HEAD")) return "";
+  return git.run(["rev-parse", "--verify", "--quiet", "--abbrev-ref", "HEAD"]).toString().trim();
+}
 function preflight(git) {
+  if (!git.resolve("HEAD")) throw new PreparationError("unborn-head", UNBORN_HEAD_MESSAGE2);
   for (const directory of /* @__PURE__ */ new Set([git.gitDir, git.commonDir])) {
     if (fs2.readdirSync(directory).some((name2) => name2.startsWith("sharedindex."))) throw new PreparationError("split-index", "sharedindex.* present; no ls-files or freeze performed");
     for (const name2 of ["config", "config.worktree"]) {
@@ -245,7 +257,7 @@ function preflight(git) {
 }
 function rangeOf(git, target) {
   const headSha = git.resolve("HEAD"), emptyTree = crypto2.createHash(git.objectFormat).update("tree 0\0").digest("hex");
-  if (!headSha) throw new PreparationError("unborn-head", "Repository has no HEAD commit; no merge-base snapshot was published");
+  if (!headSha) throw new PreparationError("unborn-head", UNBORN_HEAD_MESSAGE2);
   if (git.run(["rev-parse", "--is-shallow-repository"]).toString().trim() === "true") throw new PreparationError("shallow-history", "Repository history is shallow");
   let targetRef = target, targetSha = target && git.resolve(target);
   if (target && !targetSha) throw new PreparationError("target-missing", "Explicit target does not resolve to a commit");
@@ -1583,7 +1595,7 @@ var ReviewCore = class {
       if (trigger === "auto" && !settings.autoMode && !captureOnly) return { status: "skipped", code: "auto-disabled" };
       requirements = prepareRequirements(requirements);
       const effectiveTarget = target ?? (settings.targetBranch || void 0), range = rangeOf(git, effectiveTarget);
-      const branchName = git.run(["rev-parse", "--abbrev-ref", "HEAD"]).toString().trim(), branch = branchName === "HEAD" ? "" : branchName;
+      const branchName = currentBranchOf(git), branch = branchName === "HEAD" ? "" : branchName;
       if (!branch) return { status: "incomplete", code: "branch-unavailable", reason: "Cannot group a delivery without a confirmed current branch" };
       const targetBranch = branchLabelOf(git, range.targetRef);
       const observedState = readState(git, effectiveTarget);
@@ -1615,7 +1627,7 @@ var ReviewCore = class {
       const frozen = prepare({ repo: git.root, out: temp, target: effectiveTarget, requirements, extension: extension ?? settings.extensionPrompt, methodRoot: this.methodRoot, _testAfterRead });
       if (frozen.status !== "complete") return frozen;
       const captured = loadBundle(temp);
-      if (captured.snapshot.range.headSha !== range.headSha || git.run(["rev-parse", "--abbrev-ref", "HEAD"]).toString().trim() !== branchName) return { status: "incomplete", code: "branch-or-head-changed" };
+      if (captured.snapshot.range.headSha !== range.headSha || currentBranchOf(git) !== branchName) return { status: "incomplete", code: "branch-or-head-changed" };
       return await this.requestBundle({ projectKey: project.projectKey, deliveryId: observation.delivery.deliveryId, bundle: temp, scope, force, trigger, captureOnly, onPrepared, sourceSessionId: session?.id });
     } catch (error) {
       return { status: "incomplete", code: error.code || "preparation-failed", reason: error.message };
@@ -2353,6 +2365,23 @@ import path9 from "node:path";
 import crypto7 from "node:crypto";
 var never = new AbortController().signal;
 var textOf = (event) => event.data.message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+function parseReviewResponse(raw) {
+  const text = raw.trim();
+  try {
+    return JSON.parse(text);
+  } catch {
+    const envelope = text.replace(/\r\n/g, "\n").match(
+      /^([\s\S]*?)```json[ \t]*\n([\s\S]*)\n```[ \t]*$/i
+    );
+    const summary = envelope?.[1].trim() || "";
+    if (!envelope || envelope[1] && !envelope[1].endsWith("\n") || summary.includes("`") || Array.from(summary).length > 500 || summary.split("\n").length > 3) throw Error("\u6A21\u578B\u672A\u8FD4\u56DE\u5355\u4E2A\u5408\u6CD5JSON\uFF0C\u539F\u59CB\u6587\u672C\u5DF2\u4FDD\u7559");
+    try {
+      return JSON.parse(envelope[2]);
+    } catch {
+      throw Error("\u6A21\u578B\u672A\u8FD4\u56DE\u5355\u4E2A\u5408\u6CD5JSON\uFF0C\u539F\u59CB\u6587\u672C\u5DF2\u4FDD\u7559");
+    }
+  }
+}
 var DshAdapter = class {
   ctx;
   root;
@@ -2606,7 +2635,7 @@ var DshAdapter = class {
             "\u53D7\u63A7\u5BA1\u67E5\u672A\u5B8C\u6210\uFF1A" + (failureCode || end?.data.reason.kind || "missing terminal")
           );
         try {
-          return JSON.parse(raw.trim());
+          return parseReviewResponse(raw);
         } catch {
           throw Error("\u6A21\u578B\u672A\u8FD4\u56DE\u5355\u4E2A\u5408\u6CD5JSON\uFF0C\u539F\u59CB\u6587\u672C\u5DF2\u4FDD\u7559");
         }
@@ -2628,7 +2657,7 @@ var DshAdapter = class {
 };
 function reviewPrompt(request) {
   const parts = [
-    "\u6309\u4E0B\u5217\u51BB\u7ED3\u65B9\u6CD5\u5BA1\u67E5\uFF0C\u53EA\u8BFB\u6B64\u5BA1\u67E5\u5305\uFF0C\u4E0D\u8BFB\u5B9E\u65F6\u5DE5\u4F5C\u533A\u3001\u4E0D\u8FD0\u884C\u547D\u4EE4\u3001\u4E0D\u4FEE\u6539\u4EFB\u4F55\u6587\u4EF6\u3002\u8F93\u51FA\u4E2D\u6587\u5355\u4E2AJSON\uFF0C\u4E25\u683C\u7B26\u5408schema\uFF1B\u4E0D\u52A0basis/findingId/\u8BC1\u636Esha\u7B49host\u5B57\u6BB5\u3002",
+    "\u6309\u4E0B\u5217\u51BB\u7ED3\u65B9\u6CD5\u5BA1\u67E5\uFF0C\u53EA\u8BFB\u6B64\u5BA1\u67E5\u5305\uFF0C\u4E0D\u8BFB\u5B9E\u65F6\u5DE5\u4F5C\u533A\u3001\u4E0D\u8FD0\u884C\u547D\u4EE4\u3001\u4E0D\u4FEE\u6539\u4EFB\u4F55\u6587\u4EF6\u3002\u5148\u7528\u4E2D\u65871\u20132\u53E5\u8BDD\u6982\u8FF0\u5BA1\u67E5\u8303\u56F4\u3001\u95EE\u9898\u6570\u4E0E\u672A\u5B8C\u6210\u9879\uFF0C\u518D\u7ED9\u51FA\u552F\u4E00\u4E00\u4E2Ajson fenced\u4EE3\u7801\u5757\uFF0C\u5757\u5185\u662F\u4E25\u683C\u7B26\u5408schema\u7684\u5355\u4E2AJSON\u5BF9\u8C61\uFF1B\u7ED3\u5C3E\u4E0D\u9644\u52A0\u6587\u5B57\uFF0C\u4E0D\u52A0basis/findingId/\u8BC1\u636Esha\u7B49host\u5B57\u6BB5\u3002",
     "\u5FC5\u987B\u8FD4\u56DE\u5168\u90E8targets\u7684\u9010\u6587\u4EF6\u8BF4\u660E\u548C\u5168\u5C40features/impacts/alignment\uFF1B\u95EE\u9898\u53EA\u5BA1\u67E5reviewPaths\uFF0CcarriedPaths\u7531host\u590D\u5236\uFF0C\u4E0D\u80FD\u66FF\u4EE3\u5168\u5C40\u8BF4\u660E\u3002",
     JSON.stringify({
       inputSha: request.snapshot.inputSha,

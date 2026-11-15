@@ -22,7 +22,9 @@
     },
     {
       "name": "folder-open.svg",
-      "sha256": "532456ac9460902d6f7f9ffdb015c09a3b8d87c2493504948f9d16a2f66e22b7"
+      "sha256": "100d62bd0c7fd8495e2fadc7fb2882639398bbf2901b10eb7b1af0dc6cecdf07",
+      "upstreamSha256": "532456ac9460902d6f7f9ffdb015c09a3b8d87c2493504948f9d16a2f66e22b7",
+      "adaptation": "Prototype folder palette; geometry unchanged"
     },
     {
       "name": "folder-scripts-open.svg",
@@ -34,15 +36,21 @@
     },
     {
       "name": "folder-src-open.svg",
-      "sha256": "159da562a912929aa265cdee9f31ca544097ffd11abaace2dfafa1780df7db62"
+      "sha256": "89fbee3eaea1ee572f937fffd6993cf3797989fe25c8262b7ccf6ac35cc841ed",
+      "upstreamSha256": "159da562a912929aa265cdee9f31ca544097ffd11abaace2dfafa1780df7db62",
+      "adaptation": "Prototype folder palette; geometry unchanged"
     },
     {
       "name": "folder-src.svg",
-      "sha256": "0615e08b96c279fe2e62bac2d34209efb3e72e43a34ba000fc4dfab8b2e31f8f"
+      "sha256": "f9ce7366b3de89a831c637e8fdc91dcac013663464f25a1be88f84194ff0dc7d",
+      "upstreamSha256": "0615e08b96c279fe2e62bac2d34209efb3e72e43a34ba000fc4dfab8b2e31f8f",
+      "adaptation": "Prototype folder palette; geometry unchanged"
     },
     {
       "name": "folder.svg",
-      "sha256": "5b8e272caf788ff0e9b6afee97601a9f9c7ad9d381e8d7b1e63ee78368ea1332"
+      "sha256": "b05bc2974dedabfae002d4dc3c644138fc7dbd73d8f1b64f2f6f82c11f5a9d91",
+      "upstreamSha256": "5b8e272caf788ff0e9b6afee97601a9f9c7ad9d381e8d7b1e63ee78368ea1332",
+      "adaptation": "Prototype folder palette; geometry unchanged"
     },
     {
       "name": "go.svg",

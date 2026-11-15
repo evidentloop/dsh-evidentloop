@@ -122,6 +122,7 @@ export interface RuntimeState {
   listPreferences: ListPreferences;
   returnSessionId: string | null;
   notice: string;
+  modelNoticeDismissed?: boolean;
 }
 export interface Jump {
   path: string;
@@ -335,5 +336,10 @@ export type ApiUrl<K extends ApiRoute> = K | `${K}?${string}`;
 export type ClientRequest<K extends keyof ApiRequests> = ApiRequests[K] & {
   clientId: string;
 };
-export const errorMessage = (error: unknown): string =>
-  error instanceof Error ? error.message : String(error);
+export const UNBORN_HEAD_MESSAGE = "当前仓库还没有提交。产生首个提交后，即可审查变更。";
+export const errorMessage = (error: unknown): string => {
+  const message = error instanceof Error ? error.message : String(error);
+  const code = error && typeof error === "object" && "code" in error ? error.code : "";
+  if (code === "unborn-head" || /Read-only git rev-parse failed:[\s\S]*(?:ambiguous argument ['"]HEAD['"]|bad revision ['"]HEAD['"]|Needed a single revision)/i.test(message)) return UNBORN_HEAD_MESSAGE;
+  return message;
+};

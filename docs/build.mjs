@@ -1,11 +1,13 @@
 // Build the static site in docs/site/ from docs/guide.md (the single source).
 // Each "## Title {#slug}" in guide.md becomes one manual page: guide-<slug>.html.
-// Output: index.html, guide-*.html, style.css, favicon.svg. Upload docs/site/ to Cloudflare Pages as is.
+// Output: index.html, guide-*.html, style.css, favicon.svg.
+// Deploy docs/site/ to Cloudflare Pages at https://evidentloop.sanze.dev.
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, cpSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const siteOrigin = 'https://evidentloop.sanze.dev';
 const here = dirname(fileURLToPath(import.meta.url));
 const src = join(here, 'site-src');
 const out = join(here, 'site');
@@ -147,3 +149,10 @@ for (const file of ['flow-wide.svg', 'flow-narrow.svg']) copyFileSync(join(src, 
 copyFileSync(join(here, 'icon.svg'), join(out, 'favicon.svg'));
 cpSync(join(src, 'assets'), join(out, 'assets'), { recursive: true });
 console.log(`built docs/site: home + ${chapters.length} chapters (${chapters.map(c => c.slug).join(', ')})`);
+
+// Keep the generated public origin explicit for the Cloudflare deployment target.
+for (const file of ['index.html', 'guide.html', 'demo.html', ...chapters.map(chapter => chapter.file)]) {
+  const target = join(out, file);
+  const html = readFileSync(target, 'utf8');
+  writeFileSync(target, html.replace('</head>', `<link rel="canonical" href="${siteOrigin}/${file}">\n</head>`));
+}

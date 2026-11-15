@@ -30,6 +30,7 @@ export function WorkspacePicker({ runtime, state }: RuntimeProps) {
     )
     .map((w) => ({
       label: w.title,
+      icon: "folder",
       note: w.notGit ? "不是Git仓库" : w.path,
       selected: w.workspaceId === state.workspaceId,
       action: () =>
@@ -177,7 +178,7 @@ export function DeliveryList({ runtime, state }: RuntimeProps) {
           }
           aria-label={"打开会话：" + s.title}
         >
-          <Icon name="comment" />
+          <Icon name="chat" size={14} />
           <Clip>{s.title}</Clip>
           <span className="el-narrow-session">会话</span>
         </Link>

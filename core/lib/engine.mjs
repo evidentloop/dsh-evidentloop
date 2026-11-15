@@ -3,7 +3,7 @@ import path from 'node:path';
 import { prepare, readState } from '../prepare.mjs';
 import { loadBundle, validate } from '../validate.mjs';
 import { METHOD_ROOT, isTarget, normalizeLF, prepareRequirements } from './common.mjs';
-import { createGit, preflight, rangeOf, branchLabelOf } from './git.mjs';
+import { createGit, preflight, rangeOf, branchLabelOf, currentBranchOf } from './git.mjs';
 import { FileStore, now, uuid } from './store.mjs';
 import { Deliveries, projectFor, developmentSession } from './deliveries.mjs';
 import { Scheduler } from './scheduler.mjs';
@@ -33,7 +33,7 @@ export class ReviewCore {
       if (trigger === 'auto' && !settings.autoMode && !captureOnly) return { status: 'skipped', code: 'auto-disabled' };
       requirements = prepareRequirements(requirements);
       const effectiveTarget = target ?? (settings.targetBranch || undefined), range = rangeOf(git, effectiveTarget);
-      const branchName = git.run(['rev-parse', '--abbrev-ref', 'HEAD']).toString().trim(), branch = branchName === 'HEAD' ? '' : branchName;
+      const branchName = currentBranchOf(git), branch = branchName === 'HEAD' ? '' : branchName;
       if (!branch) return { status: 'incomplete', code: 'branch-unavailable', reason: 'Cannot group a delivery without a confirmed current branch' };
       const targetBranch = branchLabelOf(git, range.targetRef);
       const observedState = readState(git, effectiveTarget);
@@ -49,7 +49,7 @@ export class ReviewCore {
       const frozen = prepare({ repo: git.root, out: temp, target: effectiveTarget, requirements, extension: extension ?? settings.extensionPrompt, methodRoot: this.methodRoot, _testAfterRead });
       if (frozen.status !== 'complete') return frozen;
       const captured = loadBundle(temp);
-      if (captured.snapshot.range.headSha !== range.headSha || git.run(['rev-parse', '--abbrev-ref', 'HEAD']).toString().trim() !== branchName) return { status: 'incomplete', code: 'branch-or-head-changed' };
+      if (captured.snapshot.range.headSha !== range.headSha || currentBranchOf(git) !== branchName) return { status: 'incomplete', code: 'branch-or-head-changed' };
       return await this.requestBundle({ projectKey: project.projectKey, deliveryId: observation.delivery.deliveryId, bundle: temp, scope, force, trigger, captureOnly, onPrepared, sourceSessionId: session?.id });
     } catch (error) { return { status: 'incomplete', code: error.code || 'preparation-failed', reason: error.message }; }
     finally { if (temp) fs.rmSync(temp, { recursive: true, force: true }); }

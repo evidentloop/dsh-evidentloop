@@ -8,16 +8,19 @@
 <meta name="description" content="AI 写完代码，先看懂改了什么、有没有问题：变更说明、带证据的代码评审、发回修改与审查留档。">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
+<link rel="canonical" href="https://evidentloop.sanze.dev/guide-status.html">
 </head>
 <body>
 <header class="bar"><a class="brand" href="index.html"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-tile" x="8" y="8" width="496" height="496" rx="112"/><g transform="translate(256 256) scale(0.78) translate(-244 -244)"><line class="mk-ink" x1="345" y1="345" x2="438" y2="438" stroke-width="96" stroke-linecap="round"/><line class="mk-handle" x1="345" y1="345" x2="438" y2="438" stroke-width="40" stroke-linecap="round"/><circle class="mk-lens" cx="233" cy="233" r="195" stroke-width="32"/><path class="mk-ink" d="M190 185 137 236l53 52M285 185l53 51-53 52" fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>AI 变更评审</span></a>
 <nav aria-label="站点"><a href="index.html">介绍</a><a href="demo.html">实录</a><a href="guide-workflow.html" aria-current="page">使用说明</a></nav></header>
 <div class="doc">
-<nav class="toc" aria-label="章节"><ol><li><a href="guide-workflow.html">工作流</a></li><li><a href="guide-workbench.html">列表与评审台</a></li><li class="on"><a href="guide-status.html" aria-current="page">状态、发回与导出</a><ul><li><a href="#status-1">审查状态</a></li><li><a href="#status-2">发回会话</a></li><li><a href="#status-3">导出</a></li></ul></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></nav>
+<nav class="toc" aria-label="章节"><ol><li><a href="guide-workflow.html">工作流</a></li><li><a href="guide-workbench.html">列表与评审台</a></li><li class="on"><a href="guide-status.html" aria-current="page">状态、发回与导出</a><ul><li><a href="#status-1">模型调用与演示模式</a></li><li><a href="#status-2">审查状态</a></li><li><a href="#status-3">发回会话</a></li><li><a href="#status-4">导出</a></li></ul></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></nav>
 <details class="chapters"><summary>章节 3 / 4：状态、发回与导出</summary><ol><li><a href="guide-workflow.html">工作流</a></li><li><a href="guide-workbench.html">列表与评审台</a></li><li><a href="guide-status.html" aria-current="page">状态、发回与导出</a></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></details>
 <article>
 <header class="doc-header"><h1>状态、发回与导出</h1></header>
-<h2 id="status-1">审查状态</h2>
+<h2 id="status-1">模型调用与演示模式</h2>
+<p>“演示模式”表示当前尚未获得真实模型调用授权，可查看代码和已有记录；关闭小标识只影响本次界面的提示，不会开启模型调用。工作区设置保留调用状态与授权说明；需先明确授权本轮调用，再发起审查。门禁开启后小标识自动消失。</p>
+<h2 id="status-2">审查状态</h2>
 <div class="table"><table>
 <thead>
 <tr>
@@ -54,7 +57,7 @@
 <td>审查完成</td>
 </tr>
 </tbody></table>
-</div><h2 id="status-2">发回会话</h2>
+</div><h2 id="status-3">发回会话</h2>
 <p>写进开发会话的输入框，<strong>不会自动发送</strong>。</p>
 <ul>
 <li><strong>修改问题</strong>：批注、待处理问题、未对齐的需求。</li>
@@ -62,7 +65,7 @@
 </ul>
 <figure class="guide-capture"><a href="assets/draft-light.png"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/draft-dark.png"><img src="assets/draft-light.png" alt="发回前预览锁定内容，只写草稿，不自动发送" width="1600" height="1000" loading="lazy"></picture></a><figcaption>发回前预览锁定内容，只写草稿，不自动发送 · <a href="demo.html">查看实录与浅深主题原图</a></figcaption></figure>
 
-<h2 id="status-3">导出</h2>
+<h2 id="status-4">导出</h2>
 <ul>
 <li><strong>变更日志（Markdown）</strong>：贴进合并请求或交付文档。</li>
 <li><strong>评审报告（HTML）</strong>：单个文件，离线可看，可以嵌入完整 Diff。</li>

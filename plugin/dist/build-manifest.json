@@ -27,7 +27,7 @@
     },
     {
       "path": "core/lib/engine.mjs",
-      "sha256": "36694b0c89731d23c9d8fba90beb3cf9ac3ffb9d3936f7eec405acfbff23b88d"
+      "sha256": "e9cb63c174026210b3b35e02340c1c7be54eb9e518ebddd55e126e17e2729364"
     },
     {
       "path": "core/lib/export.mjs",
@@ -35,7 +35,7 @@
     },
     {
       "path": "core/lib/git.mjs",
-      "sha256": "af858bd72788bf34ca0742e164e28a24c05dc319d7f1702af82e4590603f8ec2"
+      "sha256": "88b39adf229ec1f9616f9e9b738cb93f162ba165767c3c1371c9cfcb0d8e0d54"
     },
     {
       "path": "core/lib/incremental.mjs",
@@ -97,7 +97,7 @@
     },
     {
       "path": "core/lib/engine.mjs",
-      "sha256": "36694b0c89731d23c9d8fba90beb3cf9ac3ffb9d3936f7eec405acfbff23b88d"
+      "sha256": "e9cb63c174026210b3b35e02340c1c7be54eb9e518ebddd55e126e17e2729364"
     },
     {
       "path": "core/lib/export.mjs",
@@ -105,7 +105,7 @@
     },
     {
       "path": "core/lib/git.mjs",
-      "sha256": "af858bd72788bf34ca0742e164e28a24c05dc319d7f1702af82e4590603f8ec2"
+      "sha256": "88b39adf229ec1f9616f9e9b738cb93f162ba165767c3c1371c9cfcb0d8e0d54"
     },
     {
       "path": "core/lib/incremental.mjs",
@@ -141,19 +141,19 @@
     },
     {
       "path": "plugin/client/app.tsx",
-      "sha256": "c8ee7f23e270dc876cb337fb41e6b9f81f213ceedc2a80e6f1b55122eb85c37f"
+      "sha256": "1012950d4120fb317422cf2446756cf9f3a3db810bfaf2080c0b750a33bb2046"
     },
     {
       "path": "plugin/client/diff.tsx",
-      "sha256": "13507238807eacda1357d68058eaf645574b61c612aff4aa617718e4950ac23f"
+      "sha256": "b4d76725345e4c82810371bc109fcce3b2f019be69b3c097c8f465ae46b7b282"
     },
     {
       "path": "plugin/client/index.tsx",
-      "sha256": "c9ebac9a42ed4336049738d8953a7d710f3fc61663627395270af31a579a4805"
+      "sha256": "659541721a1b681a3aa09044f351c95baa66183be17de895d4e457dd1c1de1f7"
     },
     {
       "path": "plugin/client/list.tsx",
-      "sha256": "a8eb3d0e746cd7167ec1e4ad7bcb7ad7f3e2ff2f4e116069d59b864f3e4394a0"
+      "sha256": "adc459cb3514eb161cbf59479f41dfe4875eb9f6151440572f1a75fa87af7ca5"
     },
     {
       "path": "plugin/client/native.ts",
@@ -165,23 +165,23 @@
     },
     {
       "path": "plugin/client/review.tsx",
-      "sha256": "ef1a1918e25e37f0a68ddd16a3633384160fe13ae43a03e2cf4aa3d58f6e7393"
+      "sha256": "d21347915d58605ea01535718c2ed21ac28acd3e27710d624ea2a0967d73244f"
     },
     {
       "path": "plugin/client/runtime.ts",
-      "sha256": "1ff018d67f8ad9817fad3737386fe273040fa123c7931dab059cbcf1b9880efd"
+      "sha256": "d117647ccb2651f512e39bffb2a83c7732cdffd17a2d9e2eee52d0174eaaa291"
     },
     {
       "path": "plugin/client/settings.tsx",
-      "sha256": "157012dfdf4b357932c898850c82d918a14dda90f500879b302757c500c798d7"
+      "sha256": "d19f547aba9331ee17b5213cd9c28e3015a2e9a578206b8d4da48fd21e886e28"
     },
     {
       "path": "plugin/client/styles.css",
-      "sha256": "2c8ccfd19560d905570fed18a44dc7a48c29f24946d8d7f6520c8f83ef0fc291"
+      "sha256": "ac3f2f4ab793553e60b511e4ffc0218fe3cd2cf42f50ff9880a673fcde5f271d"
     },
     {
       "path": "plugin/client/ui.tsx",
-      "sha256": "a62530533d48938dc079ee4791a88e589949a56045940b04dadf25a73ff260ed"
+      "sha256": "3ed3e9c2f91ae5c103a10d295d478f1cb6b7c0f9f74cd2d0afd7e61febcb3d78"
     },
     {
       "path": "plugin/host/bridge.ts",
@@ -193,7 +193,7 @@
     },
     {
       "path": "plugin/host/dsh-adapter.ts",
-      "sha256": "9a8e5c95c935f3bbbc80a290c937a6cc81fad4878be599cbb5afd203f9c5ccac"
+      "sha256": "365deea6293195368d65e5d5a1c0fc4a47b9f77f75fd9fa8e375a45074f6cd5e"
     },
     {
       "path": "plugin/host/index.ts",
@@ -205,13 +205,13 @@
     },
     {
       "path": "plugin/shared/contracts.ts",
-      "sha256": "c2aedfe4ecb599570faf4d7f437f272639c3a43bff7d8f7faabe63ae946d85f2"
+      "sha256": "4ad22485ee8c514295c8eeeb8ca09aa54acb1eb4eb6dd17b05a7711bd6b4811e"
     }
   ],
   "methodFiles": [
     {
       "path": "SKILL.md",
-      "sha256": "f80a152373913acf7f72f2723f7902cde8200385fe471d3458a0d81937dd4738"
+      "sha256": "629538410e9cfa5bab7304ad1426d490823d093c4b3ad316e25b5f11f59ec260"
     },
     {
       "path": "references/alignment.md",
@@ -246,6 +246,6 @@
       "sha256": "e4ef8e0050712053e70ee974fa16b65cc775263622826b3c09653022b046d4b1"
     }
   ],
-  "promptVersion": "83f80de7970a042d8cd983b579bdfb5bbe210da8f69ff8752a9785b4268fbf8c",
+  "promptVersion": "e7da6ed8d32b72db79f7e3895b29394ec45cd789396dc3de106c7aeee052bd52",
   "noPrototypeBusinessJs": true
 }

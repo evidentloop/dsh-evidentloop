@@ -3,8 +3,27 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { setup, bundle, syntheticModel, fixture, deferred, until } from './helpers.mjs';
 import { FileStore, ReviewCore, SyntheticAdapter, Drafts, markdown, html, reviewStatus, methodVersion } from '../index.mjs';
+import { repository } from './repo-fixture.mjs';
+import { createGit, preflight, rangeOf, currentBranchOf, UNBORN_HEAD_MESSAGE } from '../lib/git.mjs';
+import { treeDigest } from './helpers.mjs';
 import { METHOD_ROOT } from '../lib/common.mjs';
 export async function runDomain(test, root) {
+  await test('unborn repositories with and without an index report friendly preparation without model calls or repository writes', async dir => {
+    for (const withIndex of [true, false]) {
+      const repo = repository(path.join(dir, withIndex ? 'indexed' : 'no-index'));
+      if (!withIndex) fs.unlinkSync(path.join(repo.root, '.git/index'));
+      const before = treeDigest(repo.root), git = createGit(repo.root), adapter = new SyntheticAdapter();
+      assert.equal(currentBranchOf(git), '');
+      for (const check of [() => preflight(git), () => rangeOf(git, 'main')]) assert.throws(check, error => error.code === 'unborn-head' && error.message === UNBORN_HEAD_MESSAGE);
+      const core = await new ReviewCore({storageRoot:path.join(dir, withIndex ? 'state-indexed' : 'state-no-index'),adapter}).initialize();
+      const result = await core.trigger({repo:repo.root,target:'main',captureOnly:true});
+      assert.deepEqual(result,{status:'incomplete',code:'unborn-head',reason:UNBORN_HEAD_MESSAGE}); assert.equal(adapter.calls.length,0); assert.deepEqual(treeDigest(repo.root),before);
+      const base = repo.commit({'code.js':'export const value = 1;\n'}); repo.ref('main',base); repo.ref('feature',base); repo.worktree({'code.js':'export const value = 2;\n'});
+      if (!withIndex) fs.copyFileSync(path.join(dir,'indexed/.git/index'),path.join(repo.root,'.git/index'));
+      const ready = await core.trigger({repo:repo.root,target:'main',captureOnly:true}); assert.equal(ready.status,'pending'); assert.ok(ready.snapshotId); assert.equal(adapter.calls.length,0);
+    }
+  });
+
   await test('single-file coverage stays partial; subsequent file review accumulates coverage', async dir => {
     const t = await setup(dir), b = bundle(dir, t.repo, 'bundle');
     const a = await t.core.requestBundle({ projectKey: t.key, deliveryId: t.delivery.deliveryId, bundle: b, scope: 'file:code.js' });

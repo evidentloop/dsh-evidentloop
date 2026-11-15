@@ -30,6 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // plugin/client/index.tsx
 var index_exports = {};
 __export(index_exports, {
+  DeliveryTail: () => DeliveryTail,
   apply: () => apply,
   inject: () => inject,
   name: () => name
@@ -37,7 +38,13 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 
 // plugin/shared/contracts.ts
-var errorMessage = (error) => error instanceof Error ? error.message : String(error);
+var UNBORN_HEAD_MESSAGE = "\u5F53\u524D\u4ED3\u5E93\u8FD8\u6CA1\u6709\u63D0\u4EA4\u3002\u4EA7\u751F\u9996\u4E2A\u63D0\u4EA4\u540E\uFF0C\u5373\u53EF\u5BA1\u67E5\u53D8\u66F4\u3002";
+var errorMessage = (error) => {
+  const message = error instanceof Error ? error.message : String(error);
+  const code = error && typeof error === "object" && "code" in error ? error.code : "";
+  if (code === "unborn-head" || /Read-only git rev-parse failed:[\s\S]*(?:ambiguous argument ['"]HEAD['"]|bad revision ['"]HEAD['"]|Needed a single revision)/i.test(message)) return UNBORN_HEAD_MESSAGE;
+  return message;
+};
 
 // plugin/client/index.tsx
 var import_react8 = __toESM(require("react"), 1);
@@ -54,41 +61,52 @@ var import_react_dom = require("react-dom");
 function Icon({
   name: name2,
   size = 16,
-  strokeWidth = 1.65
+  strokeWidth = 1.8
 }) {
   const shapes = {
-    search: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "10", cy: "10", r: "6" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m15 15 5 5" })),
-    brand: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "11", cy: "11", r: "8" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m21 21-4.3-4.3M9 8.5l-2 2.5 2 2.5m4-5 2 2.5-2 2.5" })),
-    settings: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "m9 3-1 3-3 1-2 4 2 2-1 4 4 2 3-1 3 3 4-2v-4l3-2-1-4-3-1-1-4z" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "12", cy: "12", r: "3" })),
-    more: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "5", cy: "12", r: ".8" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "12", cy: "12", r: ".8" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "19", cy: "12", r: ".8" })),
-    chevronLeft: /* @__PURE__ */ import_react.default.createElement("path", { d: "m15 6-6 6 6 6" }),
-    chevronRight: /* @__PURE__ */ import_react.default.createElement("path", { d: "m9 6 6 6-6 6" }),
-    down: /* @__PURE__ */ import_react.default.createElement("path", { d: "m6 9 6 6 6-6" }),
-    up: /* @__PURE__ */ import_react.default.createElement("path", { d: "m6 15 6-6 6 6" }),
-    pin: /* @__PURE__ */ import_react.default.createElement("path", { d: "M4 4h16M12 21V8m-6 6 6-6 6 6" }),
-    next: /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 3v18m-7-7 7 7 7-7" }),
-    grid: /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z" }),
-    list: /* @__PURE__ */ import_react.default.createElement("path", { d: "M4 6h16M4 12h16M4 18h16" }),
-    tree: /* @__PURE__ */ import_react.default.createElement("path", { d: "M5 3v13h14M5 8h14M12 5v6m0 2v6" }),
-    split: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("rect", { x: "3", y: "4", width: "18", height: "16", rx: "2" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 4v16" })),
-    comment: /* @__PURE__ */ import_react.default.createElement("path", { d: "M4 4h16v12H9l-5 4z" }),
-    ask: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" })),
-    minus: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "12", cy: "12", r: "9" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M7 12h10" })),
-    copy: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M8 8h13v13H8zM16 8V3H3v13h5" })),
-    download: /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 3v12m-5-5 5 5 5-5M4 18v3h16v-3" }),
-    back: /* @__PURE__ */ import_react.default.createElement("path", { d: "m14 4-8 8 8 8" }),
-    close: /* @__PURE__ */ import_react.default.createElement("path", { d: "m5 5 14 14M19 5 5 19" }),
-    folder: /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 6h7l2 3h9v12H3z" }),
-    check: /* @__PURE__ */ import_react.default.createElement("path", { d: "m4 12 5 5L20 6" })
+    search: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "11", cy: "11", r: "6.5" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m16 16 4.5 4.5" })),
+    brand: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "11", cy: "11", r: "8" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m21 21-4.3-4.3" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m9 8.5-2 2.5 2 2.5M13 8.5l2 2.5-2 2.5" })),
+    settings: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "12", cy: "12", r: "2.8" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.08a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.08a1.7 1.7 0 0 0 1.56-1.1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.08a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.08a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.08a1.7 1.7 0 0 0-1.52 1z" })),
+    more: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "5.5", cy: "12", r: "1.2", fill: "currentColor", stroke: "none" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "12", cy: "12", r: "1.2", fill: "currentColor", stroke: "none" }), /* @__PURE__ */ import_react.default.createElement("circle", { cx: "18.5", cy: "12", r: "1.2", fill: "currentColor", stroke: "none" })),
+    chevronLeft: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { fillRule: "evenodd", clipRule: "evenodd", d: "M10.78 2.22a.75.75 0 00-1.06 0L4.468 7.472a.75.75 0 000 1.06l5.252 5.252a.75.75 0 101.06-1.06L6.06 8.001l4.72-4.721a.75.75 0 000-1.06z" })),
+    chevronRight: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { fillRule: "evenodd", clipRule: "evenodd", d: "M5.22 2.22a.75.75 0 011.06 0l5.252 5.252a.75.75 0 010 1.06L6.28 13.784a.75.75 0 11-1.06-1.06l4.72-4.723L5.22 3.28a.75.75 0 010-1.06z" })),
+    down: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("polyline", { points: "6 9 12 15 18 9" })),
+    up: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("g", { transform: "rotate(180 12 12)" }, /* @__PURE__ */ import_react.default.createElement("polyline", { points: "6 9 12 15 18 9" }))),
+    collapsed: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("g", { transform: "rotate(-90 12 12)" }, /* @__PURE__ */ import_react.default.createElement("polyline", { points: "6 9 12 15 18 9" }))),
+    pin: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M5 4h14M12 20V8M7 13l5-5 5 5" })),
+    next: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 4v16M6 14l6 6 6-6" })),
+    grid: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("rect", { x: "4", y: "4", width: "6", height: "6", rx: "1" }), /* @__PURE__ */ import_react.default.createElement("rect", { x: "14", y: "4", width: "6", height: "6", rx: "1" }), /* @__PURE__ */ import_react.default.createElement("rect", { x: "4", y: "14", width: "6", height: "6", rx: "1" }), /* @__PURE__ */ import_react.default.createElement("rect", { x: "14", y: "14", width: "6", height: "6", rx: "1" })),
+    list: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M8 5h12M8 12h12M8 19h12M4 5h.01M4 12h.01M4 19h.01" })),
+    tree: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { fillRule: "evenodd", clipRule: "evenodd", d: "M2.5 1.75a.75.75 0 00-1.5 0v8.5a3 3 0 003 3h3V14a1 1 0 001 1h6a1 1 0 001-1v-3a1 1 0 00-1-1H8a1 1 0 00-1 1v.75H4a1.5 1.5 0 01-1.5-1.5V6.849c.441.255.954.401 1.5.401h3V8a1 1 0 001 1h6a1 1 0 001-1V5a1 1 0 00-1-1H8a1 1 0 00-1 1v.75H4a1.5 1.5 0 01-1.5-1.5v-2.5zm11 11.75h-5v-2h5v2zm-5-6v-2h5v2h-5z" })),
+    split: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("rect", { x: "3.5", y: "4.5", width: "17", height: "15", rx: "2" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 4.5v15" })),
+    single: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("rect", { x: "3.5", y: "4.5", width: "17", height: "15", rx: "2" })),
+    comment: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" })),
+    commentPlus: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 8v6" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M9 11h6" })),
+    chat: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M4 5h16v11H9l-5 4z" })),
+    ask: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M19 4v4" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M22 5h-4" })),
+    minus: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "12", cy: "12", r: "9" }), /* @__PURE__ */ import_react.default.createElement("line", { x1: "8", y1: "12", x2: "16", y2: "12" })),
+    copy: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { fill: "currentColor", d: "M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3V2a1 1 0 0 1 1-1h8ZM10 6H2v8h8V6ZM9 11v1H3v-1h6Zm5-9H6v3h4a1 1 0 0 1 1 1v4h3V2ZM9 8v1H3V8h6Z" })),
+    download: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 4v11" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m8 11 4 4 4-4" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "M5 20h14" })),
+    back: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M15 5l-7 7 7 7" })),
+    close: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M6 6l12 12M18 6 6 18" })),
+    folder: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" })),
+    check: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "12", cy: "12", r: "8.5" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m8 12 2.7 2.7L16 9.5" })),
+    arrowRight: /* @__PURE__ */ import_react.default.createElement("path", { d: "M4 12h16M14 6l6 6-6 6" }),
+    closeReport: /* @__PURE__ */ import_react.default.createElement("path", { d: "M20 12H4M14 18l6-6-6-6" }),
+    report: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M4 19h16M4 5h16" }), /* @__PURE__ */ import_react.default.createElement("rect", { x: "8", y: "9", width: "8", height: "6", rx: "1" })),
+    shield: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("path", { d: "M12 3.5 19 6v5.2c0 4.1-2.7 7.8-7 9.3-4.3-1.5-7-5.2-7-9.3V6z" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m9.2 12 2 2 3.6-3.8" })),
+    treeCheck: /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("circle", { cx: "8", cy: "8", r: "6.5" }), /* @__PURE__ */ import_react.default.createElement("path", { d: "m4.5 8 2.3 2.3 4.7-4.6" }))
   };
+  const filled = ["tree", "chevronLeft", "chevronRight", "copy"].includes(name2);
+  const compactViewBox = filled || name2 === "treeCheck";
   return /* @__PURE__ */ import_react.default.createElement(
     "svg",
     {
       width: size,
       height: size,
-      viewBox: "0 0 24 24",
-      fill: "none",
-      stroke: "currentColor",
+      viewBox: compactViewBox ? "0 0 16 16" : "0 0 24 24",
+      fill: filled ? "currentColor" : "none",
+      stroke: filled ? "none" : "currentColor",
       strokeWidth,
       strokeLinecap: "round",
       strokeLinejoin: "round",
@@ -122,8 +140,7 @@ function IconButton({
       Icon,
       {
         name: icon,
-        size: size === "sm" || size === "tree" ? 14 : size === "toolbar" ? 18 : 16,
-        strokeWidth: size === "toolbar" ? 1.8 : 1.65
+        size: size === "sm" || size === "tree" ? 14 : size === "toolbar" ? 18 : 16
       }
     ),
     children
@@ -259,14 +276,7 @@ function Menu({
         setOpen(!open);
       }
     },
-    children || /* @__PURE__ */ import_react.default.createElement(
-      Icon,
-      {
-        name: icon,
-        size: size === "toolbar" ? 18 : 16,
-        strokeWidth: size === "toolbar" ? 1.8 : 1.65
-      }
-    ),
+    children || /* @__PURE__ */ import_react.default.createElement(Icon, { name: icon, size: size === "toolbar" ? 18 : 16 }),
     children && /* @__PURE__ */ import_react.default.createElement(Icon, { name: open ? "up" : "down" })
   ), open && (0, import_react_dom.createPortal)(
     /* @__PURE__ */ import_react.default.createElement("div", { className: "el-plugin el-menu-layer", style: position }, /* @__PURE__ */ import_react.default.createElement(
@@ -278,7 +288,7 @@ function Menu({
         "aria-label": label,
         onKeyDown: keyboard
       },
-      search && /* @__PURE__ */ import_react.default.createElement(
+      search && /* @__PURE__ */ import_react.default.createElement("label", { className: "el-search el-menu-search" }, /* @__PURE__ */ import_react.default.createElement(Icon, { name: "search", size: 14 }), /* @__PURE__ */ import_react.default.createElement(
         "input",
         {
           "aria-label": search.label,
@@ -290,7 +300,7 @@ function Menu({
               e.stopPropagation();
           }
         }
-      ),
+      )),
       items.map(
         (item, i) => item.separator ? /* @__PURE__ */ import_react.default.createElement("hr", { key: i }) : /* @__PURE__ */ import_react.default.createElement(
           "button",
@@ -308,7 +318,7 @@ function Menu({
               item.action?.();
             }
           },
-          /* @__PURE__ */ import_react.default.createElement("span", null, item.label),
+          /* @__PURE__ */ import_react.default.createElement("span", { className: "el-menu-item-label" }, item.icon && /* @__PURE__ */ import_react.default.createElement(Icon, { name: item.icon }), item.label),
           item.selected && /* @__PURE__ */ import_react.default.createElement(Icon, { name: "check" }),
           item.note && /* @__PURE__ */ import_react.default.createElement("small", null, item.note)
         )
@@ -446,6 +456,7 @@ function WorkspacePicker({ runtime, state }) {
     (w) => (w.title + " " + w.path).toLowerCase().includes(query.toLowerCase())
   ).map((w) => ({
     label: w.title,
+    icon: "folder",
     note: w.notGit ? "\u4E0D\u662FGit\u4ED3\u5E93" : w.path,
     selected: w.workspaceId === state.workspaceId,
     action: () => runtime.perform(() => runtime.selectWorkspace(w.workspaceId))
@@ -551,7 +562,7 @@ function DeliveryList({ runtime, state }) {
         onClick: () => runtime.perform(() => runtime.native.openSession(s.sessionId)),
         "aria-label": "\u6253\u5F00\u4F1A\u8BDD\uFF1A" + s.title
       },
-      /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "comment" }),
+      /* @__PURE__ */ import_react2.default.createElement(Icon, { name: "chat", size: 14 }),
       /* @__PURE__ */ import_react2.default.createElement(Clip, null, s.title),
       /* @__PURE__ */ import_react2.default.createElement("span", { className: "el-narrow-session" }, "\u4F1A\u8BDD")
     ) : /* @__PURE__ */ import_react2.default.createElement("span", { className: "el-muted el-no-session" }, "\u65E0\u5173\u8054\u4F1A\u8BDD");
@@ -1086,8 +1097,8 @@ function IssueCard({
         "aria-expanded": !collapsed,
         onClick: () => setCollapsed(!collapsed)
       },
-      /* @__PURE__ */ import_react4.default.createElement(Icon, { name: collapsed ? "down" : "up" }),
-      /* @__PURE__ */ import_react4.default.createElement("span", { className: "el-category" }, category[issue.category] || issue.category),
+      /* @__PURE__ */ import_react4.default.createElement(Icon, { name: collapsed ? "collapsed" : "down" }),
+      /* @__PURE__ */ import_react4.default.createElement("span", { className: "el-category" }, issue.category === "security" && /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "shield", size: 12 }), category[issue.category] || issue.category),
       /* @__PURE__ */ import_react4.default.createElement("span", { className: "el-severity" }, issue.severity, " \xB7", " ", issue.severity === "P0" ? "\u963B\u65AD" : issue.severity === "P1" ? "\u4E25\u91CD" : "\u4E00\u822C"),
       /* @__PURE__ */ import_react4.default.createElement("strong", null, issue.title),
       suppressed && /* @__PURE__ */ import_react4.default.createElement("small", null, "\u5DF2\u6807\u8BB0\u975E\u95EE\u9898")
@@ -1170,9 +1181,9 @@ function IssueCard({
             setSuggestionCollapsed(!suggestionCollapsed);
           }
         },
-        /* @__PURE__ */ import_react4.default.createElement(Icon, { name: suggestionCollapsed ? "down" : "up" }),
+        /* @__PURE__ */ import_react4.default.createElement(Icon, { name: suggestionCollapsed ? "collapsed" : "down", size: 12 }),
         "\u4FEE\u6539\u5EFA\u8BAE"
-      ), /* @__PURE__ */ import_react4.default.createElement("div", { className: "el-code-actions" }, /* @__PURE__ */ import_react4.default.createElement("button", { className: "el-btn", onClick: copy }, copied ? "\u5DF2\u590D\u5236" : "\u590D\u5236\u5EFA\u8BAE"))), !suggestionCollapsed && /* @__PURE__ */ import_react4.default.createElement("div", { className: "el-suggestion-body" }, /* @__PURE__ */ import_react4.default.createElement(Prose, { text: issue.suggestion.text }), /* @__PURE__ */ import_react4.default.createElement("pre", null, /* @__PURE__ */ import_react4.default.createElement("code", null, issue.suggestion.code)))) : /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("strong", null, "\u4FEE\u6539\u5EFA\u8BAE"), /* @__PURE__ */ import_react4.default.createElement(Prose, { text: issue.suggestion.text }))
+      ), /* @__PURE__ */ import_react4.default.createElement("div", { className: "el-code-actions" }, /* @__PURE__ */ import_react4.default.createElement("button", { className: "el-btn", onClick: copy }, /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "copy", size: 12 }), copied ? "\u5DF2\u590D\u5236" : "\u590D\u5236\u5EFA\u8BAE"))), !suggestionCollapsed && /* @__PURE__ */ import_react4.default.createElement("div", { className: "el-suggestion-body" }, /* @__PURE__ */ import_react4.default.createElement(Prose, { text: issue.suggestion.text }), /* @__PURE__ */ import_react4.default.createElement("pre", null, /* @__PURE__ */ import_react4.default.createElement("code", null, issue.suggestion.code)))) : /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("strong", null, "\u4FEE\u6539\u5EFA\u8BAE"), /* @__PURE__ */ import_react4.default.createElement(Prose, { text: issue.suggestion.text }))
     )),
     children
   );
@@ -1270,7 +1281,7 @@ function AnnotationCard({
       className: "el-annotation-card",
       "data-annotation-id": annotation.annotationId
     },
-    /* @__PURE__ */ import_react4.default.createElement("header", null, /* @__PURE__ */ import_react4.default.createElement("strong", null, "\u6279\u6CE8"), /* @__PURE__ */ import_react4.default.createElement("small", null, localTime(annotation.updatedAt)), /* @__PURE__ */ import_react4.default.createElement("span", { className: "el-header-spacer" }), /* @__PURE__ */ import_react4.default.createElement(
+    /* @__PURE__ */ import_react4.default.createElement("header", null, /* @__PURE__ */ import_react4.default.createElement("strong", { className: "el-annotation-chip" }, /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "commentPlus", size: 11 }), "\u6279\u6CE8"), /* @__PURE__ */ import_react4.default.createElement("small", null, localTime(annotation.updatedAt)), /* @__PURE__ */ import_react4.default.createElement("span", { className: "el-header-spacer" }), /* @__PURE__ */ import_react4.default.createElement(
       "button",
       {
         className: "el-btn",
@@ -1823,6 +1834,7 @@ function Diff({
       "aria-pressed": showExplanation,
       onClick: onToggleExplanation
     },
+    /* @__PURE__ */ import_react4.default.createElement(Icon, { name: showExplanation ? "closeReport" : "report", size: 14 }),
     showExplanation ? "\u6536\u8D77\u8BF4\u660E" : "\u67E5\u770B\u8BF4\u660E"
   ) : file && !record.readOnly && data?.reviewable && /* @__PURE__ */ import_react4.default.createElement(
     "button",
@@ -1984,7 +1996,8 @@ function pulse(id) {
 function Review({
   runtime,
   state,
-  openSettings
+  openSettings,
+  gateBadge
 }) {
   const r = state.record, files = r.snapshot.files, [selected, setSelected] = (0, import_react5.useState)(
     () => r.run?.findings?.[0]?.anchor.path || files[0]?.path
@@ -2075,7 +2088,7 @@ function Review({
     "\u5BA1\u67E5\u8BB0\u5F55 \xB7 ",
     r.readOnly ? "" : "\u6700\u65B0 ",
     localTime(r.snapshot.createdAt)
-  ))), /* @__PURE__ */ import_react5.default.createElement("span", { className: "el-header-spacer" })), r.readOnly && /* @__PURE__ */ import_react5.default.createElement("div", { className: "el-history-notice" }, "\u6B63\u5728\u67E5\u770B\u8F83\u65E9\u7684\u5BA1\u67E5\u8BB0\u5F55\uFF08\u53EA\u8BFB\uFF09\xB7", " ", /* @__PURE__ */ import_react5.default.createElement(
+  ))), gateBadge, /* @__PURE__ */ import_react5.default.createElement("span", { className: "el-header-spacer" })), r.readOnly && /* @__PURE__ */ import_react5.default.createElement("div", { className: "el-history-notice" }, "\u6B63\u5728\u67E5\u770B\u8F83\u65E9\u7684\u5BA1\u67E5\u8BB0\u5F55\uFF08\u53EA\u8BFB\uFF09\xB7", " ", /* @__PURE__ */ import_react5.default.createElement(
     Link,
     {
       onClick: () => runtime.perform(
@@ -2186,7 +2199,7 @@ function Review({
       IconButton,
       {
         label: split ? "\u5207\u6362\u4E3A\u5355\u680F" : "\u5207\u6362\u4E3A\u53CC\u680F",
-        icon: "split",
+        icon: split ? "single" : "split",
         size: "toolbar",
         tabIndex: state.view === "diff" ? 0 : -1,
         onClick: () => setSplit(!split)
@@ -2451,7 +2464,6 @@ function FileTree({
           return next;
         })
       },
-      /* @__PURE__ */ import_react5.default.createElement(Icon, { name: closed ? "down" : "up", size: 12 }),
       icon(folder + (closed ? "" : "-open")),
       /* @__PURE__ */ import_react5.default.createElement(Clip, null, name2)
     ), !closed && /* @__PURE__ */ import_react5.default.createElement("div", { className: "el-tree-children" }, render(child)));
@@ -2465,7 +2477,7 @@ function FileTree({
     },
     icon(extensions[file.path.split(".").at(-1) || ""] || "file"),
     /* @__PURE__ */ import_react5.default.createElement(Clip, null, basename(file.path)),
-    risk.has(file.path) ? /* @__PURE__ */ import_react5.default.createElement("span", { className: "el-risk-dot", "aria-label": "\u6709\u6709\u6548\u95EE\u9898" }) : reviewed.includes(file.path) ? /* @__PURE__ */ import_react5.default.createElement(Icon, { name: "check", size: 14 }) : null
+    risk.has(file.path) ? /* @__PURE__ */ import_react5.default.createElement("span", { className: "el-risk-dot", "aria-label": "\u6709\u6709\u6548\u95EE\u9898" }) : reviewed.includes(file.path) ? /* @__PURE__ */ import_react5.default.createElement(Icon, { name: "treeCheck", size: 14, strokeWidth: 1.5 }) : null
   )));
   return render(root);
 }
@@ -2533,13 +2545,14 @@ function Settings({
         "aria-label": "\u5DE5\u4F5C\u533A\u8BBE\u7F6E",
         style: { left, top },
         onKeyDown: (e) => {
-          if (e.key === "Escape" && !!e.nativeEvent.isComposing && !editing) {
+          if (e.key === "Escape" && !e.nativeEvent.isComposing && !editing) {
             e.stopPropagation();
             close();
           }
         }
       },
       /* @__PURE__ */ import_react6.default.createElement("h2", null, "\u5DE5\u4F5C\u533A\u8BBE\u7F6E"),
+      /* @__PURE__ */ import_react6.default.createElement("p", { className: "el-model-status" }, runtime.state.data?.modelTestGate.approved ? "\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u5DF2\u83B7\u672C\u8F6E\u6388\u6743\u3002" : "\u672A\u5F00\u542F\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u3002\u9700\u5148\u83B7\u5F97\u672C\u8F6E\u8C03\u7528\u6388\u6743\uFF0C\u518D\u53D1\u8D77\u5BA1\u67E5\u3002", " ", /* @__PURE__ */ import_react6.default.createElement("a", { href: "https://evidentloop.sanze.dev/guide-status.html", target: "_blank", rel: "noopener noreferrer" }, "\u67E5\u770B\u8C03\u7528\u6388\u6743\u8BF4\u660E \u2197")),
       /* @__PURE__ */ import_react6.default.createElement("p", { className: "el-muted" }, sharedRepo ? "\u8FD9\u4E9B\u8BBE\u7F6E\u5BF9\u540C\u4E00\u4ED3\u5E93\u7684\u6240\u6709\u5DE5\u4F5C\u533A\u751F\u6548" : "\u8FD9\u4E9B\u8BBE\u7F6E\u5BF9\u5F53\u524D\u5DE5\u4F5C\u533A\u6240\u5C5E\u4ED3\u5E93\u751F\u6548"),
       /* @__PURE__ */ import_react6.default.createElement("label", { className: "el-setting-row" }, /* @__PURE__ */ import_react6.default.createElement("span", null, /* @__PURE__ */ import_react6.default.createElement("strong", null, "\u81EA\u52A8\u5BA1\u67E5"), /* @__PURE__ */ import_react6.default.createElement("small", null, "\u81EA\u52A8\u5BA1\u67E5\u5C1A\u672A\u542F\u7528\uFF0C\u6B64\u504F\u597D\u4F1A\u4FDD\u7559\u3002")), /* @__PURE__ */ import_react6.default.createElement(
         "input",
@@ -2685,6 +2698,7 @@ function Panel({ runtime }) {
         ).length > 1
       });
   };
+  const gateBadge = data?.modelTestGate && !data.modelTestGate.approved && !state.modelNoticeDismissed ? /* @__PURE__ */ import_react7.default.createElement("span", { className: "el-model-badge", title: "\u672A\u5F00\u542F\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u3002\u5F53\u524D\u53EF\u67E5\u770B\u4EE3\u7801\u4E0E\u5DF2\u6709\u5BA1\u67E5\u8BB0\u5F55\uFF1B\u8BE6\u60C5\u89C1\u5DE5\u4F5C\u533A\u8BBE\u7F6E\u3002" }, "\u6F14\u793A\u6A21\u5F0F", /* @__PURE__ */ import_react7.default.createElement(IconButton, { label: "\u5173\u95ED\u6F14\u793A\u6A21\u5F0F\u63D0\u793A", icon: "close", size: "sm", onClick: () => runtime.update({ modelNoticeDismissed: true }) })) : null;
   return /* @__PURE__ */ import_react7.default.createElement(
     "main",
     {
@@ -2692,7 +2706,7 @@ function Panel({ runtime }) {
       "data-testid": "evidentloop-panel",
       "aria-label": "AI \u53D8\u66F4\u8BC4\u5BA1 \xB7 EvidentLoop"
     },
-    state.page === "list" && /* @__PURE__ */ import_react7.default.createElement("header", { className: "el-page-header" }, /* @__PURE__ */ import_react7.default.createElement("h1", { title: "AI \u53D8\u66F4\u8BC4\u5BA1 \xB7 EvidentLoop" }, "\u53D8\u66F4\u8BC4\u5BA1"), data && /* @__PURE__ */ import_react7.default.createElement(WorkspacePicker, { runtime, state }), /* @__PURE__ */ import_react7.default.createElement("span", { className: "el-header-spacer" }), /* @__PURE__ */ import_react7.default.createElement("label", { className: "el-search" }, /* @__PURE__ */ import_react7.default.createElement(Icon, { name: "search", size: 14 }), /* @__PURE__ */ import_react7.default.createElement(
+    state.page === "list" && /* @__PURE__ */ import_react7.default.createElement("header", { className: "el-page-header" }, /* @__PURE__ */ import_react7.default.createElement("h1", { title: "AI \u53D8\u66F4\u8BC4\u5BA1 \xB7 EvidentLoop" }, "\u53D8\u66F4\u8BC4\u5BA1"), gateBadge, data && /* @__PURE__ */ import_react7.default.createElement(WorkspacePicker, { runtime, state }), /* @__PURE__ */ import_react7.default.createElement("span", { className: "el-header-spacer" }), /* @__PURE__ */ import_react7.default.createElement("label", { className: "el-search" }, /* @__PURE__ */ import_react7.default.createElement(Icon, { name: "search", size: 14 }), /* @__PURE__ */ import_react7.default.createElement(
       "input",
       {
         type: "search",
@@ -2711,7 +2725,7 @@ function Panel({ runtime }) {
         disabled: !data?.project?.projectKey
       }
     )),
-    state.error && /* @__PURE__ */ import_react7.default.createElement("div", { role: "alert", className: "el-error" }, state.error, /* @__PURE__ */ import_react7.default.createElement("button", { className: "el-btn", onClick: () => runtime.refresh() }, "\u91CD\u65B0\u52A0\u8F7D"), /* @__PURE__ */ import_react7.default.createElement(
+    state.error && /* @__PURE__ */ import_react7.default.createElement("div", { role: state.error === UNBORN_HEAD_MESSAGE ? "status" : "alert", className: state.error === UNBORN_HEAD_MESSAGE ? "el-notice" : "el-error" }, state.error, /* @__PURE__ */ import_react7.default.createElement("button", { className: "el-btn", onClick: () => runtime.refresh() }, "\u91CD\u65B0\u52A0\u8F7D"), /* @__PURE__ */ import_react7.default.createElement(
       "button",
       {
         className: "el-btn",
@@ -2727,8 +2741,7 @@ function Panel({ runtime }) {
       },
       "\u5173\u95ED"
     )),
-    data?.modelTestGate && !data.modelTestGate.approved && /* @__PURE__ */ import_react7.default.createElement("p", { className: "el-test-gate" }, "\u6F14\u793A\u6A21\u5F0F\uFF1A\u672A\u5F00\u542F\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u3002\u5F53\u524D\u53EF\u67E5\u770B\u4EE3\u7801\u4E0E\u5DF2\u6709\u5BA1\u67E5\u8BB0\u5F55\u3002"),
-    state.loading ? /* @__PURE__ */ import_react7.default.createElement("p", { role: "status" }, "\u6B63\u5728\u8BFB\u53D6\u5DE5\u4F5C\u533A\u2026") : !data ? /* @__PURE__ */ import_react7.default.createElement("section", { className: "el-empty" }, "\u63D2\u4EF6\u5C1A\u672A\u8FDE\u63A5\uFF0C\u65E0\u6CD5\u8BFB\u53D6\u4EA4\u4ED8\u3002") : state.page === "preparing" ? /* @__PURE__ */ import_react7.default.createElement("section", { className: "el-empty", role: "status" }, "\u6B63\u5728\u51BB\u7ED3\u5BA1\u67E5\u8F93\u5165\uFF0C\u4E0D\u8C03\u7528\u6A21\u578B\u2026") : state.page === "review" && state.record ? /* @__PURE__ */ import_react7.default.createElement(Review, { runtime, state, openSettings }) : /* @__PURE__ */ import_react7.default.createElement(DeliveryList, { runtime, state }),
+    state.loading ? /* @__PURE__ */ import_react7.default.createElement("p", { role: "status" }, "\u6B63\u5728\u8BFB\u53D6\u5DE5\u4F5C\u533A\u2026") : !data ? /* @__PURE__ */ import_react7.default.createElement("section", { className: "el-empty" }, "\u63D2\u4EF6\u5C1A\u672A\u8FDE\u63A5\uFF0C\u65E0\u6CD5\u8BFB\u53D6\u4EA4\u4ED8\u3002") : state.page === "preparing" ? /* @__PURE__ */ import_react7.default.createElement("section", { className: "el-empty", role: "status" }, "\u6B63\u5728\u51BB\u7ED3\u5BA1\u67E5\u8F93\u5165\uFF0C\u4E0D\u8C03\u7528\u6A21\u578B\u2026") : state.page === "review" && state.record ? /* @__PURE__ */ import_react7.default.createElement(Review, { runtime, state, openSettings, gateBadge }) : /* @__PURE__ */ import_react7.default.createElement(DeliveryList, { runtime, state }),
     settings && /* @__PURE__ */ import_react7.default.createElement(
       Settings,
       {
@@ -3058,6 +3071,7 @@ var ClientRuntime = class {
       `session-context?sessionId=${encodeURIComponent(sessionId)}`
     );
     if (!context.available) throw Error("\u8BE5\u4F1A\u8BDD\u6CA1\u6709\u53EF\u7528\u7684Git\u5DE5\u4F5C\u533A");
+    const previousPage = this.state.page;
     const navigation = ++this.navigation;
     this.recordGeneration++;
     this.update({
@@ -3065,7 +3079,6 @@ var ClientRuntime = class {
       workspaceId: context.workspaceId,
       returnSessionId: sessionId
     });
-    this.native.showPanel();
     try {
       const result = await this.run(
         "capture",
@@ -3074,11 +3087,13 @@ var ClientRuntime = class {
       );
       if (!result.snapshotId)
         throw Error(result.reason || "\u6CA1\u6709\u53EF\u751F\u6210\u5BA1\u67E5\u8BB0\u5F55\u7684\u6539\u52A8");
-      if (navigation === this.navigation)
+      if (navigation === this.navigation) {
         await this.open(result.deliveryId, "overview", result.snapshotId);
+        this.native.showPanel();
+      }
     } catch (error) {
       if (navigation === this.navigation)
-        this.update({ page: "list", error: errorMessage(error) });
+        this.update({ page: previousPage, error: "" });
       throw error;
     }
   }
@@ -3318,8 +3333,17 @@ body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business
 .el-material-icon { width: 16px; height: 16px; flex: 0 0 16px; object-fit: contain; }
 .el-plugin .el-tree-folder { border: 0; background: transparent; display: flex; justify-content: flex-start; gap: 5px; width: 100%; padding: 4px 6px; font-size: 12px; }
 .el-tree-level { min-width: 0; } .el-tree-children { padding-left: 12px; }
-.el-tail-card { background: var(--el-bg-l1); border: 1px solid var(--el-border-l1); border-radius: 8px; display: flex; align-items: center; gap: 12px; padding: 12px; height: auto; font-size: 13px; }
-.el-tail-card>div { flex: 1; } .el-tail-card .el-primary { white-space: nowrap; }
+.el-plugin.el-tail-card { height: auto; width: 100%; margin: 16px 0 10px; padding: 13px 15px; border: 1px solid var(--el-border-l1); border-radius: 16px; background: var(--el-bg-l2); box-shadow: var(--el-shadow-card); display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 13px; }
+.el-plugin .el-tail-main { display: flex; align-items: center; justify-content: flex-start; gap: 10px; flex: 1; min-width: 0; text-align: left; border-radius: 8px; }
+.el-tail-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 32px; width: 32px; height: 32px; border-radius: 8px; background: var(--el-bg-l3); color: var(--el-label-2); }
+.el-tail-info { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+.el-tail-status { display: inline-flex; align-items: center; gap: 5px; min-height: 20px; padding: 0 8px; border-radius: 4px; background: var(--el-hover); color: var(--el-label-2); font-size: 11px; font-weight: 500; }
+.el-tail-status i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: 0 0 6px; }
+.el-tail-sub { color: var(--el-label-3); font-size: 12px; }
+.el-plugin.el-tail-card > .el-primary { height: 32px; min-height: 32px; padding: 0 14px; border-radius: 8px; background: var(--el-bg-l2); font-size: 13px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+.el-plugin.el-tail-card > .el-primary:hover { background: var(--el-brand-tint); }
+.el-tail-error { flex: 0 0 100%; color: var(--el-state-error); }
+
 /* Signed-off prototype interaction: line wrapping, persistent toolbar geometry, anchored settings. */
 .el-invisible { visibility: hidden; pointer-events: none; }
 .el-file-filter { display: inline-flex; flex-shrink: 0; gap: 0; height: 32px; padding: 2px; border: 0; border-radius: 8px; background: var(--el-bg-l3); box-shadow: inset 0 0 0 1px var(--el-border-l1); font-size: 12px; }
@@ -3388,6 +3412,36 @@ body[data-ds-dark-theme] .el-plugin { --el-state-error-tint: rgba(248, 81, 73, .
 .el-file-button:focus-within { outline-offset: -2px; }
 .el-plugin .el-file-explanation .el-summary-link { color: var(--el-brand-link); }
 .el-plugin .d2h-wrapper .d2h-info { background-color: var(--el-bg-l3); border-color: var(--el-border-l1); color: var(--el-label-3); cursor: default; }
+
+/* Prototype icon contexts: retain the shared 18/16/14 sizes and exact small affordances. */
+.el-category, .el-annotation-chip { display: inline-flex; align-items: center; gap: 3px; }
+.el-plugin svg { flex-shrink: 0; vertical-align: middle; }
+.el-tree-file > svg { color: var(--el-state-success); margin-left: auto; }
+.el-menu-item-label { display: inline-flex; align-items: center; gap: 8px; }
+.el-menu-layer .el-menu-search { width: 100%; margin-bottom: 6px; }
+.el-menu-layer .el-menu-search input { margin-bottom: 0; }
+.overview-requirements > summary { display: flex; align-items: center; gap: 10px; list-style: none; }
+.overview-requirements > summary::-webkit-details-marker { display: none; }
+.overview-requirements > summary::before { content: ""; width: 0; height: 0; border-left: 5px solid var(--el-label-3); border-top: 4px solid transparent; border-bottom: 4px solid transparent; }
+.overview-requirements[open] > summary::before { transform: rotate(90deg); }
+
+.el-tail-notice { flex: 0 0 100%; color: var(--el-label-2); }
+
+/* Measured native DSH automation page: 76px title inset, 4vw gutters capped at 48px. */
+main.el-plugin { --el-page-gutter: clamp(24px, 4vw, 48px); }
+.el-plugin .el-page-header { max-width: 1280px; margin-inline: auto; padding: 76px var(--el-page-gutter) 24px; border-bottom: 0; background: transparent; }
+.el-delivery-area { padding: 0 var(--el-page-gutter) 48px; }
+.el-list-controls { padding: 0 0 24px; }
+.el-card-scroll, .el-compact-scroll { padding: 0; }
+.el-review { width: 100%; max-width: 1280px; align-self: center; padding: 24px var(--el-page-gutter) 48px; }
+.el-model-badge { display: inline-flex; align-items: center; gap: 2px; color: var(--el-label-3); background: var(--el-hover); border-radius: 6px; padding: 1px 4px 1px 8px; font-size: 11px; white-space: nowrap; }
+.el-model-status { color: var(--el-label-2); font-size: 12px; }
+@media (max-width: 720px) { main.el-plugin { --el-page-gutter: 16px; } .el-plugin .el-page-header { padding-top: 40px; } .el-review { padding: 16px 12px 24px; } }
+
+.el-plugin { font-family: -apple-system, system-ui, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.el-plugin .el-page-header h1 { font-weight: 500; line-height: 28px; }
+.el-tail-icon, .el-plugin.el-tail-card > .el-primary { color: var(--el-brand); }
+main.el-plugin > .el-notice, main.el-plugin > .el-error { width: 100%; max-width: 1280px; align-self: center; padding: 8px var(--el-page-gutter); }
 `;
 
 // plugin/client/index.tsx
@@ -3457,24 +3511,27 @@ function DeliveryTail({
     };
   }, [sessionId]);
   if (!context?.available) return null;
-  return /* @__PURE__ */ import_react8.default.createElement("section", { className: "el-plugin el-tail-card" }, /* @__PURE__ */ import_react8.default.createElement(Icon, { name: "brand", size: 24 }), /* @__PURE__ */ import_react8.default.createElement("div", null, /* @__PURE__ */ import_react8.default.createElement("p", null, context.statusText), /* @__PURE__ */ import_react8.default.createElement("small", null, "\u5BA1\u67E5\u5F53\u524D\u5DE5\u4F5C\u533A\u7684\u7D2F\u8BA1\u6539\u52A8"), error && /* @__PURE__ */ import_react8.default.createElement("p", { role: "alert" }, error)), /* @__PURE__ */ import_react8.default.createElement(
+  const open = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await runtime.openFromSession(sessionId);
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return /* @__PURE__ */ import_react8.default.createElement("section", { className: "el-plugin el-tail-card", "aria-label": "\u4EA4\u4ED8\u533A\u5361\u7247" }, /* @__PURE__ */ import_react8.default.createElement("button", { className: "el-tail-main", "aria-label": "\u6253\u5F00\u8BC4\u5BA1\u53F0", disabled: busy, onClick: open }, /* @__PURE__ */ import_react8.default.createElement("span", { className: "el-tail-icon" }, /* @__PURE__ */ import_react8.default.createElement(Icon, { name: "brand", size: 18 })), /* @__PURE__ */ import_react8.default.createElement("span", { className: "el-tail-info" }, /* @__PURE__ */ import_react8.default.createElement("span", { className: "el-tail-status" }, /* @__PURE__ */ import_react8.default.createElement("i", { "aria-hidden": "true" }), context.statusText), /* @__PURE__ */ import_react8.default.createElement("span", { className: "el-tail-sub" }, "\u5BA1\u67E5\u5F53\u524D\u5DE5\u4F5C\u533A\u7684\u7D2F\u8BA1\u6539\u52A8"))), /* @__PURE__ */ import_react8.default.createElement(
     "button",
     {
       className: "el-primary",
       disabled: busy,
-      onClick: async () => {
-        setBusy(true);
-        try {
-          await runtime.openFromSession(sessionId);
-        } catch (e) {
-          setError(errorMessage(e));
-        } finally {
-          setBusy(false);
-        }
-      }
+      onClick: open
     },
-    busy ? "\u6B63\u5728\u51BB\u7ED3" : "\u5BA1\u67E5\u672C\u6B21\u53D8\u66F4"
-  ));
+    busy ? "\u6B63\u5728\u51BB\u7ED3" : "\u5BA1\u67E5\u672C\u6B21\u53D8\u66F4",
+    /* @__PURE__ */ import_react8.default.createElement(Icon, { name: "arrowRight", size: 14 })
+  ), error && /* @__PURE__ */ import_react8.default.createElement("p", { className: error === UNBORN_HEAD_MESSAGE ? "el-tail-notice" : "el-tail-error", role: error === UNBORN_HEAD_MESSAGE ? "status" : "alert" }, error));
 }
 
 return module.exports;}});
