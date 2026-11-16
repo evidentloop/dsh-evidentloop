@@ -8,15 +8,15 @@ React 客户端由宿主提供 React/ReactDOM；插件独立实现，界面基�
 
 运行环境需要 DeepSeek Harness 兼容版本 `^0.2.2-rc.2`。安装本身不会发起模型请求，真实审查需要按下文配置调用额度。
 
-1. **通过 npm 安装**：在 DSH 的 **插件 → 添加插件** 输入 `dsh-evidentloop@beta`，或通过命令行安装到当前 profile：
+1. **通过 npm 安装**：在 DSH 的 **插件 → 添加插件** 输入 `@evidentloop/dsh-evidentloop@beta`，或通过命令行安装到当前 profile：
    ```sh
-   dsh plugin --profile desktop add dsh-evidentloop@beta --registry=https://registry.npmjs.org
+   dsh plugin --profile desktop add @evidentloop/dsh-evidentloop@beta --registry=https://registry.npmjs.org
    ```
 2. **通过离线包安装**：从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，在 **插件 → 添加插件** 中输入离线包的绝对路径，或执行：
    ```sh
    dsh plugin --profile desktop add /absolute/path/dsh-evidentloop-0.1.0-rc.1.tgz
    ```
-3. **通过自定义索引安装**：在 **插件 → 实验性插件 → 自定义插件索引** 启用功能，在 **发现 → 添加索引源** 填入 `https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json`。搜索 `dsh-evidentloop` 或「AI 变更评审」，核对版本后安装。
+3. **通过自定义索引安装**：在 **插件 → 实验性插件 → 自定义插件索引** 启用功能，在 **发现 → 添加索引源** 填入 `https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json`。搜索 `@evidentloop/dsh-evidentloop` 或「AI 变更评审」，核对版本后安装。
 
 将 `desktop` 替换为实际使用的 profile。安装后启用插件；如宿主提示需要重启，重启后打开侧栏「变更评审」。
 

@@ -142,7 +142,7 @@ await test('native workspace list observes its actual list store and follows the
 });
 await test('built client ModuleLoader exports public entry using host React only', () => {
   const rt = installed('react', process.env.REACT_PACKAGE); let entry;
-  vm.runInNewContext(fs.readFileSync(path.join(root, 'plugin/dist/client.js'), 'utf8'), { window: { __ModuleLoader__: { load: module => { assert.equal(module.id, 'dsh-evidentloop'); entry = module.factory(name => { assert.ok(['react', 'react-dom'].includes(name)); return rt.require(name); }); } } } });
+  vm.runInNewContext(fs.readFileSync(path.join(root, 'plugin/dist/client.js'), 'utf8'), { window: { __ModuleLoader__: { load: module => { assert.equal(module.id, '@evidentloop/dsh-evidentloop'); entry = module.factory(name => { assert.ok(['react', 'react-dom'].includes(name)); return rt.require(name); }); } } } });
   assert.equal(entry.name, 'dsh-evidentloop'); assert.equal(typeof entry.apply, 'function'); assert.ok(entry.inject.includes('uiWorkspace'));
 });
 await test('React component renders real props and escapes user controlled titles', async () => {

@@ -10,7 +10,7 @@ const outdir = path.join(root, 'dist'); fs.mkdirSync(outdir, { recursive: true }
 const host = await esbuild.build({ absWorkingDir: repo, entryPoints: ['plugin/host/index.ts'], bundle: true, platform: 'node', format: 'esm', target: ['node20'], outfile: path.join(outdir, 'host.mjs'), metafile: true, logLevel: 'silent' });
 const client = await esbuild.build({ absWorkingDir: repo, entryPoints: ['plugin/client/index.tsx'], bundle: true, platform: 'browser', format: 'cjs', target: ['chrome120'], external: ['react', 'react-dom'], loader: { '.css': 'text' }, jsx: 'transform', tsconfigRaw: { compilerOptions: { jsx: 'react' } }, outfile: path.join(outdir, 'client.js'), write: false, metafile: true, logLevel: 'silent' });
 for (const output of client.outputFiles) {
-  if (output.path.endsWith('.js')) fs.writeFileSync(output.path, `window.__ModuleLoader__.load({id:'dsh-evidentloop',factory:require=>{var module={exports:{}};var exports=module.exports;\n${output.text}\nreturn module.exports;}});\n`);
+  if (output.path.endsWith('.js')) fs.writeFileSync(output.path, `window.__ModuleLoader__.load({id:'@evidentloop/dsh-evidentloop',factory:require=>{var module={exports:{}};var exports=module.exports;\n${output.text}\nreturn module.exports;}});\n`);
   else fs.writeFileSync(output.path, output.contents);
 }
 fs.copyFileSync(path.join(root, 'client/styles.css'), path.join(outdir, 'client.css'));

@@ -10,7 +10,7 @@
   },
   "plugins": [
     {
-      "name": "dsh-evidentloop",
+      "name": "@evidentloop/dsh-evidentloop",
       "title": {
         "zh": "AI 变更评审",
         "en": "EvidentLoop AI Code Review"

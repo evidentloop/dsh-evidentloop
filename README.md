@@ -28,12 +28,12 @@ EvidentLoop 把这些问题放进同一个评审台。先按功能理解改动�
 
 运行环境需要 DeepSeek Harness 兼容版本 `^0.2.2-rc.2`（若从源码构建开发，需 Node.js ≥ 20）。
 
-1. **选择安装来源**：通过 [npm Beta 包](https://www.npmjs.com/package/dsh-evidentloop)安装，或从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，保存到运行 DSH 的机器。
-2. **安装并启用**：打开 DSH 的 **插件 → 添加插件**，输入 `dsh-evidentloop@beta` 或离线包的绝对路径。也可以用命令行安装到当前使用的 profile：
+1. **选择安装来源**：通过 [npm Beta 包](https://www.npmjs.com/package/@evidentloop/dsh-evidentloop)安装，或从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，保存到运行 DSH 的机器。
+2. **安装并启用**：打开 DSH 的 **插件 → 添加插件**，输入 `@evidentloop/dsh-evidentloop@beta` 或离线包的绝对路径。也可以用命令行安装到当前使用的 profile：
 
    ```sh
    # 从 npm 安装 Beta 版本
-   dsh plugin --profile desktop add dsh-evidentloop@beta --registry=https://registry.npmjs.org
+   dsh plugin --profile desktop add @evidentloop/dsh-evidentloop@beta --registry=https://registry.npmjs.org
    # 或安装已下载的离线包
    dsh plugin --profile desktop add /absolute/path/dsh-evidentloop-0.1.0-rc.1.tgz
    ```
