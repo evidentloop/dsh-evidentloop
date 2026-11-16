@@ -1,59 +1,64 @@
-# AI 变更评审 / EvidentLoop · 0.1.0-rc.1（Beta）
+# EvidentLoop（AI 变更评审）
 
-面向人工验收的 AI 变更评审插件，当前处于 Beta 阶段；安装方式见[仓库安装指南](https://github.com/evidentloop/dsh-evidentloop#安装)。需手动点击「审查全部」或对单个文件发起审查；自动触发尚未接入。
+<p align="center">
+  <a href="https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1"><img src="https://img.shields.io/badge/version-0.1.0--rc.1%20beta-e6a23c?style=flat-square" alt="version 0.1.0-rc.1 beta"></a>
+  <a href="https://github.com/deepseek-ai/deepseek-harness"><img src="https://img.shields.io/badge/platform-DeepSeek%20Harness%20%E2%89%A50.2.2-4868b2?style=flat-square" alt="platform DeepSeek Harness ≥0.2.2"></a>
+  <a href="https://github.com/evidentloop/dsh-evidentloop/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-40916c?style=flat-square" alt="license MIT"></a>
+  <a href="https://evidentloop.sanze.dev/demo.html"><img src="https://img.shields.io/badge/live%20demo-%E5%9C%A8%E7%BA%BF%E6%BC%94%E7%A4%BA-4868b2?style=flat-square" alt="live demo 在线演示"></a>
+</p>
 
-React 客户端由宿主提供 React/ReactDOM；插件独立实现，界面基于作者个人原型。Cordis 宿主通过 connection 路由使用纯 Node 核心库，不启动独立业务服务。浏览器测试服务仅为合成夹具。
+把 AI 改动整理成可复核的交付：先看变更说明、核对需求，再逐条检查代码依据；需要修改时，把意见发回开发会话草稿，由你确认发送。当前处于 Beta 阶段，审查需手动发起。
+
+![评审台：文件树、单栏 Diff 与带代码引用的审查意见](https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/site/assets/diff-finding-light.png)
+
+[交互流程图](https://evidentloop.sanze.dev/flow.html) · [44 秒操作实录](https://evidentloop.sanze.dev/demo.html) · [完整使用说明](https://evidentloop.sanze.dev/guide.html)
 
 ## 安装
 
-运行环境需要 DeepSeek Harness 兼容版本 `^0.2.2-rc.2`。安装本身不会发起模型请求，真实审查需要按下文配置调用额度。
+需要 DeepSeek Harness 兼容版本 `^0.2.2-rc.2`。在 **插件 → 添加插件** 中输入 `@evidentloop/dsh-evidentloop@beta`，或安装到当前使用的 profile：
 
-1. **通过 npm 安装**：在 DSH 的 **插件 → 添加插件** 输入 `@evidentloop/dsh-evidentloop@beta`，或通过命令行安装到当前 profile：
-   ```sh
-   dsh plugin --profile desktop add @evidentloop/dsh-evidentloop@beta --registry=https://registry.npmjs.org
-   ```
-2. **通过离线包安装**：从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，在 **插件 → 添加插件** 中输入离线包的绝对路径，或执行：
-   ```sh
-   dsh plugin --profile desktop add /absolute/path/dsh-evidentloop-0.1.0-rc.1.tgz
-   ```
-3. **通过自定义索引安装**：在 **插件 → 实验性插件 → 自定义插件索引** 启用功能，在 **发现 → 添加索引源** 填入 `https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json`。搜索 `@evidentloop/dsh-evidentloop` 或「AI 变更评审」，核对版本后安装。
+```sh
+dsh plugin --profile desktop add @evidentloop/dsh-evidentloop@beta --registry=https://registry.npmjs.org
+```
 
-将 `desktop` 替换为实际使用的 profile。安装后启用插件；如宿主提示需要重启，重启后打开侧栏「变更评审」。
+将 `desktop` 替换为实际使用的 profile。安装后启用插件，按宿主提示重启，再打开侧栏「变更评审」。已有旧包 `dsh-evidentloop` 时，先移除旧包，再安装组织包。
 
-## 本地构建与验证
+也支持以下来源：
+
+- **离线包**：从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，保存到运行 DSH 的机器，在 **插件 → 添加插件** 中输入包的绝对路径。
+- **自定义索引**：先启用 **插件 → 实验性插件 → 自定义插件索引**，再在 **发现 → 添加索引源** 填入[项目索引](https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json)，搜索「AI 变更评审」并核对来源后安装。该索引为项目自建源，尚未收录进 DSH 官方插件市场；市场安装路径暂未完成端到端验证。
+
+## 配置审查
+
+审查使用当前 DSH 会话所选的模型。先在 DSH 中配置可用模型，再在插件的「工作区设置」查看调用授权状态。
+
+Beta 阶段还需在运行 DSH 的机器上单独配置审查授权与调用额度，插件界面只显示授权状态。提示「未开启真实模型调用」时，仍可查看本地改动和已有记录，模型审查不会执行；选择模型或保存工作区设置不会自动开启授权。相关状态见[调用授权说明](https://evidentloop.sanze.dev/guide-status.html)。
+
+授权就绪后，进入当前分支对应的交付，点击「审查全部」或审查单个文件。检查问题的代码依据，留下批注，再从「导出与发回」预览修改意见。改完再次审查，未变的文件沿用上次结论。
+
+## 数据与安全
+
+- 插件不修改代码、暂存区或提交；新仓库还没有首次提交时，也能审查本地文件。
+- 发起模型审查会把必要的代码和需求内容交给 DSH 所选模型，请先确认模型服务适合处理这些内容。
+- 审查记录保存在本机。导出报告可能含代码与需求原文，分享前请检查；发回会话只写入草稿，不会自动发送。
+- 模型意见需要人工复核；待审、跳过或失败都不等于已经通过。
+
+## 开发
+
+从源码构建需 Node.js ≥ 20，在仓库根目录运行。UI 测试使用已有 Playwright 和系统 Chrome。
 
 ```sh
 npm ci
-npm run typecheck
-node plugin/scripts/build.mjs
-node --import tsx plugin/tests/run.mjs /tmp/evidentloop-plugin-tests
-node --import tsx plugin/tests/browser-headless.mjs /tmp/evidentloop-browser-tests
-node core/tests/all.mjs /tmp/evidentloop-core-tests
+npm run build
+npm test -- /tmp/evidentloop-core-tests
+npm run test:ui -- /tmp/evidentloop-ui-tests
+node plugin/scripts/package.mjs /tmp/dsh-evidentloop-0.1.0-rc.1.tgz
 ```
 
-在仓库根目录用 `npm ci` 安装锁定的开发依赖；UI 测试使用已有 Playwright 与系统 Chrome。构建脚本不自动安装依赖。优先解析本地依赖，也兼容已有工具缓存；可用 `ESBUILD_PACKAGE`、`REACT_PACKAGE`、`PLAYWRIGHT_PACKAGE` 指定相应 package.json。测试使用合成输入，真实模型调用为 0；不操作用户浏览器或主应用实例。
+测试输出目录与安装包路径须在仓库外，运行前应不存在。测试使用合成数据，不调用真实模型；打包命令只生成本地文件。
 
-`tests/toolbar-browser.mjs --before` 的可选旧版对比需要设置 `EVIDENTLOOP_BASELINE_STYLES` 与 `EVIDENTLOOP_BASELINE_CLIENT`，分别指向自己的基线 CSS 和浏览器夹具脚本。
+模块分工：`client/` 提供评审界面，`host/` 连接 DSH 与本地审查服务，`core/` 负责快照、证据校验和导出，`skills/` 定义审查方法。客户端使用宿主提供的 React，主题跟随 DSH。
 
-`node plugin/scripts/package.mjs <外部目录/file.tgz>` 只生成本地离线安装包和清单，不上传或发布。安装与真实模型验证须另行授权。
+## 许可
 
-客户端与宿主源码使用严格 TypeScript；`tsconfig.json` 采用 `react-jsx` 与 Bundler 解析。esbuild 在打包时转换为宿主提供的 `React.createElement`，保持 ModuleLoader 只依赖 React/ReactDOM，输出仍为 `dist/host.mjs` 与 `dist/client.js`。`core/` 保持可直接运行的 Node MJS；声明定义 adapter 消费的数据边界，模型输出类型由现有 schema 生成，`typecheck` 会检查是否过期。运行时证据校验仍由 core 执行。
-
-## 数据和适配接口
-
-- `host/service.ts`：真实工作区/仓库寻址、准备锁、需求order、设置、所选记录/冻结文件、Mark/批注、MD/HTML、锁定发回、代码段追问。各类写入由core再次校验当前记录；工作区归属不靠UI数组推断。
-- `host/dsh-adapter.ts`：本次发起开发会话配置、原生受控Agent、tools=[]、单步/失败不重试、真实取消与等待、原始文本落盘、自身会话登记。原始返回不修补为合格JSON。
-- `host/bridge.ts` / `client/native.ts`：按发起client和目标Session寻址，nonce/期限/实际回执；草稿CAS且保留引用附件，不发送消息。文件打开、代码引用与剪贴板只在原生回执成功后报告成功。
-- `client/`：两层页面、文件树、双视图、六段概览、Diff2Html位置承载、统一建议区域、问题处置与批注、历史只读、真实设置与扩展编辑保护。主题跟随DSH，不增加产品主题开关。
-
-当前自动触发接线仍属P5，自动模式偏好可保存；本轮由人工发起。`conversation.chat.turnTail` 使用renderer给出的session作用域sessionId，不能用当前主会话代替历史或侧栏会话。
-
-## 隔离模型预算门禁
-
-程序缺省不创建预算文件，也不发起真实模型调用。每轮须主控确认后，才在隔离私有存储写入独立 `model-approval.json`。必需字段：approvedBy、taskId、expiresAt、maxCalls、provider、model、reasoningEffort，以及**本次公开仓的projectKey、冻结inputSha、promptVersion**；used必须是非负整数，maxInputBytes/maxOutputTokens可进一步限定。
-
-缺失、过期、计数格式错误、仓库/冻结输入/方法/模型不匹配均拒绝模型调用。预算计数在受控Agent准备成功且即将提交原生请求时扣减，初始化失败不消耗一次调用。此文件不含账号凭据，不打入源码、安装包或公开证据；主DSH配置、账号和网络保持不变。
-
-## 范围边界
-
-真实模型与原生端到端按任务门禁单独验证；合成检查不能代替原生能力或质量判断。生产宿主、实机IME、跨进程多写入者、物理磁盘满与发布扫描另行验收。来源：Diff2Html官方vendor及许可证；Material Icon Theme 5.38.1的实际SVG与MIT许可证，见vendor/material/source.json；未搬原型业务代码。
+[MIT](https://github.com/evidentloop/dsh-evidentloop/blob/main/LICENSE)，Copyright (c) 2026 sanze.li。第三方许可见 [THIRD_PARTY_NOTICES.md](https://github.com/evidentloop/dsh-evidentloop/blob/main/plugin/THIRD_PARTY_NOTICES.md)。

@@ -28,20 +28,18 @@ EvidentLoop 把这些问题放进同一个评审台。先按功能理解改动�
 
 运行环境需要 DeepSeek Harness 兼容版本 `^0.2.2-rc.2`（若从源码构建开发，需 Node.js ≥ 20）。
 
-1. **选择安装来源**：通过 [npm Beta 包](https://www.npmjs.com/package/@evidentloop/dsh-evidentloop)安装，或从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，保存到运行 DSH 的机器。
-2. **安装并启用**：打开 DSH 的 **插件 → 添加插件**，输入 `@evidentloop/dsh-evidentloop@beta` 或离线包的绝对路径。也可以用命令行安装到当前使用的 profile：
+在 DSH 的 **插件 → 添加插件** 中输入 [`@evidentloop/dsh-evidentloop@beta`](https://www.npmjs.com/package/@evidentloop/dsh-evidentloop)，或通过命令行安装：
 
-   ```sh
-   # 从 npm 安装 Beta 版本
-   dsh plugin --profile desktop add @evidentloop/dsh-evidentloop@beta --registry=https://registry.npmjs.org
-   # 或安装已下载的离线包
-   dsh plugin --profile desktop add /absolute/path/dsh-evidentloop-0.1.0-rc.1.tgz
-   ```
+```sh
+dsh plugin --profile desktop add @evidentloop/dsh-evidentloop@beta --registry=https://registry.npmjs.org
+```
 
-   将 `desktop` 替换为实际使用的 profile。安装后启用插件；如宿主提示需要重启，重启后打开侧栏「变更评审」。
-3. **配置审查调用**：安装本身不会发起模型请求。Beta 期间真实审查需要单独配置调用额度，按[插件配置说明](plugin/README.md#隔离模型预算门禁)完成设置后，再发起审查。
+将 `desktop` 替换为实际使用的 profile。安装后启用插件，按宿主提示重启，再打开侧栏「变更评审」。安装与查看改动不会发起模型请求；真实审查需先按[配置审查](plugin/README.md#配置审查)完成模型与调用授权设置。
 
-也可通过自定义索引安装：在 **插件 → 实验性插件 → 自定义插件索引** 启用该功能，再到 **发现 → 添加索引源**，填入[本仓库的插件索引](https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json)。搜索「AI 变更评审」或 `EvidentLoop`，核对版本和来源后安装。该索引为项目自建源，尚未收录进 DSH 官方插件市场；市场安装路径暂未完成端到端验证。
+其他安装方式：
+
+- **离线包**：从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，保存到运行 DSH 的机器，再在 **插件 → 添加插件** 中输入包的绝对路径。
+- **自定义索引**：在 **插件 → 实验性插件 → 自定义插件索引** 启用功能，再在 **发现 → 添加索引源** 填入[项目索引](https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json)，搜索「AI 变更评审」并核对来源后安装。该索引尚未收录进 DSH 官方插件市场，市场安装路径暂未完成端到端验证。
 
 ## 快速开始
 

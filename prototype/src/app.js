@@ -188,6 +188,7 @@
       visibleDeliveryRows() { return this.archiveExpanded ? this.archivedDeliveryRows : this.deliveryRows; },
       listSortLabel() { return this.listSort === 'problems' ? '问题最多' : '最近更新'; },
       workspaceActiveCount() { return this.workspaceDeliveries.filter(delivery => !this.listMeta(delivery).archived).length; },
+      hasWorkspaceProblems() { return this.workspaceDeliveries.some(delivery => Number(delivery.latest?.validFindingCount) > 0); },
       extensionDirty() { return P.normalizeNewlines(this.extensionDialog.draft) !== P.normalizeNewlines(this.extensionDialog.initial); },
       listEmptyMode() {
         if (!this.workspaceDeliveries.length) return 'workspace';
@@ -2762,10 +2763,10 @@
             </header>
             <div class="list-rail" aria-label="交付列表操作">
               <div class="list-scope" role="group" aria-label="交付范围">
-                <button type="button" class="delivery-scope-all" :aria-pressed="String(!archiveExpanded)" @click="setListScope(false)">全部 <span>{{workspaceActiveCount}}</span></button>
-                <button type="button" class="delivery-archive-toggle" :aria-pressed="String(archiveExpanded)" :aria-expanded="String(archiveExpanded)" @click="setListScope(true)">归档 <span>{{workspaceArchivedCount}}</span></button>
+                <button type="button" class="delivery-scope-all" :aria-pressed="String(!archiveExpanded)" @click="setListScope(false)">全部 <span v-if="workspaceActiveCount">{{workspaceActiveCount}}</span></button>
+                <button v-if="archiveExpanded || workspaceArchivedCount" type="button" class="delivery-archive-toggle" :aria-pressed="String(archiveExpanded)" :aria-expanded="String(archiveExpanded)" @click="setListScope(true)">归档 <span v-if="workspaceArchivedCount">{{workspaceArchivedCount}}</span></button>
               </div>
-              <div class="list-filters"><label class="list-problem-filter"><input type="checkbox" v-model="listProblemOnly">只看有问题</label>
+              <div class="list-filters"><label v-if="listProblemOnly || hasWorkspaceProblems" class="list-problem-filter"><input type="checkbox" v-model="listProblemOnly">只看有问题</label>
                 <span class="menu-anchor list-sort-anchor"><button type="button" class="list-sort-trigger" aria-haspopup="menu" :aria-label="'排序：'+listSortLabel" :aria-expanded="String(openMenu==='list-sort')" @click.stop="toggleMenu('list-sort')">{{listSortLabel}}<span class="menu-caret" :class="{'is-open':openMenu==='list-sort'}" aria-hidden="true" v-html="icons.chevron"></span></button>
                   <div v-if="openMenu==='list-sort'" class="wb-menu list-sort-menu" role="menu" aria-label="交付排序" @click.stop><button v-for="option in [{value:'updated',label:'最近更新'},{value:'problems',label:'问题最多'}]" :key="option.value" class="wb-menu-item" role="menuitemradio" type="button" :aria-checked="String(listSort===option.value)" @click="setListSort(option.value)">{{option.label}}</button></div>
                 </span>
@@ -2970,10 +2971,10 @@
                           </div>
                           <p class="overview-purpose">{{showUnderstanding && understanding && understanding.overview && understanding.overview.purpose || (showUnderstanding ? '尚未生成交付目标。' : incompleteOverviewNotice)}}</p>
                           <div class="overview-stats" aria-label="变更统计">
-                            <button class="overview-stat" :class="{'has-problems':activeFindingsList.length}" type="button" @click="scrollToOverviewSection('overview-problems')"><strong>{{activeFindingsList.length}}</strong>问题</button>
-                            <button class="overview-stat" type="button" @click="scrollToOverviewSection('overview-features')"><strong>{{showUnderstanding ? allFeatures.length : 0}}</strong>功能</button>
-                            <button class="overview-stat" type="button" @click="scrollToOverviewSection('overview-alignment')"><strong>{{showUnderstanding && implementedAlignmentGroup ? implementedAlignmentGroup.items.length : 0}}</strong>已对齐</button>
-                            <button class="overview-stat" type="button" @click="scrollToOverviewSection('overview-coverage')"><strong>{{coverage && coverage.reviewed ? coverage.reviewed.length : 0}}</strong>覆盖文件</button>
+                            <button v-if="activeFindingsList.length || !reviewCompleteNow" class="overview-stat" :class="{'has-problems':activeFindingsList.length}" type="button" @click="scrollToOverviewSection('overview-problems')"><strong>{{activeFindingsList.length || reviewCompleteNow ? activeFindingsList.length : '待审'}}</strong>问题</button>
+                            <button v-if="showUnderstanding && allFeatures.length" class="overview-stat" type="button" @click="scrollToOverviewSection('overview-features')"><strong>{{showUnderstanding ? allFeatures.length : 0}}</strong>功能</button>
+                            <button v-if="showUnderstanding && implementedAlignmentGroup && implementedAlignmentGroup.items.length" class="overview-stat" type="button" @click="scrollToOverviewSection('overview-alignment')"><strong>{{showUnderstanding && implementedAlignmentGroup ? implementedAlignmentGroup.items.length : 0}}</strong>已对齐</button>
+                            <button v-if="coverage && coverage.reviewed && coverage.reviewed.length" class="overview-stat" type="button" @click="scrollToOverviewSection('overview-coverage')"><strong>{{coverage && coverage.reviewed ? coverage.reviewed.length : 0}}</strong>覆盖文件</button>
                           </div>
                           <div v-if="reviewBanner" class="panel-status" :class="'panel-status--'+reviewBanner.tone">
                             <span class="panel-status__icon" v-html="reviewBanner.tone==='green' ? icons.check : reviewBanner.tone==='amber' || reviewBanner.tone==='red' ? icons.warn : icons.history"></span>

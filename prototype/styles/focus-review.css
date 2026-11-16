@@ -22,7 +22,6 @@
 .focus-review .focus-toggle-file-pane { width: 32px; min-width: 32px; height: 32px; min-height: 32px; margin-right: 0; }
 .focus-file-pane-collapsed>.splitpanes__splitter { display: none; }
 .focus-review .focus-file-pane-collapsed :is(.diff-container,.review-container) { margin-left: 8px; }
-.focus-review .focus-report-closed .diff-container { margin-bottom: 0; }
 .focus-review .focus-report-closed>.splitpanes__splitter { display: none; }
 .focus-review .splitpanes--horizontal:not(.focus-report-closed)>.splitpanes__pane:last-child { flex-grow: 1; }
 .focus-line-link { border: 0; padding: 0; background: transparent; font: inherit; color: var(--el-brand-link); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }

@@ -525,8 +525,10 @@
   min-width: 0;
   overflow: hidden;
   background: var(--el-bg-l2);
-  box-shadow: var(--el-shadow-card);
-  margin: 0 8px 1px 1px
+  box-shadow: none;
+  margin: 8px;
+  border: 1px solid var(--el-border-l1);
+  border-radius: 8px;
 }
 
 .empty-files {

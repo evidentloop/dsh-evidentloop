@@ -323,6 +323,7 @@
 }
 
 .gpt-risk-marker {
+  font-family: -apple-system, system-ui, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   display: flex;
   flex-direction: column;
   width: 100%;
