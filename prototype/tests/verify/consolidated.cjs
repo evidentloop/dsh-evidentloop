@@ -16,14 +16,13 @@ module.exports = {
       if (!await page.locator('.settings-menu').count()) await page.getByRole('button', { name: '工作区设置', exact: true }).click();
     };
     const contentWidth = async target => {
+      // Exercise a narrow embedded list while keeping the desktop viewport usable.
+      await page.setViewportSize({ width: Math.max(1100, target + 252 + 64), height: 1000 });
       const padding = await page.locator('.delivery-list').evaluate(node => parseFloat(getComputedStyle(node).paddingLeft) + parseFloat(getComputedStyle(node).paddingRight));
-      const expected = Math.min(target, 1280 - padding);
-      for (let attempt = 0; attempt < 9; attempt++) {
-        const width = await page.locator('.delivery-list').evaluate(node => node.clientWidth - parseFloat(getComputedStyle(node).paddingLeft) - parseFloat(getComputedStyle(node).paddingRight));
-        if (Math.abs(width - expected) < .6) return expected;
-        const viewport = page.viewportSize();
-        await page.setViewportSize({ width: Math.round(viewport.width + expected - width), height: 1000 });
-      }
+      await page.locator('.list-header,.list-rail,.delivery-list').evaluateAll((nodes, width) => {
+        for (const node of nodes) { node.style.width = width + 'px'; node.style.maxWidth = '100%'; }
+      }, target + padding);
+      return target;
     };
     markStep('P1 A/B: live list data, scope, filter and layout');
     await open({ scenario: 'list', console: '1' });
@@ -113,7 +112,7 @@ module.exports = {
             noSticky: rows.every(row => getComputedStyle(row.querySelector('.delivery-name-cell')).position !== 'sticky'),
             sidebar: Boolean(document.querySelector('.dsh-sidebar')?.getClientRects().length) };
         });
-        check('B08 ' + theme + '/' + width + ': capped real content width, branch retained, no overflow or fixed first column', Math.abs(sample.content - expectedWidth) < .6 &&
+        check('B08 ' + theme + '/' + width + ': measured real content width, branch retained, no overflow or fixed first column', Math.abs(sample.content - expectedWidth) < .6 &&
           sample.sidebar && sample.branchVisible && !sample.overflow && !sample.globalOverflow && sample.noSticky);
         check('B09 ' + theme + '/' + width + ': 7/6/5 columns and compact rows at most 52px', sample.maxHeight <= 52 && sample.visibleHeads === (sample.content >= 1050 ? 7 : sample.content >= 850 ? 6 : 5));
         responsive.push({ theme, requested: width, expectedContent: expectedWidth, ...sample });

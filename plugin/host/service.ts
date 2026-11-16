@@ -74,6 +74,7 @@ export class PluginService {
       root: config.storageRoot,
       bridge: this.bridge,
       approvalFile: config.approvalFile,
+      requireApproval: config.requireApproval,
     });
     this.core = new ReviewCore({
       store,
@@ -213,15 +214,16 @@ export class PluginService {
         ? this.core.store.settings(project.projectKey)
         : null,
       operations: [...this.operations.values()].map(({ promise, ...o }) => o),
-      modelTestGate: this.modelGate(),
     };
   }
   modelGate() {
+    if (!this.adapter.requireApproval)
+      return { required: false, approved: true, remaining: null };
     try {
       const a = this.adapter.approval();
-      return { approved: true, remaining: a.maxCalls - (a.used || 0) };
+      return { required: true, approved: true, remaining: a.maxCalls - (a.used || 0) };
     } catch {
-      return { approved: false, remaining: 0 };
+      return { required: true, approved: false, remaining: 0 };
     }
   }
   operation(

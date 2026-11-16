@@ -81,11 +81,12 @@ module.exports = {
         return { blank: listRect.right - rightmost, column, cards: cards.length,
           overflow: rightmost > listRect.right + 0.5, maxWidth: getComputedStyle(document.querySelector('.delivery-list')).maxWidth,
           listWidth: document.querySelector('.delivery-list').getBoundingClientRect().width,
+          parentWidth: document.querySelector('.delivery-list').parentElement.getBoundingClientRect().width,
           centerDelta: Math.abs(document.querySelector('.delivery-list').getBoundingClientRect().left - document.querySelector('.delivery-list').parentElement.getBoundingClientRect().left - (document.querySelector('.delivery-list').parentElement.getBoundingClientRect().right - document.querySelector('.delivery-list').getBoundingClientRect().right)) };
       });
-      check('list grid stays inside the centered 1280px cap without an empty-column gap at ' + width, gridProbe.cards >= 2 &&
+      check('list grid fills the workspace without an empty-column gap at ' + width, gridProbe.cards >= 2 &&
         gridProbe.column >= 320 && gridProbe.blank >= 0 && gridProbe.blank < gridProbe.column &&
-        gridProbe.overflow === false && gridProbe.maxWidth === '1280px' && gridProbe.listWidth <= 1280.5 && gridProbe.centerDelta <= 1);
+        gridProbe.overflow === false && gridProbe.maxWidth === 'none' && Math.abs(gridProbe.listWidth - gridProbe.parentWidth) <= 1 && gridProbe.centerDelta <= 1);
     }
     await page.setViewportSize({ width: 1176, height: 834 });
     await page.waitForTimeout(100);

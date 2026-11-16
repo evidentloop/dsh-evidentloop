@@ -71,7 +71,7 @@
 .focus-tip-separator { margin: 0 6px; color: var(--el-label-caption); }
 .focus-tip-destination { color: var(--el-label-3); }
 /* §2.4: WebKit sizing must not be overridden by standard scrollbar properties in Chrome. */
-.focus-review .file-list-container,.focus-review .code-review-lite__body { scrollbar-gutter: stable; --focus-scrollbar-thumb: transparent; }
+.focus-review .file-list-container,.focus-review .code-review-lite__body { scrollbar-gutter: auto; --focus-scrollbar-thumb: transparent; }
 .focus-review .file-list-container:hover,.focus-review .code-review-lite__body:hover { --focus-scrollbar-thumb: var(--el-label-caption); }
 .focus-review .file-list-container::-webkit-scrollbar,.focus-review .code-review-lite__body::-webkit-scrollbar { width: 6px; height: 6px; }
 .focus-review .file-list-container::-webkit-scrollbar-track,.focus-review .code-review-lite__body::-webkit-scrollbar-track { background: transparent; }

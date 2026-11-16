@@ -33,7 +33,7 @@ const cid = crypto.randomUUID();
 await captureChecks(test, scratch);
 await hostRaceChecks(test, scratch, methodRoot, path.join(root, 'plugin/dist'));
 function adapterFor(name, options = {}) {
-  const host = fakeHost({ repo, ...options }), adapter = new DshAdapter(host.ctx, { root: path.join(scratch, name), bridge: new ClientBridge() });
+  const host = fakeHost({ repo, ...options }), adapter = new DshAdapter(host.ctx, { root: path.join(scratch, name), bridge: new ClientBridge(), approvalFile: path.join(scratch, name, "model-approval.json") });
   adapter.core = { store: { delivery: () => ({ title: 'Fixture', sessionIds: ['dev'] }) } };
   const approve = fields => fs.writeFileSync(adapter.approvalFile, JSON.stringify({ approvedBy: 'synthetic-test', taskId: 'fixture-only', expiresAt: new Date(Date.now() + 60000).toISOString(), maxCalls: 2, ...host.selection, projectKey: request.snapshot.projectKey, inputSha: request.snapshot.inputSha, promptVersion: request.snapshot.promptVersion, ...fields }));
   return { ...host, adapter, approve };
@@ -43,6 +43,43 @@ await test('bridge rejects disconnected clients and invalid heartbeat identity',
 await test('bridge acknowledges only matching client and nonce', async () => { const b = new ClientBridge(); b.next(cid); const p = b.withClient(cid, () => b.call('getDraft', { sessionId: 'dev' })); const [job] = b.next(cid); assert.equal(b.next(cid).length, 0); assert.throws(() => b.answer(crypto.randomUUID(), job), /Unknown/); assert.throws(() => b.answer(cid, { ...job, nonce: 'wrong' }), /Unknown/); b.answer(cid, { ...job, result: { text: 'real acknowledgement' } }); assert.equal((await p).text, 'real acknowledgement'); b.close(); });
 await test('bridge timeout is failure and a late answer is rejected', async () => { const b = new ClientBridge({ timeoutMs: 5 }); b.next(cid); const p = b.withClient(cid, () => b.call('writeDraft', {})), [job] = b.next(cid); await assert.rejects(p, /timed out/); assert.throws(() => b.answer(cid, job), /Unknown/); b.close(); });
 await test('unload rejects pending and future composer actions', async () => { const b = new ClientBridge(); b.next(cid); const p = b.withClient(cid, () => b.call('getDraft', {})); b.close(); await assert.rejects(p, /unloaded/); assert.throws(() => b.withClient(cid, () => b.call('getDraft', {})), /unloaded/); });
+await test('production review is manual and works without an approval file', async () => {
+  const h = fakeHost({ repo }), root = path.join(scratch, 'production');
+  const adapter = new DshAdapter(h.ctx, { root, bridge: new ClientBridge() });
+  adapter.core = { store: { delivery: () => ({ title: 'Fixture', sessionIds: ['dev'] }) } };
+  assert.equal(adapter.requireApproval, false); assert.equal(h.calls.prompts.length, 0);
+  // A leftover test file must not lock a production installation.
+  fs.writeFileSync(adapter.approvalFile, 'invalid stale test approval');
+  assert.deepEqual(await adapter.review(request, { signal: new AbortController().signal }), { ok: true });
+  assert.equal(h.calls.prompts.length, 1); assert.deepEqual(h.handles.values().next().value.agent.allowed, []);
+  assert.equal(fs.readFileSync(adapter.approvalFile, 'utf8'), 'invalid stale test approval');
+  await adapter.close();
+});
+await test('production with no selected model reports configuration error before creating an agent', async () => {
+  const h = fakeHost({ repo }), get = h.ctx.get;
+  h.ctx.get = name => name === 'agentDefaultModel' ? { currentSelection: () => undefined } : get(name);
+  h.ctx.sessionController.resolveAgent = async () => ({ agent: { model: { current: () => undefined } } });
+  const adapter = new DshAdapter(h.ctx, { root: path.join(scratch, 'no-model'), bridge: new ClientBridge() });
+  adapter.core = { store: { delivery: () => ({ title: 'Fixture', sessionIds: ['dev'] }) } };
+  await assert.rejects(adapter.review(request, { signal: new AbortController().signal }), /未配置可用模型/);
+  assert.equal(h.calls.create.length, 0); assert.equal(h.calls.prompts.length, 0); await adapter.close();
+});
+await test('explicit test mode fails closed without approval and a file cannot be bypassed by false', async () => {
+  for (const config of [{ requireApproval: true }, { approvalFile: path.join(scratch, 'missing-approval.json'), requireApproval: false }]) {
+    const h = fakeHost({ repo }), adapter = new DshAdapter(h.ctx, { root: path.join(scratch, 'explicit-mode'), bridge: new ClientBridge(), ...config });
+    await assert.rejects(adapter.review(request, { signal: new AbortController().signal }), /预算/);
+    assert.equal(h.calls.create.length, 0); assert.equal(h.calls.prompts.length, 0); await adapter.close();
+  }
+});
+await test('production service initialization, settings and session events never automatically review', async () => {
+  const h = fakeHost({ repo }), service = await new PluginService(h.ctx, { storageRoot: path.join(scratch, 'production-service'), methodRoot, assetRoot: path.join(root, 'plugin/dist') }).initialize();
+  try {
+    assert.deepEqual(service.modelGate(), { required: false, approved: true, remaining: null });
+    const data = await service.bootstrap('w1'); assert.equal(data.settings.autoMode, false); assert.equal('modelTestGate' in data, false);
+    for (const listener of h.listeners) listener({ id: 'dev', cwd: repo.root }, { type: 'turn/end', data: { reason: { kind: 'completed' } } });
+    assert.equal(h.calls.create.length, 0); assert.equal(h.calls.prompts.length, 0);
+  } finally { await service.close(); }
+});
 await test('no model approval means zero native agents or prompts', async () => { const h = adapterFor('no-approval'); await assert.rejects(h.adapter.review(request, { signal: new AbortController().signal }), /预算/); assert.equal(h.calls.create.length, 0); assert.equal(h.calls.prompts.length, 0); });
 await test('expired model approval fails before native agent creation', async () => { const h = adapterFor('expired'); h.approve({ expiresAt: '2000-01-01T00:00:00Z' }); await assert.rejects(h.adapter.review(request, { signal: new AbortController().signal }), /预算/); assert.equal(h.calls.create.length, 0); });
 await test('selection and input-size mismatches do not call a model', async () => { const h = adapterFor('mismatch'); h.approve({ model: 'wrong' }); await assert.rejects(h.adapter.review(request, { signal: new AbortController().signal }), /模型/); h.approve({ maxInputBytes: 1 }); await assert.rejects(h.adapter.review(request, { signal: new AbortController().signal }), /输入预算/); assert.equal(h.calls.create.length, 0); });
@@ -104,7 +141,7 @@ for (const [name, options] of [['normal', {}], ['concurrent', { concurrent: true
 await test('stale composer revision never overwrites existing user draft', async () => { const f = nativeFixture(), c = new NativeClient(f.ctx); globalThis.requestAnimationFrame = f.frame; assert.equal((await c.execute('writeDraft', { sessionId: 'dev', expectedRevision: 0, text: 'BAD' })).written, false); assert.equal(f.input.draftSnapshot.text, 'Existing handwritten draft'); assert.equal(f.persisted, 0); });
 await test('expired composer task releases no lease and writes nothing', async () => { const f = nativeFixture(), c = new NativeClient(f.ctx); await assert.rejects(c.execute('writeDraft', { sessionId: 'dev', expectedRevision: 7, text: 'BAD' }, Date.now() - 1), /过期/); assert.equal(f.released, 0); assert.equal(f.input.draftSnapshot.text, 'Existing handwritten draft'); });
 globalThis.requestAnimationFrame = oldFrame;
-const h = fakeHost({ repo }), service = await new PluginService(h.ctx, { storageRoot: path.join(scratch, 'service-state'), methodRoot, assetRoot: path.join(root, 'plugin/dist') }).initialize();
+const h = fakeHost({ repo }), service = await new PluginService(h.ctx, { storageRoot: path.join(scratch, 'service-state'), requireApproval: true, methodRoot, assetRoot: path.join(root, 'plugin/dist') }).initialize();
 const call = async (name, body, query) => { const result = await h.fetchRoute(name, body, query); return { ...result, data: JSON.parse(result.text) }; };
 await test('exact IPC routes register without opening a separate server', () => { assert.ok(h.routes.has('/api/dsh-evidentloop/bootstrap')); assert.ok(h.routes.has('/api/dsh-evidentloop/draft/commit')); assert.ok(!h.routes.has('/api/dsh-evidentloop/*')); assert.equal(service.modelGate().approved, false); });
 await test('unknown workspace cannot address repository settings', async () => { const r = await call('settings', { workspaceId: 'foreign', settings: {} }); assert.equal(r.status, 400); assert.match(r.data.error, /工作区不存在/); });
@@ -151,7 +188,7 @@ await test('React component renders real props and escapes user controlled title
   const compiled = await es.build({ absWorkingDir: root, entryPoints: ['plugin/client/app.tsx'], jsx: 'transform', tsconfigRaw: { compilerOptions: { jsx: 'react' } }, bundle: true, format: 'cjs', platform: 'node', external: ['react', 'react-dom'], write: false, logLevel: 'silent' });
   const sandbox = { module: { exports: {} }, require: name => { assert.ok(['react', 'react-dom'].includes(name)); return rt.require(name); } }; sandbox.exports = sandbox.module.exports; vm.runInNewContext(compiled.outputFiles[0].text, sandbox);
   const data = await service.bootstrap('w1'); data.deliveries[0].title = '<script>alert(1)</script>'; const state = { loading: false, workspaceId: 'w1', data, page: 'list' }, runtime = { subscribe: () => () => {}, getSnapshot: () => state, native: { sessionId: () => 'dev' } };
-  const markup = renderToStaticMarkup(React.createElement(sandbox.module.exports.Panel, { runtime })); assert.ok(markup.includes('&lt;script&gt;')); assert.ok(!markup.includes('<script>')); assert.ok(markup.includes('Fixture repository')); assert.ok(markup.includes('演示模式')); fs.writeFileSync(path.join(output, 'component-ssr.html'), markup);
+  const markup = renderToStaticMarkup(React.createElement(sandbox.module.exports.Panel, { runtime })); assert.ok(markup.includes('&lt;script&gt;')); assert.ok(!markup.includes('<script>')); assert.ok(markup.includes('Fixture repository')); assert.ok(!markup.includes('演示模式')); assert.ok(!markup.includes('modelTestGate')); fs.writeFileSync(path.join(output, 'component-ssr.html'), markup);
 });
 fs.writeFileSync(path.join(output, 'results.json'), JSON.stringify({ results, failures, namedCases: results.length, passed: results.filter(r => r.status === 'passed').length, realModelCalls: 0, nativeDshIntegration: false, fixtures: 'Synthetic public API contract only; not a P4 end-to-end result' }, null, 2) + '\n');
 console.log(JSON.stringify({ output, namedCases: results.length, passed: results.filter(r => r.status === 'passed').length, failures: failures.map(f => ({ name: f.name, error: f.error.split('\n').slice(0, 3).join('\n') })), realModelCalls: 0 }));

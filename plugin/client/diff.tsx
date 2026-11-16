@@ -40,6 +40,30 @@ import { errorMessage } from "../shared/contracts.ts";
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon, IconButton, Prose, Confirm, localTime } from "./ui.tsx";
+function LineAskButton({ entry, action }: { entry: string; action: () => Promise<unknown> }) {
+  const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
+  const id = React.useId();
+  const hide = () => setPosition(null);
+  const show = (button: HTMLButtonElement) => {
+    const rect = button.getBoundingClientRect();
+    setPosition({ left: Math.max(8, Math.min(rect.left, innerWidth - 208)), top: Math.max(8, rect.top - 32) });
+  };
+  useEffect(() => {
+    if (!position) return;
+    window.addEventListener("scroll", hide, true);
+    window.addEventListener("resize", hide);
+    return () => { window.removeEventListener("scroll", hide, true); window.removeEventListener("resize", hide); };
+  }, [position]);
+  return <>
+    <button type="button" className="annotation-add-btn" data-entry={entry}
+      aria-label="在会话中追问此代码段" aria-describedby={position ? id : undefined}
+      onMouseEnter={event => show(event.currentTarget)} onMouseLeave={hide}
+      onFocus={event => { const button = event.currentTarget; requestAnimationFrame(() => { if (document.activeElement === button) show(button); }); }} onBlur={hide}
+      onKeyDown={event => { if (event.key === "Escape") hide(); }}
+      onClick={() => { hide(); void action(); }}><Icon name="ask" size={14} /></button>
+    {position && createPortal(<span id={id} role="tooltip" className="el-plugin el-line-tip" style={position}>在会话中追问此代码段</span>, document.body)}
+  </>;
+}
 const category = {
   logic: "逻辑",
   security: "安全",
@@ -1158,7 +1182,6 @@ export function Diff({
             <button
               className="el-btn"
               disabled={
-                !runtime.state.data!.modelTestGate.approved ||
                 record.run?.status === "running"
               }
               onClick={() =>
@@ -1285,15 +1308,10 @@ export function Diff({
             )
           : p.action
             ? createPortal(
-                <button
-                  className="annotation-add-btn"
-                  data-entry={"ask-" + p.side + "-" + p.line}
-                  title="在会话中追问此代码段"
-                  aria-label="在会话中追问此代码段"
-                  onClick={p.action}
-                >
-                  <Icon name="ask" size={14} />
-                </button>,
+                <LineAskButton
+                  entry={"ask-" + p.side + "-" + p.line}
+                  action={p.action}
+                />,
                 p.container,
                 p.key,
               )

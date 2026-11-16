@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'), output = path.resolve(process.argv[2]);
 if (fs.existsSync(output)) throw Error('Refusing to overwrite mutation evidence'); fs.mkdirSync(output, { recursive: true });
 const mutations = [
-  { name: 'budget-bypass', file: 'plugin/host/dsh-adapter.ts', old: '    this.approval();\n    signal.throwIfAborted();', replacement: '    this.allowed = () => ({maxCalls:100,maxOutputTokens:4096}); this.claim = () => ({}); signal.throwIfAborted();', expected: 'no model approval means zero native agents or prompts' },
+  { name: 'budget-bypass', file: 'plugin/host/dsh-adapter.ts', old: '    if (this.requireApproval) this.approval();\n    signal.throwIfAborted();', replacement: '    this.allowed = () => ({maxCalls:100,maxOutputTokens:4096}); this.claim = () => ({}); signal.throwIfAborted();', expected: 'no model approval means zero native agents or prompts' },
   { name: 'tools-exposed', file: 'plugin/host/dsh-adapter.ts', old: 'agentCtx.tools.restrict({ allow: [] })', replacement: "agentCtx.tools.restrict({ allow: ['write'] })", expected: 'native review uses frozen cwd, inherited model, zero tools and canonical prompt' },
   { name: 'stale-composer-overwrite', file: 'plugin/client/native.ts', old: 'state.draftRev !== payload.expectedRevision || state.phase !== "plain"', replacement: 'state.phase !== "plain"', expected: 'stale composer revision never overwrites existing user draft' },
   { name: 'live-file-substitution', file: 'plugin/host/service.ts', old: 'head: head?.text ?? null', replacement: "head: fs.readFileSync(path.join(p.repoRoot, file.path), 'utf8')", expected: 'frozen file route stays frozen when live worktree changes' },

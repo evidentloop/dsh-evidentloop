@@ -1018,6 +1018,51 @@ function RequirementDialog({
 // plugin/client/diff.tsx
 var import_react4 = __toESM(require("react"), 1);
 var import_react_dom2 = require("react-dom");
+function LineAskButton({ entry, action }) {
+  const [position, setPosition] = (0, import_react4.useState)(null);
+  const id = import_react4.default.useId();
+  const hide = () => setPosition(null);
+  const show = (button) => {
+    const rect = button.getBoundingClientRect();
+    setPosition({ left: Math.max(8, Math.min(rect.left, innerWidth - 208)), top: Math.max(8, rect.top - 32) });
+  };
+  (0, import_react4.useEffect)(() => {
+    if (!position) return;
+    window.addEventListener("scroll", hide, true);
+    window.addEventListener("resize", hide);
+    return () => {
+      window.removeEventListener("scroll", hide, true);
+      window.removeEventListener("resize", hide);
+    };
+  }, [position]);
+  return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(
+    "button",
+    {
+      type: "button",
+      className: "annotation-add-btn",
+      "data-entry": entry,
+      "aria-label": "\u5728\u4F1A\u8BDD\u4E2D\u8FFD\u95EE\u6B64\u4EE3\u7801\u6BB5",
+      "aria-describedby": position ? id : void 0,
+      onMouseEnter: (event) => show(event.currentTarget),
+      onMouseLeave: hide,
+      onFocus: (event) => {
+        const button = event.currentTarget;
+        requestAnimationFrame(() => {
+          if (document.activeElement === button) show(button);
+        });
+      },
+      onBlur: hide,
+      onKeyDown: (event) => {
+        if (event.key === "Escape") hide();
+      },
+      onClick: () => {
+        hide();
+        void action();
+      }
+    },
+    /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "ask", size: 14 })
+  ), position && (0, import_react_dom2.createPortal)(/* @__PURE__ */ import_react4.default.createElement("span", { id, role: "tooltip", className: "el-plugin el-line-tip", style: position }, "\u5728\u4F1A\u8BDD\u4E2D\u8FFD\u95EE\u6B64\u4EE3\u7801\u6BB5"), document.body));
+}
 var category = {
   logic: "\u903B\u8F91",
   security: "\u5B89\u5168",
@@ -1835,7 +1880,7 @@ function Diff({
     "button",
     {
       className: "el-btn",
-      disabled: !runtime.state.data.modelTestGate.approved || record.run?.status === "running",
+      disabled: record.run?.status === "running",
       onClick: () => runtime.perform(
         () => runtime.run("review", { ...args(), scope: "file:" + path })
       )
@@ -1903,15 +1948,11 @@ function Diff({
       p.key
     ) : p.action ? (0, import_react_dom2.createPortal)(
       /* @__PURE__ */ import_react4.default.createElement(
-        "button",
+        LineAskButton,
         {
-          className: "annotation-add-btn",
-          "data-entry": "ask-" + p.side + "-" + p.line,
-          title: "\u5728\u4F1A\u8BDD\u4E2D\u8FFD\u95EE\u6B64\u4EE3\u7801\u6BB5",
-          "aria-label": "\u5728\u4F1A\u8BDD\u4E2D\u8FFD\u95EE\u6B64\u4EE3\u7801\u6BB5",
-          onClick: p.action
-        },
-        /* @__PURE__ */ import_react4.default.createElement(Icon, { name: "ask", size: 14 })
+          entry: "ask-" + p.side + "-" + p.line,
+          action: p.action
+        }
       ),
       p.container,
       p.key
@@ -1991,8 +2032,7 @@ function pulse(id) {
 function Review({
   runtime,
   state,
-  openSettings,
-  gateBadge
+  openSettings
 }) {
   const r = state.record, files = r.snapshot.files, [selected, setSelected] = (0, import_react5.useState)(
     () => r.run?.findings?.[0]?.anchor.path || files[0]?.path
@@ -2002,7 +2042,7 @@ function Review({
   ), risk = new Set(active.map((f) => f.anchor.path)), changed = /* @__PURE__ */ new Set([
     ...r.comparison?.added || [],
     ...r.comparison?.changed || []
-  ]), gate = state.data.modelTestGate.approved;
+  ]);
   const reviewActionLabel = !run ? "\u5BA1\u67E5\u5168\u90E8" : run.status === "failed" ? "\u91CD\u8BD5" : run.status === "cancelled" ? "\u91CD\u65B0\u5BA1\u67E5" : run.complete ? null : (r.reviewablePaths || []).some(
     (p) => !run.coverage.reviewed.includes(p)
   ) ? "\u5BA1\u67E5\u5168\u90E8" : null;
@@ -2089,7 +2129,7 @@ function Review({
     "\u5BA1\u67E5\u8BB0\u5F55 \xB7 ",
     r.readOnly ? "" : "\u6700\u65B0 ",
     localTime(r.snapshot.createdAt)
-  ))), gateBadge, /* @__PURE__ */ import_react5.default.createElement("span", { className: "el-header-spacer" })), r.readOnly && /* @__PURE__ */ import_react5.default.createElement("div", { className: "el-history-notice" }, "\u6B63\u5728\u67E5\u770B\u8F83\u65E9\u7684\u5BA1\u67E5\u8BB0\u5F55\uFF08\u53EA\u8BFB\uFF09\xB7", " ", /* @__PURE__ */ import_react5.default.createElement(
+  ))), /* @__PURE__ */ import_react5.default.createElement("span", { className: "el-header-spacer" })), r.readOnly && /* @__PURE__ */ import_react5.default.createElement("div", { className: "el-history-notice" }, "\u6B63\u5728\u67E5\u770B\u8F83\u65E9\u7684\u5BA1\u67E5\u8BB0\u5F55\uFF08\u53EA\u8BFB\uFF09\xB7", " ", /* @__PURE__ */ import_react5.default.createElement(
     Link,
     {
       onClick: () => runtime.perform(
@@ -2139,7 +2179,7 @@ function Review({
     "button",
     {
       className: "el-primary",
-      disabled: r.readOnly || !gate,
+      disabled: r.readOnly,
       onClick: () => review()
     },
     reviewActionLabel
@@ -2251,7 +2291,7 @@ function Review({
         { separator: true },
         {
           label: "\u5168\u90E8\u91CD\u65B0\u5BA1\u67E5",
-          disabled: r.readOnly || busy || !gate,
+          disabled: r.readOnly || busy,
           danger: true,
           action: () => review(true)
         }
@@ -2553,7 +2593,7 @@ function Settings({
         }
       },
       /* @__PURE__ */ import_react6.default.createElement("h2", null, "\u5DE5\u4F5C\u533A\u8BBE\u7F6E"),
-      /* @__PURE__ */ import_react6.default.createElement("p", { className: "el-model-status" }, runtime.state.data?.modelTestGate.approved ? "\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u5DF2\u83B7\u672C\u8F6E\u6388\u6743\u3002" : "\u672A\u5F00\u542F\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u3002\u9700\u5148\u83B7\u5F97\u672C\u8F6E\u8C03\u7528\u6388\u6743\uFF0C\u518D\u53D1\u8D77\u5BA1\u67E5\u3002", " ", /* @__PURE__ */ import_react6.default.createElement("a", { className: "el-link", href: "https://evidentloop.sanze.dev/guide-status.html", target: "_blank", rel: "noopener noreferrer" }, "\u67E5\u770B\u8C03\u7528\u6388\u6743\u8BF4\u660E \u2197")),
+      /* @__PURE__ */ import_react6.default.createElement("p", { className: "el-model-status" }, "\u5BA1\u67E5\u4F7F\u7528\u5F53\u524D DSH \u4F1A\u8BDD\u6240\u9009\u7684\u6A21\u578B\uFF0C\u4EC5\u5728\u4F60\u624B\u52A8\u53D1\u8D77\u65F6\u8C03\u7528\u3002\u8BF7\u5148\u5728 DSH \u4E2D\u914D\u7F6E\u53EF\u7528\u6A21\u578B\u3002"),
       /* @__PURE__ */ import_react6.default.createElement("p", { className: "el-muted" }, sharedRepo ? "\u8FD9\u4E9B\u8BBE\u7F6E\u5BF9\u540C\u4E00\u4ED3\u5E93\u7684\u6240\u6709\u5DE5\u4F5C\u533A\u751F\u6548" : "\u8FD9\u4E9B\u8BBE\u7F6E\u5BF9\u5F53\u524D\u5DE5\u4F5C\u533A\u6240\u5C5E\u4ED3\u5E93\u751F\u6548"),
       /* @__PURE__ */ import_react6.default.createElement("label", { className: "el-setting-row" }, /* @__PURE__ */ import_react6.default.createElement("span", null, /* @__PURE__ */ import_react6.default.createElement("strong", null, "\u81EA\u52A8\u5BA1\u67E5"), /* @__PURE__ */ import_react6.default.createElement("small", null, "\u81EA\u52A8\u5BA1\u67E5\u5C1A\u672A\u542F\u7528\uFF0C\u6B64\u504F\u597D\u4F1A\u4FDD\u7559\u3002")), /* @__PURE__ */ import_react6.default.createElement(
         "input",
@@ -2699,7 +2739,6 @@ function Panel({ runtime }) {
         ).length > 1
       });
   };
-  const gateBadge = data?.modelTestGate && !data.modelTestGate.approved && !state.modelNoticeDismissed ? /* @__PURE__ */ import_react7.default.createElement("span", { className: "el-model-badge", title: "\u672A\u5F00\u542F\u771F\u5B9E\u6A21\u578B\u8C03\u7528\u3002\u5F53\u524D\u53EF\u67E5\u770B\u4EE3\u7801\u4E0E\u5DF2\u6709\u5BA1\u67E5\u8BB0\u5F55\uFF1B\u8BE6\u60C5\u89C1\u5DE5\u4F5C\u533A\u8BBE\u7F6E\u3002" }, "\u6F14\u793A\u6A21\u5F0F", /* @__PURE__ */ import_react7.default.createElement(IconButton, { label: "\u5173\u95ED\u6F14\u793A\u6A21\u5F0F\u63D0\u793A", icon: "close", size: "sm", onClick: () => runtime.update({ modelNoticeDismissed: true }) })) : null;
   return /* @__PURE__ */ import_react7.default.createElement(
     "main",
     {
@@ -2707,7 +2746,7 @@ function Panel({ runtime }) {
       "data-testid": "evidentloop-panel",
       "aria-label": "AI \u53D8\u66F4\u8BC4\u5BA1 \xB7 EvidentLoop"
     },
-    state.page === "list" && /* @__PURE__ */ import_react7.default.createElement("header", { className: "el-page-header" }, /* @__PURE__ */ import_react7.default.createElement("h1", { title: "AI \u53D8\u66F4\u8BC4\u5BA1 \xB7 EvidentLoop" }, "\u53D8\u66F4\u8BC4\u5BA1"), gateBadge, data && /* @__PURE__ */ import_react7.default.createElement(WorkspacePicker, { runtime, state }), /* @__PURE__ */ import_react7.default.createElement("span", { className: "el-header-spacer" }), /* @__PURE__ */ import_react7.default.createElement("label", { className: "el-search" }, /* @__PURE__ */ import_react7.default.createElement(Icon, { name: "search", size: 14 }), /* @__PURE__ */ import_react7.default.createElement(
+    state.page === "list" && /* @__PURE__ */ import_react7.default.createElement("header", { className: "el-page-header" }, /* @__PURE__ */ import_react7.default.createElement("h1", { title: "AI \u53D8\u66F4\u8BC4\u5BA1 \xB7 EvidentLoop" }, "\u53D8\u66F4\u8BC4\u5BA1"), data && /* @__PURE__ */ import_react7.default.createElement(WorkspacePicker, { runtime, state }), /* @__PURE__ */ import_react7.default.createElement("span", { className: "el-header-spacer" }), /* @__PURE__ */ import_react7.default.createElement("label", { className: "el-search" }, /* @__PURE__ */ import_react7.default.createElement(Icon, { name: "search", size: 14 }), /* @__PURE__ */ import_react7.default.createElement(
       "input",
       {
         type: "search",
@@ -2742,7 +2781,7 @@ function Panel({ runtime }) {
       },
       "\u5173\u95ED"
     )),
-    state.loading ? /* @__PURE__ */ import_react7.default.createElement("p", { role: "status" }, "\u6B63\u5728\u8BFB\u53D6\u5DE5\u4F5C\u533A\u2026") : !data ? /* @__PURE__ */ import_react7.default.createElement("section", { className: "el-empty" }, "\u63D2\u4EF6\u5C1A\u672A\u8FDE\u63A5\uFF0C\u65E0\u6CD5\u8BFB\u53D6\u4EA4\u4ED8\u3002") : state.page === "preparing" ? /* @__PURE__ */ import_react7.default.createElement("section", { className: "el-empty", role: "status" }, "\u6B63\u5728\u51BB\u7ED3\u5BA1\u67E5\u8F93\u5165\uFF0C\u4E0D\u8C03\u7528\u6A21\u578B\u2026") : state.page === "review" && state.record ? /* @__PURE__ */ import_react7.default.createElement(Review, { runtime, state, openSettings, gateBadge }) : /* @__PURE__ */ import_react7.default.createElement(DeliveryList, { runtime, state }),
+    state.loading ? /* @__PURE__ */ import_react7.default.createElement("p", { role: "status" }, "\u6B63\u5728\u8BFB\u53D6\u5DE5\u4F5C\u533A\u2026") : !data ? /* @__PURE__ */ import_react7.default.createElement("section", { className: "el-empty" }, "\u63D2\u4EF6\u5C1A\u672A\u8FDE\u63A5\uFF0C\u65E0\u6CD5\u8BFB\u53D6\u4EA4\u4ED8\u3002") : state.page === "preparing" ? /* @__PURE__ */ import_react7.default.createElement("section", { className: "el-empty", role: "status" }, "\u6B63\u5728\u51BB\u7ED3\u5BA1\u67E5\u8F93\u5165\uFF0C\u4E0D\u8C03\u7528\u6A21\u578B\u2026") : state.page === "review" && state.record ? /* @__PURE__ */ import_react7.default.createElement(Review, { runtime, state, openSettings }) : /* @__PURE__ */ import_react7.default.createElement(DeliveryList, { runtime, state }),
     settings && /* @__PURE__ */ import_react7.default.createElement(
       Settings,
       {
@@ -3299,7 +3338,7 @@ body[data-ds-dark-theme] .el-plugin { --el-brand: var(--dsw-alias-state-business
 .el-diff-rendered { min-width: 0; } .el-diff-rendered .d2h-file-header { display: none; } .el-diff-rendered .d2h-file-wrapper { border: 0; margin: 0; } .el-diff-rendered .d2h-code-line-ctn { font: 13px/20px var(--el-font-diff); } .el-diff-rendered .d2h-code-linenumber, .el-diff-rendered .d2h-code-side-linenumber { position: relative; }
 .el-diff-rendered .el-diff-insert>td { padding: 0; border: 0; background: var(--el-bg-l1); } .el-inline-stack { min-width: 0; white-space: normal; padding: 4px 8px; } .el-inline-stack:empty { padding: 0; }
 .el-file-fallback:not(:empty) { padding: 12px; border-bottom: 1px solid var(--el-border-l1); } .el-file-fallback>section { margin-bottom: 12px; } .el-frozen-context { padding: 8px; background: var(--el-bg-l2); border: 1px solid var(--el-border-l1); } .el-frozen-context span { color: var(--el-label-3); } .el-frozen-context [data-anchor=true] { background: var(--el-brand-tint); }
-.el-line-add-slot { position: absolute; right: 0; top: 0; opacity: 0; } tr:hover .el-line-add-slot, .el-line-add-slot:focus-within { opacity: 1; } .el-plugin .annotation-add-btn { min-height: 20px; height: 20px; width: 20px; padding: 0; color: var(--el-label-2); background: var(--el-bg-l1); }
+.el-line-add-slot { position: absolute; left: 0; top: 0; opacity: 0; } tr:hover .el-line-add-slot, .el-line-add-slot:focus-within { opacity: 1; } .el-plugin .annotation-add-btn { min-height: 20px; height: 20px; width: 20px; padding: 0; color: var(--el-label-2); background: var(--el-bg-l1); }
 .el-issue-card { border: 1px solid var(--el-border-l1); border-left: 3px solid var(--el-state-error); border-radius: 8px; background: var(--el-bg-l1); overflow: hidden; margin: 4px 0; min-width: 0; color: var(--el-label-1); font: 14px/1.65 system-ui, sans-serif; }
 .el-issue-card[data-severity=P2] { border-left-color: var(--el-state-warn); } .el-issue-card>header { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; background: var(--el-bg-l2); }
 .el-plugin .el-issue-toggle { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px; flex: 1; min-width: 0; min-height: 24px; border: 0; border-radius: 0; background: transparent; padding: 0; text-align: left; }
@@ -3369,8 +3408,8 @@ body[data-ds-dark-theme] .el-plugin { --el-state-error-tint: rgba(248, 81, 73, .
 .el-settings-popover h2 { font-size: 15px; } .el-settings-popover small { display: block; color: var(--el-label-2); font-size: 12px; } .el-settings-popover .el-setting-field { gap: 6px; } .el-settings-popover .el-setting-row { align-items: center; }
 .el-diff-rendered .d2h-diff-table { table-layout: fixed; width: 100%; margin: 0; font-size: 13px; }
 .el-diff-rendered td, .el-diff-rendered th { border: 0; padding: 0; vertical-align: top; }
-.el-diff-rendered td.d2h-code-linenumber { position: relative; display: table-cell; width: 7.5em; min-width: 7.5em; font: 12px/20px var(--el-font-diff); color: var(--el-label-3); }
-.el-diff-rendered td.d2h-code-side-linenumber { position: relative; display: table-cell; width: 40px; min-width: 40px; font: 12px/20px var(--el-font-diff); color: var(--el-label-3); }
+.el-diff-rendered td.d2h-code-linenumber { position: relative; display: table-cell; width: calc(7.5em + 20px); min-width: calc(7.5em + 20px); padding-left: 20px; font: 12px/20px var(--el-font-diff); color: var(--el-label-3); }
+.el-diff-rendered td.d2h-code-side-linenumber { position: relative; display: table-cell; width: 60px; min-width: 60px; padding-left: 20px; font: 12px/20px var(--el-font-diff); color: var(--el-label-3); }
 .el-file-heading { min-height: 40px; padding: 0 12px; flex-wrap: nowrap; }
 .el-change-badge { flex: 0 0 auto; padding: 0 5px; background: var(--el-bg-l2); color: var(--el-label-2); font-size: 12px; line-height: 20px; border-radius: 4px; }
 .el-plugin .el-file-name { min-height: 0; min-width: 0; max-width: min(60%, 720px); flex: 0 1 auto; border: 0; padding: 0; background: transparent; font: 13px/20px var(--el-font-code); font-weight: 500; color: var(--el-label-1); text-align: left; }
@@ -3418,9 +3457,10 @@ body[data-ds-dark-theme] .el-plugin { --el-state-error-tint: rgba(248, 81, 73, .
 .overview-requirements > summary::before { content: ""; width: 0; height: 0; border-left: 5px solid var(--el-label-3); border-top: 4px solid transparent; border-bottom: 4px solid transparent; }
 .overview-requirements[open] > summary::before { transform: rotate(90deg); }
 .el-tail-notice { flex: 0 0 100%; color: var(--el-label-2); }
-.el-model-badge { display: inline-flex; align-items: center; gap: 2px; color: var(--el-label-3); background: var(--el-hover); border-radius: 6px; padding: 1px 4px 1px 8px; font-size: 11px; white-space: nowrap; }
 .el-model-status { color: var(--el-label-2); font-size: 12px; }
 main.el-plugin > .el-notice, main.el-plugin > .el-error { width: 100%; max-width: 1280px; align-self: center; padding: 8px var(--el-page-gutter); }
+
+.el-line-tip { display: block; height: auto; position: fixed; z-index: 10000; pointer-events: none; max-width: 200px; padding: 4px 8px; border: 1px solid var(--dsw-alias-border-l2, #e5e7eb); border-radius: 6px; background: var(--el-bg-l1); color: var(--el-label-2); box-shadow: 0 2px 8px rgb(0 0 0 / 8%); font: 12px/20px -apple-system, system-ui, sans-serif; }
 `;
 
 // plugin/client/index.tsx

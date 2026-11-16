@@ -117,7 +117,7 @@
   height: auto;
   padding: 0;
   margin-bottom: 0;
-  background: var(--el-bg-l2);
+  background: var(--el-bg-l1);
   overflow: hidden
 }
 
@@ -135,7 +135,7 @@
 .splitpanes .splitpanes__splitter,
 .default-theme.splitpanes .splitpanes__splitter { background-color: var(--el-bg-l2); }
 .review-surface .splitpanes .splitpanes__pane,
-.review-surface .default-theme.splitpanes .splitpanes__pane { background-color: var(--el-bg-l2); }
+.review-surface .default-theme.splitpanes .splitpanes__pane { background-color: var(--el-bg-l1); }
 
 .default-theme,.splitpanes {
   min-height: 0;

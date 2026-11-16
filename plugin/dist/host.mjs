@@ -2397,6 +2397,7 @@ var DshAdapter = class {
   root;
   bridge;
   approvalFile;
+  requireApproval;
   kind = "dsh";
   registryFile;
   registry;
@@ -2406,12 +2407,14 @@ var DshAdapter = class {
   constructor(ctx, {
     root,
     bridge,
-    approvalFile = path9.join(root, "model-approval.json")
+    approvalFile,
+    requireApproval = approvalFile !== void 0
   }) {
     this.ctx = ctx;
     this.root = root;
     this.bridge = bridge;
-    this.approvalFile = approvalFile;
+    this.approvalFile = approvalFile ?? path9.join(root, "model-approval.json");
+    this.requireApproval = approvalFile !== void 0 || requireApproval;
     fs10.mkdirSync(root, { recursive: true });
     this.registryFile = path9.join(root, "review-sessions.json");
     this.registry = fs10.existsSync(this.registryFile) ? JSON.parse(fs10.readFileSync(this.registryFile, "utf8")) : {};
@@ -2491,6 +2494,7 @@ var DshAdapter = class {
     return approval;
   }
   allowed(selection, bytes, snapshot) {
+    if (!this.requireApproval) return;
     const approval = this.approval();
     if (!snapshot || ["projectKey", "inputSha", "promptVersion"].some(
       (k) => approval[k] !== snapshot[k]
@@ -2504,6 +2508,7 @@ var DshAdapter = class {
   }
   claim(selection, bytes, snapshot) {
     const approval = this.allowed(selection, bytes, snapshot);
+    if (!approval) return;
     approval.used += 1;
     fs10.writeFileSync(
       this.approvalFile + ".tmp",
@@ -2517,7 +2522,7 @@ var DshAdapter = class {
     signal
   }) {
     if (this.closed) throw Error("Plugin unloaded");
-    this.approval();
+    if (this.requireApproval) this.approval();
     signal.throwIfAborted();
     const delivery = this.core.store.delivery(
       request.snapshot.projectKey,
@@ -2545,7 +2550,7 @@ var DshAdapter = class {
     };
     const prompt = reviewPrompt(request), promptBytes = Buffer.byteLength(prompt), approval = this.allowed(selection, promptBytes, request.snapshot), sessionId = "session-" + crypto7.randomUUID(), events = [];
     let steps = 0, failureCode;
-    if (approval.contextWindow !== void 0 && info.context?.contextWindow !== approval.contextWindow)
+    if (approval?.contextWindow !== void 0 && info.context?.contextWindow !== approval.contextWindow)
       throw Error(
         "\u6A21\u578B\u4E0A\u4E0B\u6587\u4E0E\u6279\u51C6\u914D\u7F6E\u4E0D\u7B26\uFF0C\u8BF7\u5728\u9694\u79BB\u6A21\u578B\u914D\u7F6E\u4E2D\u8BBE\u7F6E contextWindow"
       );
@@ -2582,7 +2587,7 @@ var DshAdapter = class {
         meta: { cwd },
         agentOptions: {
           ...selection,
-          maxTokens: approval.maxOutputTokens || 16384
+          maxTokens: approval?.maxOutputTokens || 16384
         },
         setup: (agentCtx, agent) => {
           agentCtx.tools.restrict({ allow: [] });
@@ -2720,7 +2725,8 @@ var PluginService = class {
     this.adapter = new DshAdapter(ctx, {
       root: config.storageRoot,
       bridge: this.bridge,
-      approvalFile: config.approvalFile
+      approvalFile: config.approvalFile,
+      requireApproval: config.requireApproval
     });
     this.core = new ReviewCore({
       store,
@@ -2833,16 +2839,17 @@ var PluginService = class {
       deliveries,
       sessions,
       settings: project?.projectKey ? this.core.store.settings(project.projectKey) : null,
-      operations: [...this.operations.values()].map(({ promise, ...o }) => o),
-      modelTestGate: this.modelGate()
+      operations: [...this.operations.values()].map(({ promise, ...o }) => o)
     };
   }
   modelGate() {
+    if (!this.adapter.requireApproval)
+      return { required: false, approved: true, remaining: null };
     try {
       const a = this.adapter.approval();
-      return { approved: true, remaining: a.maxCalls - (a.used || 0) };
+      return { required: true, approved: true, remaining: a.maxCalls - (a.used || 0) };
     } catch {
-      return { approved: false, remaining: 0 };
+      return { required: true, approved: false, remaining: 0 };
     }
   }
   operation(type, action) {
@@ -3362,6 +3369,7 @@ async function apply(ctx, config = {}) {
   const service = await new PluginService(ctx, {
     storageRoot: config.storageRoot || path11.join(home, "storages", "dsh-evidentloop"),
     approvalFile: config.approvalFile,
+    requireApproval: config.requireApproval,
     methodRoot: path11.join(packageRoot, "skills/evidentloop-review"),
     assetRoot: path11.join(packageRoot, "dist")
   }).initialize();

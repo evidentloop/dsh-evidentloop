@@ -145,7 +145,7 @@ module.exports = {
       const probe = document.createElement('span');
       document.body.append(probe);
       const token = name => { probe.style.color = `var(${name})`; return getComputedStyle(probe).color; };
-      const tokens = { bgL2: token('--el-bg-l2'), borderL2: token('--el-border-l2'), error: token('--el-state-error'), warn: token('--el-state-warn'), bgL3: token('--el-bg-l3') };
+      const tokens = { bgL1: token('--el-bg-l1'), bgL2: token('--el-bg-l2'), borderL2: token('--el-border-l2'), error: token('--el-state-error'), warn: token('--el-state-warn'), bgL3: token('--el-bg-l3') };
       probe.remove();
       return {
         tokens,
@@ -167,7 +167,7 @@ module.exports = {
     });
     check('every card keeps neutral surfaces and only a 3px severity rail', everyCardStyle.cards.length > 0 &&
       everyCardStyle.cards.every(card => card.background === everyCardStyle.tokens.bgL2 &&
-        card.border === everyCardStyle.tokens.borderL2 && card.header === everyCardStyle.tokens.bgL2 &&
+        card.border === everyCardStyle.tokens.borderL2 && card.header === everyCardStyle.tokens.bgL1 &&
         card.code === everyCardStyle.tokens.bgL3 && card.leftWidth === '3px' &&
         card.left === (card.p2 ? everyCardStyle.tokens.warn : everyCardStyle.tokens.error)));
     await page.locator('.focus-tree-row').filter({ hasText: 'app.js' }).first().click();
@@ -1135,7 +1135,7 @@ module.exports = {
     check('gear has four workspace settings', settingRows.length === 4 &&
       ['自动审查', '目标分支', '扩展提示词', 'HTML报告导出'].every(label => settingRows.some(text => text.includes(label))) &&
       !settingRows.some(text => text.includes('需求编号')));
-    check('auto-mode description uses the approved wording', settingRows.some(text => text.includes('agent 每轮结束、代码有改动时自动审查')));
+    check('auto-mode description explicitly stays a demonstration without model calls', settingRows.some(text => text.includes('仅演示设置交互，不自动触发审查或调用模型')));
     const settingLine = await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.settings-menu .wb-setting-row b')).lineHeight));
     check('settings form rows keep a readable line height', settingLine > 8);
     const autoSwitch = page.locator('.settings-menu .wb-setting-row input[type="checkbox"]').first();

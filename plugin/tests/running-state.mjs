@@ -20,7 +20,7 @@ try {
     const r = __UI__.runtime, d = r.state.data.deliveries[0];
     return r.api('record?' + new URLSearchParams({ workspaceId: r.state.workspaceId, deliveryId: d.deliveryId }));
   });
-  const rt = installed('react'), entry = `import React from 'react';import {renderToString} from 'react-dom/server';import {Review} from '${path.resolve('plugin/client/review.tsx')}';export const render=record=>renderToString(React.createElement(Review,{runtime:{},state:{record,view:'overview',data:{modelTestGate:{approved:false},settings:{exportEmbedDiff:false}}},openSettings(){}}));`;
+  const rt = installed('react'), entry = `import React from 'react';import {renderToString} from 'react-dom/server';import {Review} from '${path.resolve('plugin/client/review.tsx')}';export const render=record=>renderToString(React.createElement(Review,{runtime:{},state:{record,view:'overview',data:{settings:{exportEmbedDiff:false}}},openSettings(){}}));`;
   await installed('esbuild').require('esbuild').build({ stdin: { contents: entry, resolveDir: process.cwd(), loader: 'jsx' }, bundle: true, platform: 'node', format: 'cjs', alias: { react: rt.root, 'react-dom': path.dirname(rt.require.resolve('react-dom/package.json')) }, outfile: out + '/ssr.cjs', logLevel: 'silent' });
   const { render } = await import(out + '/ssr.cjs');
   for (const status of ['running', 'queued', 'failed', 'cancelled']) {

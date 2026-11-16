@@ -211,7 +211,9 @@ export interface PluginConfig {
   storageRoot: string;
   methodRoot: string;
   assetRoot: string;
+  /** Explicit isolation guard. Production review does not require an approval file. */
   approvalFile?: string;
+  requireApproval?: boolean;
 }
 export interface Approval extends ModelSelection {
   approvedBy: string;

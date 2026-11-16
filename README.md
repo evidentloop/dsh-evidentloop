@@ -1,8 +1,8 @@
 # 看清 AI 改了什么，再决定要不要合并
 
 <p align="center">
-  <a href="https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1"><img src="https://img.shields.io/badge/version-0.1.0--rc.1%20beta-e6a23c?style=flat-square" alt="version 0.1.0-rc.1 beta"></a>
-  <a href="https://github.com/deepseek-ai/deepseek-harness"><img src="https://img.shields.io/badge/platform-DeepSeek%20Harness%20%E2%89%A50.2.2-4868b2?style=flat-square" alt="platform DeepSeek Harness ≥0.2.2"></a>
+  <a href="https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.2"><img src="https://img.shields.io/badge/version-0.1.0--rc.2%20beta-e6a23c?style=flat-square" alt="version 0.1.0-rc.2 beta"></a>
+  <a href="https://github.com/deepseek-ai/deepseek-harness"><img src="https://img.shields.io/badge/platform-DeepSeek%20Harness%20%5E0.2.2--rc.2-4868b2?style=flat-square" alt="platform DeepSeek Harness ^0.2.2-rc.2"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-40916c?style=flat-square" alt="license MIT"></a>
   <a href="https://evidentloop.sanze.dev/demo.html"><img src="https://img.shields.io/badge/live%20demo-%E5%9C%A8%E7%BA%BF%E6%BC%94%E7%A4%BA-4868b2?style=flat-square" alt="live demo 在线演示"></a>
 </p>
@@ -34,11 +34,11 @@ EvidentLoop 把这些问题放进同一个评审台。先按功能理解改动�
 dsh plugin --profile desktop add @evidentloop/dsh-evidentloop@beta --registry=https://registry.npmjs.org
 ```
 
-将 `desktop` 替换为实际使用的 profile。安装后启用插件，按宿主提示重启，再打开侧栏「变更评审」。安装与查看改动不会发起模型请求；真实审查需先按[配置审查](plugin/README.md#配置审查)完成模型与调用授权设置。
+将 `desktop` 替换为实际使用的 profile。安装后启用插件，按宿主提示重启，再打开侧栏「变更评审」。安装与查看改动不会发起模型请求；按[配置审查](plugin/README.md#配置审查)选好模型后，手动发起审查。
 
 其他安装方式：
 
-- **离线包**：从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，保存到运行 DSH 的机器，再在 **插件 → 添加插件** 中输入包的绝对路径。
+- **离线包**：从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.2) 下载 `dsh-evidentloop-0.1.0-rc.2.tgz`，保存到运行 DSH 的机器，再在 **插件 → 添加插件** 中输入包的绝对路径。
 - **自定义索引**：在 **插件 → 实验性插件 → 自定义插件索引** 启用功能，再在 **发现 → 添加索引源** 填入[项目索引](https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json)，搜索「AI 变更评审」并核对来源后安装。该索引尚未收录进 DSH 官方插件市场，市场安装路径暂未完成端到端验证。
 
 ## 快速开始
@@ -56,7 +56,7 @@ dsh plugin --profile desktop add @evidentloop/dsh-evidentloop@beta --registry=ht
 
 ## 功能图解
 
-以下画面来自公开项目 Sopify 的真实审查记录，界面随 DSH 切换浅深主题。这份记录只审了 1 个文件，24 个待审、9 个跳过；人工批注和「标记非问题」展示复核操作，不表示整批代码已通过。
+以下画面来自公开项目 [Sopify](https://github.com/evidentloop/sopify) 的真实审查记录，界面随 DSH 切换浅深主题。覆盖状态为 1 已审 / 24 待审（可审文件） / 9 跳过（非可审文件）；人工批注和「标记非问题」展示复核操作，不表示整批代码已通过。
 
 ### 先看总览，知道这批改动审到了哪里
 
@@ -134,10 +134,9 @@ dsh plugin --profile desktop add @evidentloop/dsh-evidentloop@beta --registry=ht
 ```sh
 npm ci
 npm run build
-node --import tsx plugin/tests/run.mjs /tmp/evidentloop-plugin-tests
-node --import tsx plugin/tests/browser-headless.mjs /tmp/evidentloop-ui-tests
-node core/tests/all.mjs /tmp/evidentloop-core-tests
-node plugin/scripts/package.mjs /tmp/dsh-evidentloop-0.1.0-rc.1.tgz
+npm test -- /tmp/evidentloop-core-tests
+npm run test:ui -- /tmp/evidentloop-ui-tests
+node plugin/scripts/package.mjs /tmp/dsh-evidentloop-0.1.0-rc.2.tgz
 ```
 
 指定的输出目录运行前须不存在，安装包路径须在仓库外。测试使用合成数据，不调用真实模型。客户端与宿主位于 [plugin/](plugin/README.md)，快照、校验和导出位于 [core/](core/README.md)，审查方法位于 [skills/](skills/evidentloop-review/SKILL.md)。

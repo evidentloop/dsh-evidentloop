@@ -28,6 +28,7 @@ export async function apply(
     storageRoot:
       config.storageRoot || path.join(home, "storages", "dsh-evidentloop"),
     approvalFile: config.approvalFile,
+    requireApproval: config.requireApproval,
     methodRoot: path.join(packageRoot, "skills/evidentloop-review"),
     assetRoot: path.join(packageRoot, "dist"),
   }).initialize();

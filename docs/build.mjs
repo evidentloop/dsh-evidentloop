@@ -121,7 +121,7 @@ mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), home);
 writeFileSync(join(out, 'demo.html'), shell({
   title: '正式插件实录 · EvidentLoop', page: 'demo',
-  main: `<main class="media-page"><header><p class="eyebrow">0.1.0-rc.1 · beta</p><h1>一次真实审查的复核过程</h1><p class="lead">加载已冻结的 DeepSeek-V4.1-Flash 审查记录，在正式插件中完成查看、复核、导出与发回草稿。</p></header>${read('video.html')}<p class="note">本次采集新增模型调用为 0。展示源是公开项目 sopify；此记录的覆盖为 1 / 25 个可审文件，其他文件保留待审状态。画面中的 P2 候选在人工复核后标记为非问题，不作为已确认缺陷宣传。批注来自本次演示操作。</p>${read('gallery.html')}</main>`,
+  main: `<main class="media-page"><header><p class="eyebrow">0.1.0-rc.2 · beta</p><h1>一次真实审查的复核过程</h1><p class="lead">加载已冻结的 DeepSeek-V4.1-Flash 审查记录，在正式插件中完成查看、复核、导出与发回草稿。</p></header>${read('video.html')}<p class="note">本次采集新增模型调用为 0。展示源是公开项目 sopify；此记录的覆盖为 1 / 25 个可审文件，其他文件保留待审状态。画面中的 P2 候选在人工复核后标记为非问题，不作为已确认缺陷宣传。批注来自本次演示操作。</p>${read('gallery.html')}</main>`,
 }));
 
 // Page 1 lead: the intro paragraph under the H1 in guide.md (the H1 itself is replaced by each chapter's own h1).

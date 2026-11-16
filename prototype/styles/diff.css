@@ -333,7 +333,7 @@
   border-radius: 8px;
   background: var(--el-bg-l2);
   overflow: hidden;
-  box-shadow: var(--el-shadow-card)
+  box-shadow: none
 }
 
 .gpt-risk-marker--performance {
@@ -364,7 +364,7 @@
   height: 34px;
   min-height: 34px;
   padding: 0 12px;
-  background: var(--el-bg-l2);
+  background: var(--el-bg-l1);
   border-bottom: 1px solid var(--el-border-l1);
   cursor: pointer;
   user-select: none
@@ -522,6 +522,7 @@
 }
 
 .gpt-risk-marker__content {
+  background: var(--el-bg-l2);
   padding: 10px 12px 10px;
   color: var(--el-label-1);
   font-size: 13px;

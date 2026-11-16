@@ -368,7 +368,7 @@ module.exports = {
       const probe = document.createElement('span');
       document.body.append(probe);
       const token = name => { probe.style.color = `var(${name})`; return getComputedStyle(probe).color; };
-      const tokens = { bgL2: token('--el-bg-l2'), borderL2: token('--el-border-l2'), error: token('--el-state-error'), warn: token('--el-state-warn'), bgL3: token('--el-bg-l3') };
+      const tokens = { bgL1: token('--el-bg-l1'), bgL2: token('--el-bg-l2'), borderL2: token('--el-border-l2'), error: token('--el-state-error'), warn: token('--el-state-warn'), bgL3: token('--el-bg-l3') };
       probe.remove();
       return {
         tokens,
@@ -386,7 +386,7 @@ module.exports = {
     });
     check('dark cards keep neutral surfaces and severity rails', darkCardColors.cards.length > 0 &&
       darkCardColors.cards.every(card => card.background === darkCardColors.tokens.bgL2 &&
-        card.border === darkCardColors.tokens.borderL2 && card.header === darkCardColors.tokens.bgL2 &&
+        card.border === darkCardColors.tokens.borderL2 && card.header === darkCardColors.tokens.bgL1 &&
         card.code === darkCardColors.tokens.bgL3 && card.leftWidth === '3px' &&
         card.left === (card.p2 ? darkCardColors.tokens.warn : darkCardColors.tokens.error)));
     await shot('32b-dark-card');

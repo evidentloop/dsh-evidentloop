@@ -188,7 +188,7 @@
       visibleDeliveryRows() { return this.archiveExpanded ? this.archivedDeliveryRows : this.deliveryRows; },
       listSortLabel() { return this.listSort === 'problems' ? '问题最多' : '最近更新'; },
       workspaceActiveCount() { return this.workspaceDeliveries.filter(delivery => !this.listMeta(delivery).archived).length; },
-      hasWorkspaceProblems() { return this.workspaceDeliveries.some(delivery => Number(delivery.latest?.validFindingCount) > 0); },
+      hasWorkspaceProblems() { return this.workspaceDeliveries.some(delivery => Boolean(this.listMeta(delivery).archived) === this.archiveExpanded && this.matchesDeliverySearch(delivery) && Number(delivery.latest?.validFindingCount) > 0); },
       extensionDirty() { return P.normalizeNewlines(this.extensionDialog.draft) !== P.normalizeNewlines(this.extensionDialog.initial); },
       listEmptyMode() {
         if (!this.workspaceDeliveries.length) return 'workspace';
@@ -1781,7 +1781,7 @@
         else if (mode === 'file') { this.mainView = 'diff'; this.panelMode = 'file'; this.reviewPaneSize = this.reviewPaneSize || 45; }
         else this.panelMode = null;
       },
-      notifyAutoMode() { P.message((this.activeWorkspaceIsGit ? '当前仓库' : '当前工作区') + (this.autoMode ? '已开启自动审查' : '已关闭自动审查')); },
+      notifyAutoMode() { P.message((this.activeWorkspaceIsGit ? '当前仓库' : '当前工作区') + (this.autoMode ? '已开启演示自动审查偏好，不调用模型' : '已关闭演示自动审查偏好')); },
       setThemeMode(value, event) {
         const next = ['auto', 'light', 'dark'].includes(value) ? value : 'auto';
         if (next !== 'auto' && !storeTheme(next)) {

@@ -493,7 +493,6 @@
           button.className = 'annotation-add-btn';
           button.innerHTML = P.icons.ask;
           button.setAttribute('aria-label', '在会话中追问此代码段');
-          button.title = '在会话中追问此代码段';
           button.dataset.annotationSide = side;
           button.dataset.annotationLine = String(number);
           button.addEventListener('click', event => {
@@ -501,6 +500,7 @@
             P.app?.askCodeHunkInSession(this.item, side, number);
           });
           cell.append(button);
+          P.tooltipDirective.mounted(button, { value: '在会话中追问此代码段' });
         };
         if (this.outputFormat === 'side-by-side') {
           this.lineAnchors.forEach(({ row, number, side }) => addButton(row, side === 'right' ? 'head' : 'base', number));

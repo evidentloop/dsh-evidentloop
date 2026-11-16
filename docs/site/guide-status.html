@@ -14,12 +14,13 @@
 <header class="bar"><a class="brand" href="index.html"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect class="mk-tile" x="8" y="8" width="496" height="496" rx="112"/><g transform="translate(256 256) scale(0.78) translate(-244 -244)"><line class="mk-ink" x1="345" y1="345" x2="438" y2="438" stroke-width="96" stroke-linecap="round"/><line class="mk-handle" x1="345" y1="345" x2="438" y2="438" stroke-width="40" stroke-linecap="round"/><circle class="mk-lens" cx="233" cy="233" r="195" stroke-width="32"/><path class="mk-ink" d="M190 185 137 236l53 52M285 185l53 51-53 52" fill="none" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>EvidentLoop</span></a>
 <nav aria-label="站点"><a href="index.html">介绍</a><a href="demo.html">实录</a><a href="guide-workflow.html" aria-current="page">使用说明</a></nav></header>
 <div class="doc">
-<nav class="toc" aria-label="章节"><ol><li><a href="guide-workflow.html">工作流</a></li><li><a href="guide-workbench.html">列表与评审台</a></li><li class="on"><a href="guide-status.html" aria-current="page">状态、发回与导出</a><ul><li><a href="#status-1">模型调用与演示模式</a></li><li><a href="#status-2">审查状态</a></li><li><a href="#status-3">发回会话</a></li><li><a href="#status-4">导出</a></li></ul></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></nav>
+<nav class="toc" aria-label="章节"><ol><li><a href="guide-workflow.html">工作流</a></li><li><a href="guide-workbench.html">列表与评审台</a></li><li class="on"><a href="guide-status.html" aria-current="page">状态、发回与导出</a><ul><li><a href="#status-1">模型与手动审查</a></li><li><a href="#status-2">审查状态</a></li><li><a href="#status-3">发回会话</a></li><li><a href="#status-4">导出</a></li></ul></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></nav>
 <details class="chapters"><summary>章节 3 / 4：状态、发回与导出</summary><ol><li><a href="guide-workflow.html">工作流</a></li><li><a href="guide-workbench.html">列表与评审台</a></li><li><a href="guide-status.html" aria-current="page">状态、发回与导出</a></li><li><a href="guide-reference.html">设置与常见问题</a></li></ol></details>
 <article>
 <header class="doc-header"><h1>状态、发回与导出</h1></header>
-<h2 id="status-1">模型调用与演示模式</h2>
-<p>“演示模式”表示当前尚未获得真实模型调用授权，可查看代码和已有记录；关闭小标识只影响本次界面的提示，不会开启模型调用。工作区设置保留调用状态与授权说明；需先明确授权本轮调用，再发起审查。门禁开启后小标识自动消失。</p>
+<h2 id="status-1">模型与手动审查</h2>
+<p>先在 DSH 中配置可用模型。审查沿用发起操作的开发会话所选模型；无关联会话时，使用 DSH 当前默认模型。点击「审查全部」或单文件审查才会调用模型；安装、查看本地改动、切换模型和保存设置都不会自动发起审查。未配置可用模型时会给出提示。</p>
+<p>审查会把必要的代码和需求内容交给所选模型服务，请确认该服务适合处理这些内容。自动审查默认关闭，当前版本尚未接入自动触发。</p>
 <h2 id="status-2">审查状态</h2>
 <div class="table"><table>
 <thead>
@@ -77,6 +78,6 @@
 <nav class="pager" aria-label="翻页"><a class="prev" href="guide-workbench.html"><small>上一章</small>列表与评审台</a><a class="next" href="guide-reference.html"><small>下一章</small>设置与常见问题</a></nav>
 </article>
 </div>
-<footer class="site"><span>EvidentLoop · MIT 许可</span><span>0.1.0-rc.1 · beta</span><span>界面以实际发布的版本为准</span></footer>
+<footer class="site"><span>EvidentLoop · MIT 许可</span><span>0.1.0-rc.2 · beta</span><span>界面以实际发布的版本为准</span></footer>
 </body>
 </html>

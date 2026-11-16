@@ -56,6 +56,7 @@ export class DshAdapter implements Adapter {
   root: string;
   bridge: ClientBridge;
   approvalFile: string;
+  requireApproval: boolean;
   kind = "dsh";
   registryFile: string;
   registry: Record<string, RegistryRow>;
@@ -67,17 +68,21 @@ export class DshAdapter implements Adapter {
     {
       root,
       bridge,
-      approvalFile = path.join(root, "model-approval.json"),
+      approvalFile,
+      requireApproval = approvalFile !== undefined,
     }: {
       root: string;
       bridge: ClientBridge;
       approvalFile?: string;
+      requireApproval?: boolean;
     },
   ) {
     this.ctx = ctx;
     this.root = root;
     this.bridge = bridge;
-    this.approvalFile = approvalFile;
+    this.approvalFile = approvalFile ?? path.join(root, "model-approval.json");
+    // Only explicit test configuration enables the spend guard. A supplied file always gates.
+    this.requireApproval = approvalFile !== undefined || requireApproval;
     fs.mkdirSync(root, { recursive: true });
     this.registryFile = path.join(root, "review-sessions.json");
     this.registry = fs.existsSync(this.registryFile)
@@ -192,6 +197,7 @@ export class DshAdapter implements Adapter {
     return approval;
   }
   allowed(selection: ModelSelection, bytes: number, snapshot: Snapshot) {
+    if (!this.requireApproval) return;
     const approval = this.approval();
     if (
       !snapshot ||
@@ -212,6 +218,7 @@ export class DshAdapter implements Adapter {
   }
   claim(selection: ModelSelection, bytes: number, snapshot: Snapshot) {
     const approval = this.allowed(selection, bytes, snapshot);
+    if (!approval) return;
     approval.used += 1;
     fs.writeFileSync(
       this.approvalFile + ".tmp",
@@ -230,7 +237,7 @@ export class DshAdapter implements Adapter {
     },
   ): Promise<unknown> {
     if (this.closed) throw Error("Plugin unloaded");
-    this.approval();
+    if (this.requireApproval) this.approval();
     signal.throwIfAborted();
     const delivery = this.core.store.delivery(
       request.snapshot.projectKey,
@@ -275,7 +282,7 @@ export class DshAdapter implements Adapter {
     let steps = 0,
       failureCode: string | undefined;
     if (
-      approval.contextWindow !== undefined &&
+      approval?.contextWindow !== undefined &&
       info.context?.contextWindow !== approval.contextWindow
     )
       throw Error(
@@ -317,7 +324,7 @@ export class DshAdapter implements Adapter {
         meta: { cwd },
         agentOptions: {
           ...selection,
-          maxTokens: approval.maxOutputTokens || 16384,
+          maxTokens: approval?.maxOutputTokens || 16384,
         },
         setup: (agentCtx, agent) => {
           agentCtx.tools.restrict({ allow: [] });

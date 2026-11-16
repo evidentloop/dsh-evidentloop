@@ -32,12 +32,10 @@ export function Review({
   runtime,
   state,
   openSettings,
-  gateBadge,
 }: {
   runtime: ClientRuntime;
   state: RuntimeState;
   openSettings: React.MouseEventHandler<HTMLButtonElement>;
-  gateBadge?: React.ReactNode;
 }) {
   const r = state.record!,
     files = r.snapshot.files,
@@ -65,8 +63,7 @@ export function Review({
     changed = new Set([
       ...(r.comparison?.added || []),
       ...(r.comparison?.changed || []),
-    ]),
-    gate = state.data!.modelTestGate.approved;
+    ]);
   const reviewActionLabel = !run
     ? "审查全部"
     : run.status === "failed"
@@ -219,7 +216,6 @@ export function Review({
             </Menu>
           </p>
         </div>
-        {gateBadge}
         <span className="el-header-spacer" />
       </div>
       {r.readOnly && (
@@ -287,7 +283,7 @@ export function Review({
             {reviewActionLabel ? (
               <button
                 className="el-primary"
-                disabled={r.readOnly || !gate}
+                disabled={r.readOnly}
                 onClick={() => review()}
               >
                 {reviewActionLabel}
@@ -407,7 +403,7 @@ export function Review({
             { separator: true },
             {
               label: "全部重新审查",
-              disabled: r.readOnly || busy || !gate,
+              disabled: r.readOnly || busy,
               danger: true,
               action: () => review(true),
             },

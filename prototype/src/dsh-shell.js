@@ -206,7 +206,7 @@
       <div class="workspace-settings">
         <div class="wb-menu-title">工作区设置</div>
         <p class="workspace-settings-note">{{!repoAvailable ? '当前工作区不是 Git 仓库，设置仅暂存于此工作区' : sharedRepo ? '这些设置对同一仓库的所有工作区生效' : '这些设置对当前工作区所属仓库生效'}}</p>
-        <label class="wb-setting-row"><span><b>自动审查</b><small>agent 每轮结束、代码有改动时自动审查</small></span><input type="checkbox" :checked="autoMode" @change="$emit('update:autoMode', $event.target.checked)"></label>
+        <label class="wb-setting-row"><span><b>自动审查</b><small>仅演示设置交互，不自动触发审查或调用模型</small></span><input type="checkbox" :checked="autoMode" @change="$emit('update:autoMode', $event.target.checked)"></label>
         <label class="wb-setting-row wb-setting-row--stack"><span><b>目标分支</b><small>留空自动检测；下次生成审查时使用，不改变当前Diff</small></span><input class="wb-input" type="text" :value="targetBranch" placeholder="自动检测" @input="$emit('update:targetBranch', $event.target.value)"></label>
         <div class="wb-setting-row wb-setting-row--links">
           <span><b>扩展提示词</b><small>{{ extensionLength ? '已配置 · ' + extensionLength + ' 字' : '未配置' }}</small></span>

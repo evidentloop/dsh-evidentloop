@@ -1,6 +1,6 @@
 {
   "name": "@evidentloop/dsh-evidentloop",
-  "version": "0.1.0-rc.1",
+  "version": "0.1.0-rc.2",
   "type": "module",
   "description": "AI 写完代码，先看懂改了什么、有没有问题：变更说明、带证据的代码评审、发回修改与审查留档。",
   "files": [

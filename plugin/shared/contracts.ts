@@ -61,10 +61,6 @@ export interface Bootstrap {
   sessions: SessionRow[];
   settings: Settings | null;
   operations: Operation[];
-  modelTestGate: {
-    approved: boolean;
-    remaining: number;
-  };
 }
 export interface ReviewRecord extends Omit<Selected, "bundleRoot"> {
   readOnly: boolean;
@@ -122,7 +118,6 @@ export interface RuntimeState {
   listPreferences: ListPreferences;
   returnSessionId: string | null;
   notice: string;
-  modelNoticeDismissed?: boolean;
 }
 export interface Jump {
   path: string;
@@ -291,7 +286,7 @@ export interface ApiRequests {
 export interface ApiResponses {
   diagnostics: {
     routes: string[];
-    modelGate: { approved: boolean; remaining: number };
+    modelGate: { required: boolean; approved: boolean; remaining: number | null };
     ownedReviewSessions: string[];
     activeReviews: string[];
   };
