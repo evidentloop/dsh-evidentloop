@@ -93,6 +93,7 @@ const home = shell({
   <h2 id="flow-h">在会话和评审台之间循环</h2>
   <p>你在会话里改，在评审台里看；修改要求发回会话，改完再审，直到可以放心合并。</p>
   <div class="flow">${flow('flow-wide.svg')}${flow('flow-narrow.svg')}</div>
+  <p><a href="flow.html">打开交互流程图 →</a> · 悬停或点击节点，探索每个阶段。</p>
 </section>
 <section class="band" aria-labelledby="caps-h">
   <h2 id="caps-h">你会得到什么</h2>
@@ -147,7 +148,7 @@ ${html}
   if (i === 0) writeFileSync(join(out, 'guide.html'), page);
 });
 // Keep standalone diagrams available to the repository README as well as inline on the home page.
-for (const file of ['flow-wide.svg', 'flow-narrow.svg']) copyFileSync(join(src, file), join(out, file));
+for (const file of ['flow-wide.svg', 'flow-narrow.svg', 'flow.html']) copyFileSync(join(src, file), join(out, file));
 copyFileSync(join(src, 'style.css'), join(out, 'style.css'));
 copyFileSync(join(here, 'icon.svg'), join(out, 'favicon.svg'));
 cpSync(join(src, 'assets'), join(out, 'assets'), { recursive: true });

@@ -30,10 +30,8 @@
           "version": "0.1.0-rc.1",
           "publishTimestamp": 1794737877,
           "source": {
-            "type": "git",
-            "url": "https://github.com/evidentloop/dsh-evidentloop",
-            "commit": "1e3e9f23c8d2897a5a81058d25a933da39b366e3",
-            "path": "plugin"
+            "type": "npm",
+            "registry": "https://registry.npmjs.org"
           },
           "engines": {
             "dsh": "^0.2.2-rc.2"

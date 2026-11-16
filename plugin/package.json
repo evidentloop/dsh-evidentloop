@@ -1,11 +1,12 @@
 {
   "name": "dsh-evidentloop",
   "version": "0.1.0-rc.1",
-  "private": true,
   "type": "module",
   "description": "AI 写完代码，先看懂改了什么、有没有问题：变更说明、带证据的代码评审、发回修改与审查留档。",
   "files": [
-    "dist",
+    "dist/host.mjs",
+    "dist/client.js",
+    "dist/client.css",
     "skills",
     "vendor",
     "cordis.patch.yml",
@@ -57,5 +58,15 @@
     "dsh": "^0.2.2-rc.2"
   },
   "icon": "./icon.svg",
-  "homepage": "https://evidentloop.sanze.dev"
+  "homepage": "https://evidentloop.sanze.dev",
+  "publishConfig": {
+    "tag": "beta",
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evidentloop/dsh-evidentloop.git",
+    "directory": "plugin"
+  }
 }

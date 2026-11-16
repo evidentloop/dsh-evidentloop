@@ -14,7 +14,7 @@
   <img src="docs/site/assets/diff-finding-light.png" alt="评审台：文件树、单栏 Diff 与定位到代码行的问题卡片" width="100%">
 </picture>
 
-[观看 44 秒操作演示](https://evidentloop.sanze.dev/demo.html) · [下载 MP4](docs/site/assets/workflow.mp4)
+[交互流程图](https://evidentloop.sanze.dev/flow.html) · [观看 44 秒操作演示](https://evidentloop.sanze.dev/demo.html) · [下载 MP4](docs/site/assets/workflow.mp4)
 
 ## 为什么需要 EvidentLoop
 
@@ -28,10 +28,13 @@ EvidentLoop 把这些问题放进同一个评审台。先按功能理解改动�
 
 运行环境需要 DeepSeek Harness 兼容版本 `^0.2.2-rc.2`（若从源码构建开发，需 Node.js ≥ 20）。
 
-1. **下载安装包**：从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，保存到运行 DSH 的机器。
-2. **安装并启用**：打开 DSH 的 **插件 → 添加插件**，输入离线包的绝对路径。也可以用命令行安装到当前使用的 profile：
+1. **选择安装来源**：通过 [npm Beta 包](https://www.npmjs.com/package/dsh-evidentloop)安装，或从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，保存到运行 DSH 的机器。
+2. **安装并启用**：打开 DSH 的 **插件 → 添加插件**，输入 `dsh-evidentloop@beta` 或离线包的绝对路径。也可以用命令行安装到当前使用的 profile：
 
    ```sh
+   # 从 npm 安装 Beta 版本
+   dsh plugin --profile desktop add dsh-evidentloop@beta --registry=https://registry.npmjs.org
+   # 或安装已下载的离线包
    dsh plugin --profile desktop add /absolute/path/dsh-evidentloop-0.1.0-rc.1.tgz
    ```
 
@@ -122,6 +125,7 @@ EvidentLoop 把这些问题放进同一个评审台。先按功能理解改动�
 
 ## 文档
 
+- [离线交互原型](prototype/index.html)：下载仓库后在本机打开，操作方式见[原型说明](prototype/README.md)。
 - [完整使用说明](https://evidentloop.sanze.dev/guide.html)：交付管理、审查状态、设置与常见问题；[仓库内版本](docs/guide.md)。
 - [DSH 官方插件管理说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-plugin-manager/README.zh.md)与[自定义索引指南](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/plugin-market.zh.md)：宿主的安装入口与索引配置。
 
