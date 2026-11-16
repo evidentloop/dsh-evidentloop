@@ -26,7 +26,7 @@ EvidentLoop 把这些问题放进同一个评审台。先按功能理解改动�
 
 ## 安装
 
-需要 DeepSeek Harness 兼容版本 `^0.2.2-rc.2`；开发环境使用 Node.js ≥ 20。
+运行环境需要 DeepSeek Harness 兼容版本 `^0.2.2-rc.2`（若从源码构建开发，需 Node.js ≥ 20）。
 
 1. **下载安装包**：从 [GitHub Release](https://github.com/evidentloop/dsh-evidentloop/releases/tag/v0.1.0-rc.1) 下载 `dsh-evidentloop-0.1.0-rc.1.tgz`，保存到运行 DSH 的机器。
 2. **安装并启用**：打开 DSH 的 **插件 → 添加插件**，输入离线包的绝对路径。也可以用命令行安装到当前使用的 profile：
@@ -36,13 +36,13 @@ EvidentLoop 把这些问题放进同一个评审台。先按功能理解改动�
    ```
 
    将 `desktop` 替换为实际使用的 profile。安装后启用插件；如宿主提示需要重启，重启后打开侧栏「变更评审」。
-3. **配置审查调用**：安装本身不会发起模型请求。beta 期间真实审查需要单独配置调用额度，按 [插件配置说明](plugin/README.md#隔离模型预算门禁) 完成设置后，再发起审查。
+3. **配置审查调用**：安装本身不会发起模型请求。Beta 期间真实审查需要单独配置调用额度，按[插件配置说明](plugin/README.md#隔离模型预算门禁)完成设置后，再发起审查。
 
-也可通过自定义索引安装：在 **插件 → 实验性插件 → 自定义插件索引** 启用该功能，再到 **发现 → 添加索引源**，填入 [本仓库的插件索引](https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json)。搜索「AI 变更评审」或 `EvidentLoop`，核对版本和来源后安装。索引是自定义入口，未宣称已被官方商店收录；市场安装尚未完成端到端验证。
+也可通过自定义索引安装：在 **插件 → 实验性插件 → 自定义插件索引** 启用该功能，再到 **发现 → 添加索引源**，填入[本仓库的插件索引](https://raw.githubusercontent.com/evidentloop/dsh-evidentloop/main/docs/market/index.json)。搜索「AI 变更评审」或 `EvidentLoop`，核对版本和来源后安装。该索引为项目自建源，尚未收录进 DSH 官方插件市场；市场安装路径暂未完成端到端验证。
 
 ## 快速开始
 
-1. **在会话里改代码**。照常让 AI 完成功能或修复，再打开侧栏「变更评审」，进入对应交付。无需先提交；新仓库还没有首次提交时，也能审查本地文件，空仓库会给出提示。
+1. **在会话里改代码**。照常让 AI 完成功能或修复，再打开侧栏「变更评审」，进入当前分支对应的交付。无需先提交；新仓库还没有首次提交时，也能审查本地文件，空仓库会给出提示。
 2. **手动发起审查**。点击「审查全部」，或只审查一个文件。先看「变更说明」里的目标、功能和需求，再看审查覆盖；待审、跳过或失败都不等于已经通过。
 3. **复核并发回修改**。在「文件对比」中检查问题的代码依据，添加批注或标记非问题。从「导出与发回」预览修改意见，再写入会话草稿，由你确认发送。
 
@@ -86,7 +86,7 @@ EvidentLoop 把这些问题放进同一个评审台。先按功能理解改动�
 
 ### 对照 Diff，逐条复核问题
 
-在「文件对比」中浏览文件树，用左右箭头切换文件，在单栏 Diff 中查看增删。问题会定位到代码行并引用原文；引用对不上的问题不展示，问题是否成立仍需你结合上下文确认。
+在「文件对比」中浏览文件树，用左右箭头切换文件，在单栏 Diff 中查看增删。审查发现的问题会定位到代码行并引用原文；与代码无法对应的不予展示，结论是否成立仍需你结合上下文复核。
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/site/assets/diff-changes-dark.png">
@@ -123,7 +123,7 @@ EvidentLoop 把这些问题放进同一个评审台。先按功能理解改动�
 ## 文档
 
 - [完整使用说明](https://evidentloop.sanze.dev/guide.html)：交付管理、审查状态、设置与常见问题；[仓库内版本](docs/guide.md)。
-- [DSH 官方插件管理说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-plugin-manager/README.zh.md) 与 [自定义索引指南](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/plugin-market.zh.md)：宿主的安装入口与索引配置。
+- [DSH 官方插件管理说明](https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/client/ui-plugin-manager/README.zh.md)与[自定义索引指南](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/guide/plugin-market.zh.md)：宿主的安装入口与索引配置。
 
 ## 开发
 
@@ -138,7 +138,7 @@ node core/tests/all.mjs /tmp/evidentloop-core-tests
 node plugin/scripts/package.mjs /tmp/dsh-evidentloop-0.1.0-rc.1.tgz
 ```
 
-输出目录须尚不存在，安装包路径须在仓库外。测试使用合成数据，不调用真实模型。客户端与宿主位于 [plugin/](plugin/README.md)，快照、校验和导出位于 [core/](core/README.md)，审查方法位于 [skills/](skills/evidentloop-review/SKILL.md)。
+指定的输出目录运行前须不存在，安装包路径须在仓库外。测试使用合成数据，不调用真实模型。客户端与宿主位于 [plugin/](plugin/README.md)，快照、校验和导出位于 [core/](core/README.md)，审查方法位于 [skills/](skills/evidentloop-review/SKILL.md)。
 
 ## 许可
 
